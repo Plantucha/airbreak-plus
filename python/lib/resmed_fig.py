@@ -51,9 +51,11 @@ def H(*args):
 
 
 class SRPClient:
-    def __init__(self, passkey):
+    def __init__(self, passkey, *, private_value=None):
         self.passkey = passkey
-        self.a = int.from_bytes(os.urandom(32), "big")
+        self.a = private_value if private_value is not None else int.from_bytes(os.urandom(32), "big")
+        if not 0 < self.a < _SRP_N:
+            raise ValueError("SRP private value must be between 1 and N-1")
         self.A = pow(_SRP_G, self.a, _SRP_N)
         self.S = None
         self.K = None
@@ -85,20 +87,28 @@ class SRPClient:
         self.M1 = H(h_xor, salt, _srp_pad(self.A), _srp_pad(B), self.K)
         self.M2 = H(_srp_pad(self.A), self.M1, self.K)
 
+    def _require_processed(self):
+        if self.K is None or self.M1 is None or self.M2 is None:
+            raise ValueError("SRP server key has not been processed")
+
     @property
     def client_proof_hex(self):
+        self._require_processed()
         return self.M1.hex().upper()
 
     @property
     def session_key_hex(self):
+        self._require_processed()
         return self.K.hex().upper()
 
     def derive_session_key(self, nonce_hex):
         """SHA256(K || nonce) - matches figlib SrpKeyExchange::GenerateSessionKey."""
+        self._require_processed()
         self.aes_key = H(self.K, bytes.fromhex(nonce_hex))
         return self.aes_key.hex().upper()
 
     def verify_server(self, server_proof_hex):
+        self._require_processed()
         if server_proof_hex.upper() != self.M2.hex().upper():
             raise ValueError("server proof mismatch")
 
@@ -171,7 +181,7 @@ class FigCodec:
         return packets
 
 
-def aes_encrypt(plaintext, key, length_prefix=True):
+def aes_encrypt(plaintext, key, length_prefix=True, *, iv=None):
     """AES-CBC(key, random IV). Wire: [IV][cipher([u16 len][payload][zero pad])]."""
     if len(key) != 32:
         raise ValueError(f"FIG AES key must be 32 bytes, got {len(key)}")
@@ -181,7 +191,10 @@ def aes_encrypt(plaintext, key, length_prefix=True):
         framed = plaintext
     pad_len = (16 - len(framed) % 16) % 16
     padded = framed + b'\x00' * pad_len
-    iv = os.urandom(16)
+    if iv is None:
+        iv = os.urandom(16)
+    if len(iv) != 16:
+        raise ValueError(f"FIG AES IV must be 16 bytes, got {len(iv)}")
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
     enc = cipher.encryptor()
     ct = enc.update(padded) + enc.finalize()

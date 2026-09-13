@@ -27,6 +27,8 @@ RPC_VERSIONS: dict[str, str] = {
     "ClearAutoConnectList": "1.0", "DiscardPairKey": "1.0",
     "StartSpool": "1.0", "PullSpoolFragments": "1.0",
     "EnterTestDrive": "1.0", "EnableSecurity": "1.0",
+    "StartKeyExchange": "2.0", "ConfirmKeyExchange": "2.0",
+    "RequestSession": "2.0", "CheckSessionIntegrity": "2.0",
 }
 
 
