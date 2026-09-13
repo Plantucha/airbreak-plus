@@ -76,6 +76,13 @@ unaffected.
 The time-zone patch allows the configured time zone to be changed without
 erasing patient data.
 
+## Screen Keep-Awake
+
+Hold three fingers on the screen for two seconds to prevent inactivity from
+turning off the display. Repeat the gesture to restore normal behavior. The
+display pulses when keep-awake is enabled and fades out when it is disabled.
+The setting lasts until the device restarts. Requires firmware 8.4 or later.
+
 ## EDF Recording
 
 Stock Air11 variants and therapy modes record different subsets of the

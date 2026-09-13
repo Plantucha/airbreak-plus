@@ -80,6 +80,11 @@ class HeaderClockCandidates:
 
 
 @dataclass
+class ScreenKeepAwakeCandidates:
+    sites: dict[str, AddressResult]
+
+
+@dataclass
 class TimezoneWriteCandidates:
     sites: dict[str, AddressResult]
 
@@ -139,6 +144,7 @@ class PortCandidates:
     mop: MopCandidates
     timezone_write: TimezoneWriteCandidates
     header_clock: HeaderClockCandidates
+    screen_keep_awake: ScreenKeepAwakeCandidates | None
     custom_settings: CustomSettingsCandidates
     asv: AsvCandidates
     ota_compatibility: OtaCompatibilityCandidates
@@ -933,6 +939,51 @@ def resolve_header_clock_candidates(
     return HeaderClockCandidates(sites, text_ids)
 
 
+def resolve_screen_keep_awake_candidates(
+        data: bytes,
+        matcher: AddressMatcher,
+        stubs: dict[str, AddressResult],
+        reference: dict) -> ScreenKeepAwakeCandidates:
+    """Locate the touch, UI-consumer, and LCD-fade integration sites."""
+    sites = {
+        name: matcher.site(reference[name])
+        for name in (
+            "touch_report_vtable_slot",
+            "process_touch_events_call",
+            "fade_transition_call",
+        )
+    }
+    sites["runtime_state_init"] = matcher.site(
+        reference["runtime_state_init"]["address"]
+    )
+
+    report = stubs["touch_screen_controller_process_report"]
+    if report.address is not None:
+        slot, refs = unique_pointer(data, report.address | 1)
+        if slot is not None:
+            sites["touch_report_vtable_slot"] = AddressResult(
+                reference["touch_report_vtable_slot"],
+                slot,
+                "strong",
+                "unique pointer to transferred touch-report processor",
+                tuple(value for value in refs if value != slot),
+            )
+
+    sites["process_touch_events_call"] = resolve_callsite(
+        data,
+        sites["process_touch_events_call"],
+        stubs["user_interface_process_touch_events"],
+        "user-interface touch-event consumer",
+    )
+    sites["fade_transition_call"] = resolve_callsite(
+        data,
+        sites["fade_transition_call"],
+        stubs["led_channel_schedule_transition"],
+        "LED timeout transition",
+    )
+    return ScreenKeepAwakeCandidates(sites)
+
+
 def resolve_custom_settings_candidates(
         firmware: AS11Firmware,
         matcher: AddressMatcher,
@@ -1555,6 +1606,12 @@ def resolve_port_candidates(
     header_clock = resolve_header_clock_candidates(
         target_fw, matcher, stubs, reference["header_clock"]
     )
+    screen_keep_awake = (
+        resolve_screen_keep_awake_candidates(
+            target_fw.data, matcher, stubs, reference["screen_keep_awake"]
+        )
+        if "screen_keep_awake" in reference else None
+    )
     custom_settings = resolve_custom_settings_candidates(
         target_fw, matcher, stubs, reference["custom_settings"]
     )
@@ -1569,7 +1626,8 @@ def resolve_port_candidates(
     )
     return PortCandidates(
         stubs, cloud_firmware_change, cellular_download, rpc_dispatcher, mop,
-        timezone_write, header_clock, custom_settings, asv, ota_compatibility
+        timezone_write, header_clock, screen_keep_awake, custom_settings, asv,
+        ota_compatibility
     )
 
 
@@ -1849,6 +1907,49 @@ def self_check_candidates(
                 ),
             ))
 
+    screen_expected = expected_version.get("screen_keep_awake")
+    if screen_expected is not None:
+        screen = candidates.screen_keep_awake
+        for name in (
+                "touch_report_vtable_slot",
+                "process_touch_events_call",
+                "fade_transition_call"):
+            result = (
+                screen.sites[name]
+                if screen is not None else
+                AddressResult(0, None, "missing", "reference has no patch data")
+            )
+            checks.append(compare_candidate(
+                "screen_keep_awake.%s" % name,
+                screen_expected[name],
+                CandidateValue(result.address, result.quality, result.evidence),
+            ))
+
+        state_result = (
+            screen.sites["runtime_state_init"]
+            if screen is not None else
+            AddressResult(0, None, "missing", "reference has no patch data")
+        )
+        state_expected = screen_expected["runtime_state_init"]
+        checks.append(compare_candidate(
+            "screen_keep_awake.runtime_state_init",
+            state_expected["address"],
+            CandidateValue(
+                state_result.address,
+                state_result.quality,
+                state_result.evidence,
+            ),
+        ))
+        checks.append(compare_candidate(
+            "screen_keep_awake.runtime_state_init_before",
+            state_expected["before"],
+            derived_candidate(
+                image_bytes_at(target_fw.data, state_result.address, 4),
+                state_result,
+                "bytes at transferred channel-state initialization",
+            ),
+        ))
+
     custom_expected = expected_version.get("custom_settings")
     if custom_expected is not None:
         enum_table = candidates.custom_settings.rpc_enum_symbols
@@ -2077,6 +2178,10 @@ def prepare(args) -> int:
     mop_vtable_matches = candidates.mop.pointer_refs
     timezone_write_sites = candidates.timezone_write.sites
     header_clock_sites = candidates.header_clock.sites
+    screen_keep_awake_sites = (
+        candidates.screen_keep_awake.sites
+        if candidates.screen_keep_awake is not None else None
+    )
     custom_site_results = candidates.custom_settings.sites
     row_ctor_result = candidates.custom_settings.row_constructor
     scheduler_target_result = candidates.custom_settings.scheduler_target
@@ -2112,6 +2217,11 @@ def prepare(args) -> int:
         ("header_clock", name, result)
         for name, result in header_clock_sites.items()
     )
+    if screen_keep_awake_sites is not None:
+        address_rows.extend(
+            ("screen_keep_awake", name, result)
+            for name, result in screen_keep_awake_sites.items()
+        )
     address_rows.extend(
         ("custom_settings", name, result)
         for name, result in custom_site_results.items()
@@ -2230,6 +2340,36 @@ def prepare(args) -> int:
         ))
     cloud_snippet_lines.append("    },")
 
+    screen_keep_awake_snippet_lines = []
+    if screen_keep_awake_sites is not None:
+        state_result = screen_keep_awake_sites["runtime_state_init"]
+        reference_state = AS11_PATCH_VERSIONS[
+            reference_id.appx_key
+        ]["screen_keep_awake"]["runtime_state_init"]
+        screen_keep_awake_snippet_lines = [
+            "    \"screen_keep_awake\": {",
+            "        \"touch_report_vtable_slot\": %s," % format_address(
+                screen_keep_awake_sites["touch_report_vtable_slot"].address
+            ),
+            "        \"process_touch_events_call\": %s," % format_address(
+                screen_keep_awake_sites["process_touch_events_call"].address
+            ),
+            "        \"fade_transition_call\": %s," % format_address(
+                screen_keep_awake_sites["fade_transition_call"].address
+            ),
+            "        \"runtime_state_init\": {",
+            "            \"address\": %s," % format_address(
+                state_result.address
+            ),
+            "            \"before\": %r," % (
+                image_bytes_at(target_fw.data, state_result.address, 4) or
+                "TODO"
+            ),
+            "            \"after\": %r," % reference_state["after"],
+            "        },",
+            "    },",
+        ]
+
     cellular_snippet_lines = []
     if cellular_download is not None:
         cellular_snippet_lines = [
@@ -2263,6 +2403,7 @@ def prepare(args) -> int:
         "        \"vtable_slot\": %s," % format_address(mop_vtable),
         "    },",
         *timezone_snippet_lines,
+        *screen_keep_awake_snippet_lines,
         "    \"header_clock\": {",
         "        \"draw_call\": %s," % format_address(
             header_clock_sites["draw_call"].address

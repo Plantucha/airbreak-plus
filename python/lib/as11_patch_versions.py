@@ -193,6 +193,16 @@ AS11_PATCH_VERSIONS = {
             "vtable_slot": 0x081AC1F4,
             "label_id": 0x00EC,
         },
+        "screen_keep_awake": {
+            "touch_report_vtable_slot": 0x081A98B4,
+            "process_touch_events_call": 0x08091E9C,
+            "fade_transition_call": 0x080AF884,
+            "runtime_state_init": {
+                "address": 0x080AF2B0,
+                "before": "84f86800",
+                "after": "c4f86800",
+            },
+        },
     },
     "8_5_0": {
         "cloud_firmware_change": {
@@ -257,6 +267,16 @@ AS11_PATCH_VERSIONS = {
         "asv_backup_rate": {
             "vtable_slot": 0x081AE044,
             "label_id": 0x00F1,
+        },
+        "screen_keep_awake": {
+            "touch_report_vtable_slot": 0x081AB718,
+            "process_touch_events_call": 0x08092406,
+            "fade_transition_call": 0x080AFD78,
+            "runtime_state_init": {
+                "address": 0x080AF7A4,
+                "before": "84f86800",
+                "after": "c4f86800",
+            },
         },
     },
     "8_6_0": {
@@ -323,6 +343,16 @@ AS11_PATCH_VERSIONS = {
         "asv_backup_rate": {
             "vtable_slot": 0x081AF034,
             "label_id": 0x00F1,
+        },
+        "screen_keep_awake": {
+            "touch_report_vtable_slot": 0x081AC774,
+            "process_touch_events_call": 0x08092C52,
+            "fade_transition_call": 0x080B05DC,
+            "runtime_state_init": {
+                "address": 0x080B0008,
+                "before": "84f86800",
+                "after": "c4f86800",
+            },
         },
     },
 }

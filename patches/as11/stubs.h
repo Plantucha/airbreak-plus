@@ -69,4 +69,23 @@ extern void thunk_gui_timer_handle_reschedule_with_optional_delay(
     unsigned int delay_ms);
 extern void gui_owned_object_invalidate(void *object);
 
+/* Native touch and backlight entry points used by the keep-awake gesture. */
+extern void touch_screen_controller_process_report(void *controller);
+extern void touch_screen_controller_discard_all_reports(void *controller);
+extern unsigned int ring_buffer_free_count(void *ring);
+extern void ring_buffer_write_elements(
+    void *ring, const void *elements, unsigned int count);
+extern void user_interface_process_touch_events(void *user_interface);
+extern void *led_status_controller_singleton(void);
+extern void *led_timeout_channel_slot_by_index(
+    void *channels, unsigned int index);
+extern void led_channel_schedule_transition(
+    void *channel,
+    unsigned int priority,
+    unsigned int target,
+    unsigned int duration_ms,
+    unsigned int arg5,
+    unsigned int arg6);
+extern void led_timeout_fade_channels_off(void *timeout);
+
 #endif

@@ -329,6 +329,7 @@ AS11_HEADER_CLOCK_PAYLOAD = "as11_header_clock"
 AS11_AIRBREAK_INFO_PAYLOAD = "as11_airbreak_info"
 
 AS11_CELLULAR_DOWNLOAD_PAYLOAD = "as11_cellular_download"
+AS11_SCREEN_KEEP_AWAKE_PAYLOAD = "as11_screen_keep_awake"
 
 
 class S11Firmware(object):
@@ -2672,6 +2673,51 @@ class S11FirmwarePatches(CompiledPayloadMixin):
         )
         return PatchOutcome.ok()
 
+    def screen_keep_awake(self):
+        """Toggle LCD inactivity suppression with a three-finger hold."""
+        ver = self._payload_version_key()
+        data, _ = self._load_versioned_bin(AS11_SCREEN_KEEP_AWAKE_PAYLOAD)
+        if data is None:
+            return PatchOutcome.skip("compiled payload unavailable")
+        anchors = self._patch_version_data("screen_keep_awake", ver)
+
+        elf_path = self._versioned_artifact_path(AS11_SCREEN_KEEP_AWAKE_PAYLOAD, "elf", ver)
+        report_wrapper = self._elf_symbol_addr(elf_path, "start")
+        ui_wrapper = self._elf_symbol_addr(elf_path, "screen_keep_awake_process_touch_events")
+        fade_wrapper = self._elf_symbol_addr(elf_path, "screen_keep_awake_schedule_transition")
+        stock_report = self._elf_symbol_addr(elf_path, "touch_screen_controller_process_report")
+        stock_ui = self._elf_symbol_addr(elf_path, "user_interface_process_touch_events")
+        stock_transition = self._elf_symbol_addr(elf_path, "led_channel_schedule_transition")
+
+        report_slot = self.asf.ptr_to_off(anchors["touch_report_vtable_slot"])
+        ui_call = self.asf.ptr_to_off(anchors["process_touch_events_call"])
+        fade_call = self.asf.ptr_to_off(anchors["fade_transition_call"])
+        if self.asf.u32(report_slot) != (stock_report | 1):
+            raise ValueError("screen_keep_awake: touch-report vtable slot does not match")
+        if self.asf.read_thumb2_bl_target(ui_call) != stock_ui:
+            raise ValueError("screen_keep_awake: touch-event consumer call does not match")
+        if self.asf.read_thumb2_bl_target(fade_call) != stock_transition:
+            raise ValueError("screen_keep_awake: LCD fade transition call does not match")
+
+        flash, _off = self._inject_payload(AS11_SCREEN_KEEP_AWAKE_PAYLOAD, data)
+        # vtable: stock report processor -> three-finger gesture wrapper
+        self.asf.write_u32(report_slot, report_wrapper | 1)
+        # bl stock touch consumer -> bl post-consumer fade wrapper
+        self.asf.write_thumb2_bl_target(ui_call, ui_wrapper)
+        # bl stock timeout transition -> bl LCD-aware transition wrapper
+        self.asf.write_thumb2_bl_target(fade_call, fade_wrapper)
+        state_init = anchors["runtime_state_init"]
+        # strb.w r0,[r4,#0x68] -> str.w r0,[r4,#0x68]
+        # The wider store initializes the two alignment bytes used for state.
+        self.asf.patch_exact(state_init["address"], state_init["before"], state_init["after"])
+
+        print(
+            "Patching screen keep-awake gesture... "
+            "build/%s_%s.bin (%dB) at 0x%08X" %
+            (AS11_SCREEN_KEEP_AWAKE_PAYLOAD, ver, len(data), flash)
+        )
+        return PatchOutcome.ok("three-finger hold")
+
     def vid_spoof(self):
         """Set VID from MOP after the stock writeback completes."""
         data, ver = self._load_versioned_bin(AS11_VID_SPOOF_PAYLOAD)
@@ -2824,6 +2870,12 @@ PATCH_LIST = [
         "desc": "Show local time in the dashboard and therapy-screen headers.",
         "default": True,
         "function": "header_clock",
+    },
+    {
+        "arg": "patch-screen-keep-awake",
+        "desc": "Toggle LCD inactivity suppression with a three-finger hold.",
+        "default": True,
+        "function": "screen_keep_awake",
     },
     {
         "arg": "patch-asv-backup-rate",

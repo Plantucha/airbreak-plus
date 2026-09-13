@@ -15,6 +15,7 @@
 # --patch-therapy-screen y
 # --patch-vid-spoof y
 # --patch-header-clock y
+# --patch-screen-keep-awake y
 # --patch-asv-backup-rate y
 # --patch-custom-settings y
 # --patch-motor-nagscreen y
