@@ -249,7 +249,7 @@ def set_params_from_args(args) -> dict:
     if not pairs:
         raise SystemExit(
             "set: at least one name/value pair required "
-            "(e.g. 'set RampEnable true --type bool')"
+            "(e.g. 'set RampEnable On')"
         )
     out: dict = {}
     for name, value, t in pairs:

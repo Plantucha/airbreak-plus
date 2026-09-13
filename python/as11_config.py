@@ -1416,11 +1416,10 @@ def build_parser() -> argparse.ArgumentParser:
         epilog="values default to string unless --type follows the pair.\n"
                "types: str (default), int, float, bool, json.\n\n"
                "examples:\n"
-               "  set TherapyMode AutoSet\n"
+               "  set ActiveTherapyProfile AutoSetProfile\n"
                "  set MOP AutoSetProfile\n"
-               "  set SetPressure 10 --type int Mode AutoSet\n"
-               "  set RampEnable true --type bool\n"
-               "  set --json '{\"SetPressure\":10}'\n"
+               "  set Cpap-SetPressure 10 --type float RampEnable On\n"
+               "  set --json '{\"Cpap-SetPressure\":10}'\n"
                "  set --json -                      # JSON from stdin\n"
                "  set --json @params.json           # JSON from file",
         formatter_class=raw_fmt,
