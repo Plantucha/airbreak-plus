@@ -509,7 +509,7 @@ def find_tables_direct(flash):
         results['npa'] = ptrs[15]
 
     if ptrs.get(22) and flash.is_flash_ptr(ptrs[22]):
-        results['name_pool'] = ptrs[22]
+        results['identity_export'] = ptrs[22]
 
     if ptrs.get(0) and flash.is_flash_ptr(ptrs[0]):
         results['device'] = ptrs[0]
@@ -1442,68 +1442,24 @@ class StreamTable:
         return "\n".join(lines)
 
 
-class NameMetadataPool:
-    """Parse the g[22] identity list and adjacent g[23] name-record pool.
+class IdentityExport:
+    """globals[22]: ordered list of 16 identity TGT export variable IDs."""
 
-    The g[22] root contains 16 identity var_ids. The following records are
-    pointer-owned by the g[23] bucket index.
-    """
-    HEADER_COUNT = 16
-
-    def __init__(self, flash, g22_addr, g22_end, names=None):
-        self.header_vids = []
-        self.entries = []       # (label, var_id, uart_name)
-        self.by_label = {}      # label -> var_id
-        self.by_varid = {}      # var_id -> label
-        self.header_count = self.HEADER_COUNT
-
-        for i in range(self.header_count):
+    def __init__(self, flash, g22_addr):
+        self.var_ids = []
+        for i in range(16):
             vid = flash.u16(g22_addr + i * 2)
-            if vid is not None:
-                self.header_vids.append(vid)
-
-        off = g22_addr + self.header_count * 2
-        while off < g22_end:
-            c0 = flash.u8(off)
-            c1 = flash.u8(off + 1)
-            vid = flash.u16(off + 2)
-            if c0 is None or c1 is None or vid is None:
-                break
-            if c0 == 0 and c1 == 0 and vid == 0:
-                break
-            label = chr(c0) + chr(c1) if 0x20 <= c0 < 0x7F and 0x20 <= c1 < 0x7F else "??"
-            uart = names.name(vid) if names else None
-            self.entries.append((label, vid, uart))
-            self.by_label[label] = vid
-            self.by_varid[vid] = label
-            off += 4
-
-        print(f"[+] globals[22]: {len(self.header_vids)} identity export IDs; "
-              f"adjacent g[23] pool has {len(self.entries)} records")
+            if vid is None:
+                raise ValueError("globals[22] identity export list is truncated")
+            self.var_ids.append(vid)
+        print(f"[+] globals[22]: {len(self.var_ids)} identity export IDs")
 
     def dump(self, names=None):
-        lines = [f"  {len(self.entries)} shared UART name-pool records:"]
-        lines.append(f"  {'Suffix':>6}  {'VarID':>10}  {'UART':>5}")
-        for label, vid, uart in self.entries:
-            u = uart or ""
-            lines.append(f"  {label:>5}  0x{vid:04X}      {u:>5}")
-        return "\n".join(lines)
-
-    def dump_header(self, names=None):
         lines = ["  Identity TGT export var_ids:"]
-        for vid in self.header_vids:
-            n = names.name(vid) if names else None
-            ns = f":{n}" if n else ""
-            lines.append(f"    0x{vid:04X}{ns}")
+        for vid in self.var_ids:
+            name = names.name(vid) if names else None
+            lines.append(f"    0x{vid:04X}" + (f":{name}" if name else ""))
         return "\n".join(lines)
-
-    def lookup(self, query):
-        """Lookup by UART name, 2-char suffix, or var_id."""
-        if isinstance(query, int):
-            return [(l, v, u) for l, v, u in self.entries if v == query]
-        else:
-            q = query.upper()
-            return [(l, v, u) for l, v, u in self.entries if l == q or u == q]
 
 
 def _signal_value_info(db, var_id):
@@ -1951,7 +1907,7 @@ class DB:
         self.vargroups = None  # VariableGroups (globals[16])
         self.desc17 = None     # DescriptorTable (globals[17])
         self.desc18 = None     # DescriptorTable (globals[18])
-        self.nametab = None    # g[22] identity list and adjacent g[23] record pool
+        self.identity_export = None  # g[22] identity TGT export list
         self.pdl = None        # PDLTable (globals[20] list and globals[21] rules)
         self.modes = None      # ModeTable (globals[24], setting-to-mode flags)
         self.timers = None     # TimerScaleTable (globals[1])
@@ -2028,11 +1984,9 @@ class DB:
         if g18:
             self.desc18 = DescriptorTable(flash, 18, g18, object_id + 1, self.names)
 
-        # The g[23] record pool is packed directly after the g[22] identity list.
-        g22 = ta.get('name_pool')
-        g22_end = ta.get('names')  # g[23] is the end boundary
-        if g22 and g22_end:
-            self.nametab = NameMetadataPool(flash, g22, g22_end, self.names)
+        g22 = ta.get('identity_export')
+        if g22:
+            self.identity_export = IdentityExport(flash, g22)
 
         # Load stream table (globals[19])
         g19 = ta.get('streams')
@@ -2691,20 +2645,14 @@ def _print_table(db, tnum, idx=None, to=None):
     idx = parse_numeric_arg(idx, "index")
     to = parse_numeric_arg(to, "end index") if to is not None else None
     if to is not None:
-        for i in range(idx, min(to, n)):
+        if not 0 <= idx <= to <= n:
+            raise ValueError(f"globals {tnum}: range must satisfy 0 <= FROM <= TO <= {n}")
+        for i in range(idx, to):
             print(f"  {db.tables[tnum][i].oneline(db)}")
     elif 0 <= idx < n:
         print(db.tables[tnum][idx].detail(db))
     else:
-        e = db.get(idx)
-        if e and e.TABLE == tnum:
-            print(e.detail(db))
-            return
-        id_hint = ""
-        id_base = db.id_bases.get(tnum)
-        if id_base is not None:
-            id_hint = f"  var_ids: 0x{id_base:04X}..0x{id_base+n-1:04X}"
-        print(f"  idx 0x{idx:X} out of range (0..0x{n-1:X}){id_hint}")
+        raise ValueError(f"globals {tnum}: index {idx} outside {n} rows")
 
 
 def _print_g2_info(db):
@@ -2971,7 +2919,8 @@ def _run_edit(db, args):
 def add_command_parsers(subparsers, include_edit=False):
     subparsers.add_parser("info", help="show firmware summary and loaded tables")
     p = subparsers.add_parser("globals", help="show globals[] map or decoded entries")
-    p.add_argument("items", nargs="*", help="globals[] indices")
+    p.add_argument("items", nargs="*", metavar="SELECTOR",
+                   help="TABLE, TABLE:INDEX, TABLE:FROM,TO, 16:GROUP, or 23:QUERY")
 
     p = subparsers.add_parser("var", help="show one variable descriptor")
     p.add_argument("ident", help="var_id or UART tag")
@@ -3041,7 +2990,11 @@ def build_main_parser():
 def _run_global(db, item):
     parts = item.split(":", 1)
     gidx = parse_numeric_arg(parts[0], "globals index")
-    extra = parts[1].split(",") if len(parts) > 1 and parts[1] else []
+    extra = parts[1].split(",") if len(parts) > 1 else []
+    if any(not arg for arg in extra):
+        raise ValueError(f"globals {item}: empty selector argument")
+    if extra and gidx not in (3, 4, 6, 8, 9, 10, 16, 23):
+        raise ValueError(f"globals {gidx} takes no extra args")
     if gidx in (3, 4, 6, 8, 9, 10):
         if len(extra) > 2:
             raise ValueError(f"globals {gidx} takes at most: :idx[,to]")
@@ -3078,9 +3031,7 @@ def _run_global(db, item):
     elif gidx == 21:
         print(db.pdl.dump_rules() if db.pdl else "  globals[21] not loaded (shares data with g[20])")
     elif gidx == 22:
-        if len(extra) > 1:
-            raise ValueError("globals 22 takes at most: :query")
-        _run_g22(db, extra[0] if extra else None)
+        print(db.identity_export.dump(db.names) if db.identity_export else "  globals[22] not loaded")
     elif gidx == 23:
         if len(extra) > 1:
             raise ValueError("globals 23 takes at most: :query")
@@ -3088,8 +3039,6 @@ def _run_global(db, item):
     elif gidx == 24:
         print(db.modes.dump() if db.modes else "  globals[24] not loaded")
     elif gidx in (11, 12, 13, 26, 27, 28):
-        if extra:
-            raise ValueError(f"globals {gidx} takes no extra args")
         _run_channels(db, gidx, None)
     else:
         raise ValueError(f"globals[{gidx}] is not decoded")
@@ -3140,42 +3089,25 @@ def run_command(db, args):
         raise ValueError(f"unknown command: {command}")
 
 
-def _run_g22(db, query):
-    if not db.nametab:
-        print("  globals[22] not loaded")
-        return
-    if query is None:
-        print(db.nametab.dump_header(db.names))
-    elif query.lower() == 'header':
-        print(db.nametab.dump_header(db.names))
-    else:
-        try:
-            results = db.nametab.lookup(int(query, 0))
-        except ValueError:
-            results = db.nametab.lookup(query)
-        if results:
-            for label, vid, uart in results:
-                u = f":{uart}" if uart else ""
-                print(f"  '{label}' -> 0x{vid:04X}{u}")
-        else:
-            print(f"  '{query}' not found")
-
-
 def _run_g23(db, query):
     if not db.names:
         print("  globals[23] not loaded")
         return
     if query is None:
-        print(f"  {len(db.names.by_name)} UART names loaded")
-        print("  usage: g23 <var_id> or g23 <ABC>")
-        return
-    try:
-        vid = int(query, 0)
-        name = db.uart_name(vid)
-        print(f"  0x{vid:04X} = {name}" if name else f"  0x{vid:04X}: no UART name")
-    except ValueError:
-        vid = db.names.var_id(query)
-        print(f"  {query.upper()} = 0x{vid:04X}" if vid is not None else f"  {query.upper()}: not found")
+        results = db.names.by_name.items()
+    else:
+        try:
+            vid = int(query, 0)
+        except ValueError:
+            q = query.upper()
+            results = [(name, vid) for name, vid in db.names.by_name.items()
+                       if name == q or name[1:] == q]
+        else:
+            results = [(name, value) for name, value in db.names.by_name.items() if value == vid]
+        if not results:
+            raise ValueError(f"globals 23: {query!r} not found")
+    for name, vid in sorted(results):
+        print(f"  0x{vid:04X}:{name}")
 
 
 def _mode_labels(db):
@@ -3592,7 +3524,7 @@ def build_db(fl, globals_override=None):
         if fl.is_flash_ptr(ptrs.get(19,0)): ta['streams'] = ptrs[19]
         if fl.is_flash_ptr(ptrs.get(14,0)): ta['npd'] = ptrs[14]
         if fl.is_flash_ptr(ptrs.get(15,0)): ta['npa'] = ptrs[15]
-        if fl.is_flash_ptr(ptrs.get(22,0)): ta['name_pool'] = ptrs[22]
+        if fl.is_flash_ptr(ptrs.get(22,0)): ta['identity_export'] = ptrs[22]
         if fl.is_flash_ptr(ptrs.get(11,0)): ta['brp'] = ptrs[11]
         if fl.is_flash_ptr(ptrs.get(12,0)): ta['csl'] = ptrs[12]
         if fl.is_flash_ptr(ptrs.get(13,0)): ta['str_ch'] = ptrs[13]
