@@ -28,10 +28,9 @@ This builds compiled patches and produces following images:
 | Output | Content |
 |--------|---------|
 | `build/stm32-patched.bin` | unlocked stock-ish |
-| `build/stm32-graph.bin` | graph overlay injected |
-| `build/stm32-asv-plus.bin` | Custom ASV algo in VAuto slot, backup-rate suppression, squarewave |
-| `build/stm32-asv-plus_no-squarewave.bin` | same as stm32-asv-plus minus squarewave |
-| `build/stm32-asv-plus_with-backup.bin` | same as stm32-asv-plus minus backup-rate suppression |
+| `build/stm32-plus.bin` | graph, Custom VAuto, ASV backup-rate control, Square Wave |
+
+The additional features in `plus` have runtime controls in the clinical menu.
 
 The console shows compact patch status by default. A verbose transcript of the
 latest build is written to `make.log`; use `make V=1` to also show it on the
@@ -99,7 +98,7 @@ environment variables.
 | `PATCH_CODE=1` | Add the therapy graph overlay and its shared code |
 | `PATCH_S=1` | Enable [Square Wave](features/squarewave.md) pressure shaping in S, ST, T, and PAC; requires `PATCH_VAUTO_WRAPPER=1` |
 | `PATCH_ASV_TASK_WRAPPER=1` | Add [runtime control](features/asv_backup_rate.md) for stock ASV/ASVAuto backup rate |
-| `PATCH_VAUTO_WRAPPER=1` | Add [Custom VAuto](features/custom_vauto.md) pressure shaping and trigger/cycle assist; the wrapper also selects its shared code |
+| `PATCH_VAUTO_WRAPPER=1` | Add [Custom VAuto](features/custom_vauto.md) pressure shaping and trigger/cycle assist, including its shared code |
 
 With custom settings, `Monitoring` in clinical Options enables or disables the
 flow and pressure graph. Without custom settings, the graph remains enabled.
@@ -113,7 +112,7 @@ Example with custom VAuto:
 export PATCH_CODE=1
 export PATCH_ASV_TASK_WRAPPER=1
 export PATCH_VAUTO_WRAPPER=1
-./patch-airsense stm32.bin build/stm32-asv-plus.bin
+./patch-airsense stm32.bin build/stm32-custom.bin
 ```
 
 ### Miscellaneous
@@ -126,22 +125,17 @@ export PATCH_VAUTO_WRAPPER=1
 
 ## Selecting patches
 
-Pass `n` to disable a default patch or `y` to enable an optional patch. Boolean
-values are case-insensitive. The compatibility wrapper forwards additional
-options to Python, so both forms below are valid:
-```
-./patch-airsense stm32.bin out.bin --patch-gui-config n
-./python/patch-airsense.py stm32.bin out.bin PATCH --patch-gui-config=n
+Use `y` to enable a patch or `n` to disable it. For example, to disable the
+graph even when `PATCH_CODE=1` selects it:
+
+```bash
+PATCH_CODE=1 python3 python/patch-airsense.py \
+    stm32.bin build/stm32-custom.bin PATCH \
+    --patch-fw-graph n
 ```
 
-Direct Python selections enforce payload dependencies: graph and Custom VAuto
-require common code, while Square Wave requires both common code and Custom
-VAuto.
-
-List all flags:
-```
-./python/patch-airsense.py --help
-```
+When building through Make, options can also be passed with `AIR10_PATCH_ARGS`.
+See [patch options](../tools/patch_options.md) for examples and saved preferences.
 
 ## Next
 

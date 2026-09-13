@@ -75,7 +75,7 @@ instead of producing that reduced result.
 | Patch | What it does | Switch |
 |-------|--------------|--------|
 | EDF superset | Adds all supported signals to SD-card therapy files, including signals used by unlocked modes | `--patch-edf-superset` |
-| VID spoof | Updates `VariantIdentifier` when therapy mode changes so EDF and cloud identity follow the mapped device family | `--patch-vid-spoof` |
+| VID spoof | Reports the mapped AirSense or AirCurve variant when therapy mode changes | `--patch-vid-spoof` |
 
 ### Connectivity and Control
 
@@ -83,6 +83,7 @@ instead of producing that reduced result.
 |-------|--------------|--------|
 | RPC profile visibility | Exposes supported therapy and feature profile nodes in RPC JSON | `--patch-rpc-json-profile-visibility` |
 | RPC permissions | Applies configured method/VCID and DataItem RPC permissions | `--patch-rpc-permissions` |
+| Cloud firmware changes | Retains cellular flow-generator updates without installing them | `--patch-cloud-firmware-change` |
 | Time-zone write | Allows the time zone to be changed through RPC or the device menu after therapy history exists | `--patch-timezone-write` |
 
 ### Quality of Life
@@ -105,13 +106,8 @@ See [Features](features.md) for additional behavior details.
 
 ## Selecting Patches
 
-Edit `PATCHES` near the top of `patch-airsense-s11` to choose the standard
-patches. RPC permissions use the `RPC_PERMISSIONS` array in the same file.
-Entries use `METHOD:VCID:BOOL` for method access or `DATAITEM:FLAG:BOOL` for
-the `RPC` and `RPW` DataItem flags. `DATAITEM` may be a long name, short tag,
-or numeric var ID.
-
-For a one-off image, invoke the Python patcher directly:
+Use `y` to enable a patch or `n` to disable it. For example, to enable only
+feature unlocks and expanded SD-card recording:
 
 ```bash
 python3 python/patch-airsense-s11.py \
@@ -121,11 +117,8 @@ python3 python/patch-airsense-s11.py \
     --patch-edf-superset y
 ```
 
-List all patch switches with:
-
-```bash
-python3 python/patch-airsense-s11.py -h
-```
+When building through Make, options can also be passed with `AIR11_PATCH_ARGS`.
+See [patch options](../../tools/patch_options.md) for examples and saved preferences.
 
 ## Bootloader Service
 

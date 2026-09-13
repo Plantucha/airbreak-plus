@@ -5,6 +5,12 @@ SRC=patches
 BUILD=build
 PATCH_STUBS=$(SRC)/stubs
 MAKE_LOG ?= make.log
+AIR10_PATCH_ARGS ?=
+export AIR10_PATCH_ARGS
+
+AIR10_LEGACY_ENV := PATCH_CODE PATCH_VAUTO_WRAPPER PATCH_S PATCH_ASV_TASK_WRAPPER \
+	PATCH_S10_LCD PATCH_GRAPH_KEEP_SCREEN_ON PATCH_TARGET_RH FORCE_DEPRECATED
+$(foreach name,$(AIR10_LEGACY_ENV),$(if $(filter undefined,$(origin $(name))),,$(eval export $(name))))
 
 PATCHER_OUTPUT_ARGS := --log-file '$(abspath $(MAKE_LOG))'
 ifeq ($(V),1)
@@ -51,10 +57,7 @@ PAYLOAD_TARGETS := $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
 
 BUILD_VARIANTS = \
 	$(BUILD)/stm32-patched.bin \
-	$(BUILD)/stm32-graph.bin \
-	$(BUILD)/stm32-asv-plus.bin \
-	$(BUILD)/stm32-asv-plus_no-squarewave.bin \
-	$(BUILD)/stm32-asv-plus_with-backup.bin
+	$(BUILD)/stm32-plus.bin
 
 # Rebuild firmware when the patcher or its helpers change
 S10_PATCHER_DEPS := \
@@ -97,25 +100,10 @@ $(BUILD)/stm32-patched.bin: $(S10_PATCHER_DEPS) $(PAYLOAD_STAMPS) $(PAYLOAD_LAYO
 	$(announce_image)
 	./patch-airsense stm32.bin $@ $(PATCHER_OUTPUT_ARGS)
 
-# graph overlay injected
-$(BUILD)/stm32-graph.bin: $(S10_PATCHER_DEPS) $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
-	$(announce_image)
-	PATCH_CODE=1 ./patch-airsense stm32.bin $@ $(PATCHER_OUTPUT_ARGS)
-
-# Custom ASV algorithm in VAuto slot + ASV backup-rate suppression + squarewave mode
-$(BUILD)/stm32-asv-plus.bin: $(S10_PATCHER_DEPS) $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
+# Graph, Custom VAuto, ASV backup-rate control and Square Wave
+$(BUILD)/stm32-plus.bin: $(S10_PATCHER_DEPS) $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
 	$(announce_image)
 	PATCH_CODE=1 PATCH_ASV_TASK_WRAPPER=1 PATCH_VAUTO_WRAPPER=1 PATCH_S=1 ./patch-airsense stm32.bin $@ $(PATCHER_OUTPUT_ARGS)
-
-# Custom ASV in VAuto slot + backup-rate suppression, no squarewave
-$(BUILD)/stm32-asv-plus_no-squarewave.bin: $(S10_PATCHER_DEPS) $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
-	$(announce_image)
-	PATCH_CODE=1 PATCH_ASV_TASK_WRAPPER=1 PATCH_VAUTO_WRAPPER=1 ./patch-airsense stm32.bin $@ $(PATCHER_OUTPUT_ARGS)
-
-# Custom ASV in VAuto slot + squarewave, stock ASV backup-rate preserved
-$(BUILD)/stm32-asv-plus_with-backup.bin: $(S10_PATCHER_DEPS) $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
-	$(announce_image)
-	PATCH_CODE=1 PATCH_VAUTO_WRAPPER=1 PATCH_S=1 ./patch-airsense stm32.bin $@ $(PATCHER_OUTPUT_ARGS)
 
 binaries: $(PAYLOAD_TARGETS)
 
@@ -477,5 +465,15 @@ vid_spoof: $(call payload_bins,vid_spoof)
 
 clean:
 	$(RM) $(BUILD)/*
+
+# $(1): output image, $(2): platform, $(3): input image.
+.PHONY: patch-config-force
+define patch_config_rule
+$(1): $(3) $(1).config Makefile python/lib/patch_config.py
+$(1).config: patch-config-force
+	python3 python/lib/patch_config.py '$(2)' '$(3)' '$$@'
+endef
+
+$(foreach image,$(BUILD_VARIANTS),$(eval $(call patch_config_rule,$(image),air10,stm32.bin)))
 
 -include Makefile.as11
