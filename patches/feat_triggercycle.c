@@ -30,7 +30,6 @@ void update_triggercycle(triggercycle_t *trc, tracking_t *tr, history_t *hist) {
   if (!trc->custom_cycle) { sens_cycle = trc->real_cycle; }
   
   if (tr->st_inhaling) {
-    const float cti = tr->current.ti;
     const float s = trc->real_cycle;
 
     if (trc->custom_cycle) {
