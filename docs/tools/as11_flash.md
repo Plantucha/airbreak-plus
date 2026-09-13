@@ -28,6 +28,9 @@ determine the target flash range.
 
 ## Commands
 
+`AS11_DEVICE` supplies the default target in `-d` format, e.g. `ble:alias`
+or `can:can0`. Explicit `-d`, `--addr`, or `-p/--port` takes precedence.
+
 ### flash
 
 Build the OTA container from a raw firmware image and upload it in one step.

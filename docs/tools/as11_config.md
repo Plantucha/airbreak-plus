@@ -18,7 +18,10 @@ as11_config.py -d can:/dev/ttyACM0 get SerialNumber
 as11_config.py -d can:slcan0 --can-flavour socketcan get SerialNumber
 ```
 
-Prefer `-d ble:...` and `-d can:...` to select the transport target. `--addr` and `-p/--port` are compatibility shortcuts, and `AS11_ADDR` and `AS11_CAN_PORT` are also supported.
+Use `-d TRANSPORT:TARGET` to select the device. `--addr` and `-p/--port` are
+compatibility shortcuts for `-d ble:...` and `-d can:...`, respectively.
+When no target is specified, the optional `AS11_DEVICE` environment variable supplies
+it in the same format as `-d`.
 
 ## Commands
 

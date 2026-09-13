@@ -79,7 +79,7 @@ except ModuleNotFoundError as exc:  # pragma: no cover
 from as11_rpc import (  # noqa: E402
     Transport, TransportError, FramingError, build_request,
 )
-from as11_credentials import load_all_credentials  # noqa: E402
+from resmed_credentials import load_all_credentials  # noqa: E402
 from lib.as11_patch_versions import (  # noqa: E402
     AS11_OTA_COMPATIBILITY_FINGERPRINT_PRESETS,
 )
@@ -1133,16 +1133,12 @@ def _resolve_device_spec(args) -> str:
     explicit = _explicit_device_spec(args)
     if explicit:
         return explicit
-    if os.environ.get("AS11_ADDR"):
-        return f"ble:{os.environ['AS11_ADDR']}"
-    if os.environ.get("AS11_CAN_PORT"):
-        return f"can:{os.environ['AS11_CAN_PORT']}"
-    if os.environ.get("AS11_AIRCANNECT"):
-        return f"tcp:{os.environ['AS11_AIRCANNECT']}"
+    if os.environ.get("AS11_DEVICE"):
+        return os.environ["AS11_DEVICE"]
     raise SystemExit(
         "no device: pass -d/--device ble:<addr>, can:<port>, or "
         "tcp:<host>[:<port>]; or --addr <ble>, -p <can-port>, "
-        "or set AS11_ADDR / AS11_CAN_PORT / AS11_AIRCANNECT"
+        "or set AS11_DEVICE"
     )
 
 
@@ -2116,13 +2112,12 @@ def _add_device_args(p: argparse.ArgumentParser, *, show_help: bool = True) -> N
     g = p.add_argument_group("device selection")
     g.add_argument("-d", "--device", default=suppr,
                    help=("device spec: ble:<mac|alias>, can:<port>, "
-                         "tcp:<host>[:<port>]") if show_help else suppr)
+                         "tcp:<host>[:<port>] (env: AS11_DEVICE)") if show_help else suppr)
     g.add_argument("--addr", default=suppr,
-                   help=("BLE target (compat for -d ble:<x>; env: AS11_ADDR)"
+                   help=("BLE target (compat for -d ble:<x>)"
                          if show_help else suppr))
     g.add_argument("-p", "--port", default=suppr,
-                   help=("CAN target (compat for -d can:<x>; "
-                         "env: AS11_CAN_PORT)" if show_help else suppr))
+                   help=("CAN target (compat for -d can:<x>)" if show_help else suppr))
     if _can_transport is not None:
         _can_transport.add_args(p, show_help=show_help)
     if _aircannect_transport is not None:

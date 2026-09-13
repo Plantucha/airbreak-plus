@@ -7,11 +7,13 @@ transport from -d/--device:
     -d ble:<mac|alias>          BLE (via bleak + SRP pairing)
     -d can:<target>             CAN target (slcan, socketcan, or waveshare)
     -d tcp:<host>[:<port>]      AirCANnect TCP bridge (default port 39011)
+    -d mini-spp:<mac|alias>     AirMini Bluetooth Classic / RFCOMM
+    -d mini-ble:<mac|alias>     AirMini FIG over BLE GATT
 
 Compat aliases:
     --addr <ble-target>         same as -d ble:<ble-target>
     -p/--port <can-target>      same as -d can:<can-target>
-    $AS11_ADDR / $AS11_CAN_PORT / $AS11_AIRCANNECT env fallbacks
+    $AS11_DEVICE fallback (same format as -d)
 
 """
 
@@ -53,6 +55,7 @@ except ModuleNotFoundError as exc:  # pragma: no cover
         raise
 
 from as11_rpc import (  # noqa: E402
+    AIRMINI_RPC_PROFILE, AS11_RPC_PROFILE,
     Transport, TransportError, FramingError,
     load_json_blob,
     set_params_from_args,
@@ -104,6 +107,12 @@ def positive_float_arg(value: str) -> float:
     return parsed
 
 
+def airmini_passkey_arg(value: str) -> str:
+    if len(value) != 4 or not value.isascii() or not value.isdigit():
+        raise argparse.ArgumentTypeError("must contain exactly four ASCII digits")
+    return value
+
+
 def spool_datetime_arg(value: str) -> str:
     try:
         return format_datetime_iso(parse_flex_datetime(value))
@@ -122,8 +131,8 @@ def _normalize_cli_args(argv: list[str] | None) -> list[str]:
             and value[-1] in "smhd"
             and value[1:-1].isdigit()
         )
-        if args[index] == "--from-dt" and relative:
-            args[index:index + 2] = [f"--from-dt={value}"]
+        if args[index] in ("--from-dt", "--from-time") and relative:
+            args[index:index + 2] = [f"{args[index]}={value}"]
         index += 1
     return args
 
@@ -249,6 +258,25 @@ def find_paired_device_key(creds: dict, target: str) -> str | None:
     return None
 
 
+def split_bluetooth_device_target(target: str) -> tuple[str, str]:
+    """Return credential transport and unprefixed target.
+
+    A bare target remains BLE for compatibility with the original devices
+    command.  AirMini follows the same transport prefix used by -d/--device.
+    """
+    for prefix in ("mini-spp:", "mini-ble:", "ble:"):
+        if target.startswith(prefix):
+            value = target[len(prefix):]
+            if not value:
+                raise SystemExit(f"empty Bluetooth target after {prefix}")
+            return prefix[:-1], value
+    return "ble", target
+
+
+def target_device_family(transport_kind: str) -> str:
+    return "mini" if transport_kind in ("mini-spp", "mini-ble") else "as11"
+
+
 def resolve_device_spec(args: argparse.Namespace) -> str:
     """Turn --device / --addr / --port / env into a canonical spec string.
 
@@ -256,6 +284,8 @@ def resolve_device_spec(args: argparse.Namespace) -> str:
         "ble:<addr-or-alias>"
         "can:<port>"
         "tcp:<host>[:<port>]"
+        "mini-spp:<addr-or-alias>"
+        "mini-ble:<addr-or-alias>"
     """
     if getattr(args, "device", None):
         return args.device
@@ -263,16 +293,12 @@ def resolve_device_spec(args: argparse.Namespace) -> str:
         return f"ble:{args.addr}"
     if getattr(args, "port", None):
         return f"can:{args.port}"
-    if os.environ.get("AS11_ADDR"):
-        return f"ble:{os.environ['AS11_ADDR']}"
-    if os.environ.get("AS11_CAN_PORT"):
-        return f"can:{os.environ['AS11_CAN_PORT']}"
-    if os.environ.get("AS11_AIRCANNECT"):
-        return f"tcp:{os.environ['AS11_AIRCANNECT']}"
+    if os.environ.get("AS11_DEVICE"):
+        return os.environ["AS11_DEVICE"]
     raise SystemExit(
-        "no device: pass -d/--device ble:<mac|alias>, can:<port>, or "
-        "tcp:<host>[:<port>]; or set AS11_ADDR / AS11_CAN_PORT / "
-        "AS11_AIRCANNECT"
+        "no device: pass -d/--device ble:<mac|alias>, can:<port>, "
+        "tcp:<host>[:<port>], mini-spp:<mac|alias>, or mini-ble:<mac|alias>; "
+        "or set AS11_DEVICE"
     )
 
 
@@ -287,6 +313,20 @@ def build_transport(args: argparse.Namespace) -> Transport:
             raise SystemExit("ble: spec needs MAC / UUID / alias")
         from as11_ble import BleTransport
         return BleTransport.from_args(target, args)
+
+    if spec.startswith("mini-ble:"):
+        target = spec[len("mini-ble:"):]
+        if not target:
+            raise SystemExit("mini-ble: spec needs MAC / UUID / alias")
+        from as11_ble import MiniBleTransport
+        return MiniBleTransport.from_args(target, args)
+
+    if spec.startswith("mini-spp:"):
+        target = spec[len("mini-spp:"):]
+        if not target:
+            raise SystemExit("mini-spp: spec needs MAC / alias")
+        from airmini_spp import AirMiniSppTransport
+        return AirMiniSppTransport.from_args(target, args)
 
     if spec.startswith("can:"):
         target = spec[4:]
@@ -308,7 +348,8 @@ def build_transport(args: argparse.Namespace) -> Transport:
 
     raise SystemExit(
         f"unrecognised device spec {spec!r}; "
-        "expected ble:<addr>, can:<port>, or tcp:<host>[:<port>]"
+        "expected ble:<addr>, can:<port>, tcp:<host>[:<port>], "
+        "mini-spp:<addr>, or mini-ble:<addr>"
     )
 
 
@@ -439,7 +480,7 @@ def cmd_session(args: argparse.Namespace) -> int:
     t.connect()
     try:
         if sys.stdin.isatty():
-            print(f"AS11 session on {t.name}.")
+            print(f"RPC session on {t.name}.")
             print("Enter any as11_config command; use `help [COMMAND]` for help.")
             print("Use `quit` or `exit` to leave.")
 
@@ -808,6 +849,35 @@ def cmd_subscribe(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_logged_data(args: argparse.Namespace) -> int:
+    """Download AirMini logged data and emit matching notifications as NDJSON."""
+    from airmini_logged_data import collect_logged_data
+
+    def emit(message: dict) -> None:
+        print(json.dumps(message, separators=(",", ":")), flush=True)
+
+    with connect_transport(args) as transport:
+        result = collect_logged_data(
+            transport,
+            args.data_ids,
+            from_time=args.from_time,
+            rpc_timeout=args.timeout,
+            notification_timeout=args.notification_timeout,
+            on_notification=emit,
+            retain_notifications=False,
+        )
+    valid = ",".join(result.valid_data_ids)
+    completed = ",".join(result.complete_data_ids)
+    eprint(
+        f"# logStreamId={result.log_stream_id} valid={valid} "
+        f"complete={completed} notifications={result.notification_count}"
+    )
+    if result.timed_out:
+        eprint("# GetLoggedData notification timeout; output is partial")
+        return 1
+    return 0
+
+
 def cmd_spool(args: argparse.Namespace) -> int:
     """Download spool data or decode a captured payload.
 
@@ -1032,26 +1102,33 @@ def cmd_known(args: argparse.Namespace) -> int:
 
 
 def cmd_devices(args: argparse.Namespace) -> int:
-    """BLE device management and offline credential storage."""
-    import asyncio
-    from as11_credentials import (
-        load_all_credentials, save_all_credentials,
-        save_credentials, load_credentials, resolve_addr,
+    """Shared Bluetooth pairing credentials and aliases."""
+    from resmed_credentials import (
+        credential_family,
+        load_all_credentials,
+        load_credentials,
+        resolve_address,
+        save_all_credentials,
+        save_credentials,
     )
 
     action = getattr(args, "devices_action", None) or "list"
 
     if action == "scan":
+        import asyncio
         from as11_ble import As11Connection
 
         async def _scan():
-            scope = "all BLE advertisements" if args.all else "AS11 devices"
-            print(f"Scanning for {scope} ({args.timeout:.0f}s)...")
-            devices = await As11Connection.scan(timeout=args.timeout, include_all=args.all)
+            scope = "all BLE advertisements" if args.all else "ResMed BLE GATT"
+            print(f"Scanning {scope} ({args.timeout:.0f}s)...")
+            devices = await As11Connection.scan(
+                timeout=args.timeout, include_all=args.all
+            )
             if not devices:
                 print("No devices found.")
                 return
-            for addr, name, rssi, services in sorted(devices, key=lambda x: -x[2]):
+            for addr, name, rssi, services in sorted(
+                    devices, key=lambda item: -item[2]):
                 print(f"  {addr:<20}  rssi={rssi:>4}  {name}")
                 if services:
                     print(f"    services: {','.join(services)}")
@@ -1063,42 +1140,100 @@ def cmd_devices(args: argparse.Namespace) -> int:
         if not creds:
             print("No paired devices.")
             return 0
-        print(f"{'address':<20}  {'alias':<16}  {'clientId':<12}  {'otaKey':<6}")
-        print(f"{'-'*20:<20}  {'-'*16:<16}  {'-'*12:<12}  {'-'*6:<6}")
+        print(f"{'address':<36}  {'family':<8}  {'alias':<16}  "
+              f"{'clientId':<12}  {'otaKey':<6}")
+        print(f"{'-'*36:<36}  {'-'*8:<8}  {'-'*16:<16}  "
+              f"{'-'*12:<12}  {'-'*6:<6}")
         for addr, data in sorted(creds.items()):
+            family = credential_family(data)
             alias = data.get("alias", "") or ""
             cid = (data.get("clientId", "") or "")[:12]
             ota = "yes" if data.get("otaKey") else ""
-            print(f"{addr:<20}  {alias:<16}  {cid:<12}  {ota:<6}")
+            print(f"{addr:<36}  {family:<8}  {alias:<16}  "
+                  f"{cid:<12}  {ota:<6}")
         return 0
 
     if action == "pair":
-        from as11_ble import As11Connection
+        transport_kind, target = split_bluetooth_device_target(args.target)
+        if transport_kind in ("mini-spp", "mini-ble") and args.passkey is not None:
+            try:
+                args.passkey = airmini_passkey_arg(args.passkey)
+            except argparse.ArgumentTypeError as exc:
+                raise SystemExit(f"pair: {exc}") from exc
+        if transport_kind == "mini-spp":
+            from airmini_spp import AirMiniSppTransport
 
-        addr = resolve_addr(args.target)
+            address = resolve_address(
+                target,
+                allow_uuid=False,
+                expected_family="mini",
+            )
+            passkey = args.passkey
+            if passkey is None:
+                import getpass
+                passkey = airmini_passkey_arg(
+                    getpass.getpass("AirMini FIG passkey: ").strip()
+                )
+            transport = AirMiniSppTransport(
+                address,
+                debug=args.debug,
+                restore_session=False,
+            )
+            with transport:
+                new = transport.pair(passkey)
+            print(f"Paired with {address}.")
+            return 0
+
+        import asyncio
+        from as11_ble import AIRMINI_SERVICE_UUID, As11Connection
+
+        family = target_device_family(transport_kind)
+        rpc_profile = (AIRMINI_RPC_PROFILE
+                       if family == "mini" else AS11_RPC_PROFILE)
+        addr = resolve_address(
+            target,
+            allow_uuid=True,
+            expected_family=family,
+        )
+
         async def _pair():
-            conn = As11Connection(debug=args.debug)
+            connection_args = {
+                "debug": args.debug,
+                "rpc_profile": rpc_profile,
+            }
+            if family == "mini":
+                connection_args["service_uuid"] = AIRMINI_SERVICE_UUID
+            conn = As11Connection(**connection_args)
             try:
                 await conn.connect(addr)
                 creds = load_credentials(addr)
                 new = await conn.pair(passkey=getattr(args, "passkey", None))
+                new["family"] = family
                 creds.update(new)
                 save_credentials(addr, creds)
-                print(f"Paired with {addr}. clientId={new.get('clientId', '')}")
+                client_id = new.get("clientId")
+                suffix = f" clientId={client_id}" if client_id else ""
+                print(f"Paired with {addr}.{suffix}")
             finally:
                 await conn.disconnect()
         asyncio.run(_pair())
         return 0
 
     if action == "alias":
-        target = args.target
+        transport_kind, target = split_bluetooth_device_target(args.target)
         new_alias = args.name
         creds = load_all_credentials()
-        # Resolve target: MAC, UUID, or existing alias
         key = find_paired_device_key(creds, target)
         if key is None:
             raise SystemExit(
                 f"alias: {target!r} not found among paired devices"
+            )
+        actual_family = credential_family(creds[key])
+        if (args.target.startswith(("mini-spp:", "mini-ble:", "ble:"))
+                and actual_family != target_device_family(transport_kind)):
+            raise SystemExit(
+                f"alias: {target!r} is {actual_family}, not "
+                f"{target_device_family(transport_kind)}"
             )
         # clear any existing use of new_alias
         for addr in creds:
@@ -1124,13 +1259,17 @@ def cmd_devices(args: argparse.Namespace) -> int:
         return 0
 
     if action == "ota-key":
-        target = args.target
+        transport_kind, target = split_bluetooth_device_target(args.target)
+        if transport_kind != "ble":
+            raise SystemExit("ota-key is only supported for BLE devices")
         creds = load_all_credentials()
         key = find_paired_device_key(creds, target)
         if key is None:
             raise SystemExit(
                 f"ota-key: {target!r} not found among paired devices"
             )
+        if credential_family(creds[key]) != "as11":
+            raise SystemExit("ota-key is only supported for BLE devices")
 
         if args.clear:
             if args.key or args.key_hex or args.key_file:
@@ -1160,7 +1299,6 @@ def cmd_devices(args: argparse.Namespace) -> int:
     raise SystemExit(f"unknown devices action: {action!r}")
 
 
-
 def add_logging_args(p: argparse.ArgumentParser) -> None:
     suppr = argparse.SUPPRESS
     p.add_argument("--debug", action="store_true", default=suppr,
@@ -1181,17 +1319,18 @@ def build_common_parser(*, show_transport_help: bool) -> argparse.ArgumentParser
     g = common.add_argument_group("device selection")
     g.add_argument(
         "-d", "--device", default=SUPPR,
-        help=("device spec: ble:<mac|alias>, can:<port>, tcp:<host:port>"
+        help=("device spec: ble:<mac|alias>, can:<port>, tcp:<host>[:<port>], "
+              "mini-spp:<mac|alias>, mini-ble:<mac|alias> (env: AS11_DEVICE)"
               if show_transport_help else SUPPR)
     )
     g.add_argument(
         "--addr", default=SUPPR,
-        help=("BLE MAC/UUID/alias (shortcut for -d ble:<addr>; "
-              "env: AS11_ADDR)" if show_transport_help else SUPPR)
+        help=("BLE MAC/UUID/alias (shortcut for -d ble:<addr>)"
+              if show_transport_help else SUPPR)
     )
     g.add_argument(
         "-p", "--port", default=SUPPR,
-        help=("CAN target (shortcut for -d can:<target>; env: AS11_CAN_PORT)"
+        help=("CAN target (shortcut for -d can:<target>)"
               if show_transport_help else SUPPR)
     )
     add_logging_args(common)
@@ -1373,6 +1512,30 @@ def build_parser() -> argparse.ArgumentParser:
                        help="stop after N seconds (default: until Ctrl-C)")
     sub_p.set_defaults(func=cmd_subscribe)
 
+    logged = sub.add_parser(
+        "logged-data", parents=[command_common],
+        help="download AirMini GetLoggedData notifications (NDJSON to stdout)",
+        epilog="examples:\n"
+               "  -d mini-spp:bedroom logged-data "
+               "UsageEvents-TherapyStatusEvent\n"
+               "  -d mini-spp:AA:BB:CC:DD:EE:FF logged-data "
+               "Diagnostic25HzPeriodic-BlowerPressure --from-time -1d",
+        formatter_class=raw_fmt,
+    )
+    add_rpc_args(logged)
+    logged.add_argument("data_ids", nargs="+", metavar="DATA_ID",
+                        help="one or more AirMini logged-data IDs")
+    logged.add_argument(
+        "--from-time", type=spool_datetime_arg,
+        default="2008-01-01T00:00:00.001Z",
+        help="earliest record time (ISO 8601, local date, or relative value)",
+    )
+    logged.add_argument(
+        "--notification-timeout", type=positive_float_arg, default=60.0,
+        help="seconds to collect asynchronous log notifications",
+    )
+    logged.set_defaults(func=cmd_logged_data)
+
     sp = sub.add_parser(
         "spool", parents=[command_common],
         help="download or decode spool data",
@@ -1461,25 +1624,34 @@ def build_parser() -> argparse.ArgumentParser:
 
     dev = sub.add_parser(
         "devices", parents=[logging_common],
-        help="BLE device management (scan/pair/list/alias/unalias)",
+        help="Bluetooth device management (scan/pair/list/alias/unalias)",
     )
     dev_sub = dev.add_subparsers(dest="devices_action")
 
-    dev_scan = dev_sub.add_parser("scan", help="scan for AS11 BLE devices")
+    dev_scan = dev_sub.add_parser("scan", help="scan for ResMed BLE advertisements")
     dev_scan.add_argument("--timeout", type=float, default=10.0)
     dev_scan.add_argument("--all", action="store_true",
                           help="show every BLE advertisement and its service UUIDs")
 
     dev_sub.add_parser("list", help="list paired devices (default)")
 
-    dev_pair = dev_sub.add_parser("pair", help="pair with a BLE device")
-    dev_pair.add_argument("target", help="BLE MAC/UUID/alias")
-    dev_pair.add_argument("--passkey", default=None,
-                          help="4-digit passkey shown on the device screen "
-                               "(prompted if omitted)")
-
+    dev_pair = dev_sub.add_parser(
+        "pair", help="pair with AS11 BLE, Mini SPP, or Mini BLE"
+    )
+    dev_pair.add_argument(
+        "target",
+        help="BLE MAC/UUID/alias, mini-spp:<MAC|alias>, or "
+             "mini-ble:<MAC|UUID|alias>",
+    )
+    dev_pair.add_argument(
+        "--passkey", default=None,
+        help="4-digit device/FIG passkey (prompted if omitted)",
+    )
     dev_alias = dev_sub.add_parser("alias", help="assign an alias")
-    dev_alias.add_argument("target", help="MAC/UUID/existing alias")
+    dev_alias.add_argument(
+        "target", help="BLE MAC/UUID/alias, mini-spp:<target>, or "
+                       "mini-ble:<target>"
+    )
     dev_alias.add_argument("name", help="new alias")
 
     dev_key = dev_sub.add_parser(

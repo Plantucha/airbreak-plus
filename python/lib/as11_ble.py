@@ -6,8 +6,7 @@ Classes and helpers used by as11_config.py and as11_flash.py:
                      protocol; runs an asyncio event loop in a background
                      thread so callers stay synchronous like CAN does
 
-Uses resmed_fig for framing and encryption, and as11_credentials for pairing
-storage and address resolution. Their existing public imports remain available.
+Uses the shared Bluetooth credential store at ~/.as11_ble.json.
 
 """
 
@@ -16,6 +15,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import struct
 import sys
 import threading
@@ -26,25 +26,46 @@ try:
 except ImportError:
     sys.exit("bleak not installed. Run: pip install bleak")
 
-from cryptography.hazmat.primitives import hashes, hmac
-
 # lib/ is on sys.path; import the shared Transport surface.
-from as11_rpc import RPC_VERSIONS, TransportError
-from resmed_fig import (
-    FIG_SYNC, FIG_SYNC_BYTES, FIG_HEADER_LEN,
-    FIG_VCID_RPC, FIG_VCID_RPC_ENC, FIG_VCID_RX_ENC,
-    SRPClient, FigCodec, H, aes_encrypt, aes_decrypt,
+from as11_rpc import (
+    AIRMINI_RPC_PROFILE,
+    AS11_RPC_PROFILE,
+    TransportError,
+    rpc_version,
 )
-from as11_credentials import (
-    CRED_FILE, MAC_RE, UUID_RE,
-    load_all_credentials, save_all_credentials,
-    load_credentials, save_credentials, resolve_addr,
+from resmed_fig import (
+    FIG_HEADER_LEN,
+    FIG_SYNC,
+    FIG_SYNC_BYTES,
+    FIG_VCID_RPC,
+    FIG_VCID_RPC_ENC,
+    FIG_VCID_RX_ENC,
+    AirMiniSRPClient,
+    FigCodec,
+    H,
+    SRPClient,
+    aes_decrypt,
+    aes_encrypt,
+    derive_session_key,
+    session_integrity_response,
+)
+from resmed_credentials import (
+    CRED_FILE,
+    MAC_RE,
+    UUID_RE,
+    credential_family,
+    load_all_credentials,
+    load_credentials,
+    resolve_address,
+    save_all_credentials,
+    save_credentials,
 )
 
 
 # GATT UUIDs.
 
 SERVICE_UUID = "0000fd56-0000-1000-8000-00805f9b34fb"
+AIRMINI_SERVICE_UUID = "a6220001-35f1-4b20-afae-cb089d2044aa"
 TX_CHAR_UUID = "a6220002-35f1-4b20-afae-cb089d2044aa"   # app -> device
 RX_CHAR_UUID = "a6220003-35f1-4b20-afae-cb089d2044aa"   # device -> app
 
@@ -89,7 +110,9 @@ def decode_ncp_packet(payload: bytes):
 
 
 class As11Connection:
-    def __init__(self, debug=False):
+    def __init__(self, debug=False, rpc_profile=AS11_RPC_PROFILE, *,
+                 service_uuid=SERVICE_UUID, tx_char_uuid=TX_CHAR_UUID,
+                 rx_char_uuid=RX_CHAR_UUID):
         self._client = None
         self._codec = FigCodec()
         self._rpc_id = 0
@@ -101,6 +124,10 @@ class As11Connection:
         self._notification_cb = None
         self._raw_packet_cb = None
         self._plain_vcids = set()
+        self._rpc_profile = rpc_profile
+        self._service_uuid = service_uuid.lower()
+        self._tx_char_uuid = tx_char_uuid.lower()
+        self._rx_char_uuid = rx_char_uuid.lower()
         self.debug = debug
 
     def set_session_key(self, key_hex):
@@ -119,15 +146,16 @@ class As11Connection:
 
     @staticmethod
     async def scan(timeout=10.0, include_all=False):
-        """Return (address, name, RSSI, advertised service UUIDs) entries."""
+        """Return address, name, RSSI, and advertised service UUIDs."""
         scan_args = {"timeout": timeout, "return_adv": True}
         if not include_all:
-            scan_args["service_uuids"] = [SERVICE_UUID]
+            scan_args["service_uuids"] = [SERVICE_UUID, AIRMINI_SERVICE_UUID]
         devices = await BleakScanner.discover(**scan_args)
         results = []
         for addr, (dev, adv) in devices.items():
             name = dev.name or adv.local_name or ""
-            if include_all or name.startswith(DEVICE_NAME_PREFIX):
+            services = {value.lower() for value in (adv.service_uuids or ())}
+            if include_all or name.startswith(DEVICE_NAME_PREFIX) or services.intersection((SERVICE_UUID, AIRMINI_SERVICE_UUID)):
                 results.append((dev.address, name, adv.rssi, tuple(adv.service_uuids or ())))
         return results
 
@@ -142,7 +170,7 @@ class As11Connection:
             svcs = self._client.services
             for svc in svcs:
                 for char in svc.characteristics:
-                    if char.uuid == TX_CHAR_UUID:
+                    if char.uuid.lower() == self._tx_char_uuid:
                         self._mtu = char.max_write_without_response_size
                         properties = set(char.properties)
                         self._write_without_response = (
@@ -179,7 +207,7 @@ class As11Connection:
         except Exception as e:
             log.debug("Service Changed: %s", e)
 
-        await self._client.start_notify(RX_CHAR_UUID, self._on_notify)
+        await self._client.start_notify(self._rx_char_uuid, self._on_notify)
         log.info("RX notifications enabled")
 
         if self.debug:
@@ -258,7 +286,7 @@ class As11Connection:
                 log.debug("TX chunk (%d/%d bytes, response=%s): %s",
                           len(chunk), len(data), response, chunk.hex())
             await self._client.write_gatt_char(
-                TX_CHAR_UUID, chunk, response=response
+                self._tx_char_uuid, chunk, response=response
             )
 
     async def send_rpc(self, method: str, params=None, timeout: float = 60.0,
@@ -266,7 +294,10 @@ class As11Connection:
                        length_prefix: bool = True, hmac_key: bytes = None,
                        post_send_delay: float = 0.1) -> dict:
         self._rpc_id += 1
-        version = RPC_VERSIONS.get(method, "2.0")
+        # Preserve the AS11 BLE transport's historic 2.0 fallback. AirMini
+        # uses its own profile default for unknown extension methods.
+        fallback = "2.0" if self._rpc_profile == AS11_RPC_PROFILE else None
+        version = rpc_version(method, self._rpc_profile, default=fallback)
         msg = {"id": self._rpc_id, "jsonrpc": version, "method": method}
         if params:
             msg["params"] = params
@@ -311,14 +342,59 @@ class As11Connection:
         log.info("RPC <<< %s", json.dumps(resp.get("result", resp))[:200])
         return resp
 
-    async def reconnect(self, client_id: str, master_pair_key: str) -> dict:
+    async def reconnect(self, client_id: str | None,
+                        master_pair_key: str) -> dict:
         """Re-establish encrypted session from stored credentials.
 
-        RequestSession(clientId) -> {challenge, nonce}
-        response = HMAC-SHA256(K, challenge)
-        CheckSessionIntegrity(response)
-        session_key = SHA256(K || nonce)
+        Both families use RequestSession/CheckSessionIntegrity.  AirMini does
+        not send or persist the AS11 client id.
         """
+        if self._rpc_profile == AIRMINI_RPC_PROFILE:
+            pair_key = self._decode_airmini_key(
+                master_pair_key, "stored AirMini masterPairKey"
+            )
+            resp = await self.send_rpc(
+                "RequestSession",
+                None,
+                timeout=10.0,
+                encrypted=False,
+            )
+            result = resp.get("result", {})
+            challenge_hex = result.get("challenge", "")
+            nonce_hex = result.get("nonce", "")
+            if not challenge_hex or not nonce_hex:
+                raise RuntimeError("RequestSession: missing challenge/nonce")
+            try:
+                challenge = bytes.fromhex(challenge_hex)
+                nonce = bytes.fromhex(nonce_hex)
+            except ValueError as exc:
+                raise RuntimeError(
+                    "RequestSession returned invalid hex"
+                ) from exc
+
+            response_hex = session_integrity_response(
+                pair_key, challenge
+            ).hex().upper()
+            confirmed = await self.send_rpc(
+                "CheckSessionIntegrity",
+                {"response": response_hex},
+                timeout=10.0,
+                encrypted=False,
+            )
+            confirmation = confirmed.get("result")
+            if (not isinstance(confirmation, dict)
+                    or confirmation.get(
+                        "confirmation", confirmation.get("response")
+                    ) is not True):
+                raise RuntimeError("AirMini rejected session integrity proof")
+
+            session_key = derive_session_key(pair_key, nonce)
+            self.set_session_key(session_key.hex())
+            log.info("AirMini encrypted session restored")
+            return {"masterPairKey": master_pair_key}
+
+        if not client_id:
+            raise RuntimeError("AS11 reconnect requires clientId")
         log.info("reconnect: RequestSession clientId=%s...", client_id[:8])
         resp = await self.send_rpc_raw(
             "RequestSession", {"clientId": client_id}, timeout=10.0
@@ -339,9 +415,9 @@ class As11Connection:
 
         K_bytes = bytes.fromhex(master_pair_key)
         challenge_bytes = bytes.fromhex(challenge_hex)
-        h = hmac.HMAC(K_bytes, hashes.SHA256())
-        h.update(challenge_bytes)
-        response_hex = h.finalize().hex().upper()
+        response_hex = session_integrity_response(
+            K_bytes, challenge_bytes
+        ).hex().upper()
         log.info("reconnect: response=%s...", response_hex[:16])
 
         resp2 = await self.send_rpc_raw(
@@ -354,10 +430,9 @@ class As11Connection:
         log.info("reconnect: session verified")
 
         nonce_bytes = bytes.fromhex(nonce_hex)
-        aes_key = H(K_bytes, nonce_bytes)
+        aes_key = derive_session_key(K_bytes, nonce_bytes)
         aes_key_hex = aes_key.hex().upper()
         self.set_session_key(aes_key_hex)
-        log.info("reconnect: AES key=%s...", aes_key_hex[:16])
 
         return {"clientId": client_id,
                 "sessionKey": aes_key_hex[:32],
@@ -390,9 +465,19 @@ class As11Connection:
         return self._response_data
 
     async def pair(self, passkey: str = None) -> dict:
-        """SRP key exchange using the 4-digit passkey shown on the device screen."""
+        """Obtain pairing keys using the RPC flow selected by the profile."""
+        is_airmini = self._rpc_profile == AIRMINI_RPC_PROFILE
+        if is_airmini:
+            if passkey is None:
+                passkey = input("Enter the 4-digit AirMini passkey: ").strip()
+            if not re.fullmatch(r"[0-9]{4}", passkey):
+                raise ValueError(
+                    "AirMini FIG passkey must contain exactly four digits"
+                )
+
         log.info("SRP: generating keypair")
-        srp = SRPClient(passkey or "")
+        srp = (AirMiniSRPClient(passkey)
+               if is_airmini else SRPClient(passkey or ""))
         log.info("SRP: A = %s...", srp.public_key_hex[:32])
 
         resp = await self.send_rpc("StartKeyExchange",
@@ -415,7 +500,6 @@ class As11Connection:
             srp.passkey = passkey
 
         srp.process(server_pk, salt)
-        log.info("SRP: K = %s...", srp.session_key_hex[:32])
         log.info("SRP: M1 = %s...", srp.client_proof_hex[:32])
 
         resp2 = await self.send_rpc("ConfirmKeyExchange",
@@ -429,13 +513,19 @@ class As11Connection:
         log.info("SRP: paired! result: %s", json.dumps(result2)[:200])
 
         server_confirmation = result2.get("serverConfirmation", "")
+        nonce = result2.get("nonce", "")
+        if is_airmini and (not nonce or not server_confirmation):
+            raise RuntimeError(
+                "ConfirmKeyExchange: missing nonce/serverConfirmation"
+            )
         if server_confirmation:
             srp.verify_server(server_confirmation)
 
-        nonce = result2.get("nonce", "")
         aes_key_hex = srp.derive_session_key(nonce)
         self.set_session_key(aes_key_hex)
-        log.info("AES key: %s...", aes_key_hex[:32])
+
+        if is_airmini:
+            return {"masterPairKey": srp.session_key_hex}
 
         return {
             "clientId": result2.get("clientId", ""),
@@ -445,6 +535,27 @@ class As11Connection:
             "nonce": result2.get("nonce", ""),
             "serverConfirmation": server_confirmation,
         }
+
+    @staticmethod
+    def _decode_airmini_key(value: object, label: str) -> bytes:
+        if not isinstance(value, str):
+            raise RuntimeError(f"{label} is missing")
+        try:
+            key = bytes.fromhex(value)
+        except ValueError as exc:
+            raise RuntimeError(f"{label} is not hex") from exc
+        if len(key) != 32:
+            raise RuntimeError(f"{label} must be 32 bytes")
+        return key
+
+
+def resolve_addr(arg: str = None) -> str:
+    """Resolve a MAC, UUID, or Air11 credential alias."""
+    return resolve_address(
+        arg,
+        allow_uuid=True,
+        expected_family="as11",
+    )
 
 
 class BleTransport:
@@ -464,10 +575,25 @@ class BleTransport:
     DEFAULT_TIMEOUT = 10.0
 
     def __init__(self, address: str, *, debug: bool = False,
-                 scan_timeout: float = 20.0) -> None:
-        self._address = resolve_addr(address) if address else resolve_addr(None)
+                 scan_timeout: float = 20.0,
+                 rpc_profile: str = AS11_RPC_PROFILE,
+                 family: str = "as11", name_prefix: str = "ble",
+                 service_uuid: str = SERVICE_UUID,
+                 tx_char_uuid: str = TX_CHAR_UUID,
+                 rx_char_uuid: str = RX_CHAR_UUID) -> None:
+        self._address = resolve_address(
+            address,
+            allow_uuid=True,
+            expected_family=family,
+        )
         self._debug = debug
         self._scan_timeout = scan_timeout
+        self._rpc_profile = rpc_profile
+        self._family = family
+        self._name_prefix = name_prefix
+        self._service_uuid = service_uuid
+        self._tx_char_uuid = tx_char_uuid
+        self._rx_char_uuid = rx_char_uuid
         self._loop: asyncio.AbstractEventLoop | None = None
         self._thread: threading.Thread | None = None
         self._conn: As11Connection | None = None
@@ -483,7 +609,7 @@ class BleTransport:
 
     @property
     def name(self) -> str:
-        return f"ble:{self._address}"
+        return f"{self._name_prefix}:{self._address}"
 
     @property
     def supports_encrypted(self) -> bool:
@@ -542,15 +668,27 @@ class BleTransport:
             return
         self._start_loop()
         try:
-            self._conn = As11Connection(debug=self._debug)
+            self._conn = As11Connection(
+                debug=self._debug,
+                rpc_profile=self._rpc_profile,
+                service_uuid=self._service_uuid,
+                tx_char_uuid=self._tx_char_uuid,
+                rx_char_uuid=self._rx_char_uuid,
+            )
             self._submit(self._conn.connect(self._address),
                          timeout=self._scan_timeout + 5)
             creds = load_credentials(self._address)
-            if creds.get("clientId") and creds.get("masterPairKey"):
+            if creds and credential_family(creds) != self._family:
+                creds = {}
+            can_restore = bool(
+                creds.get("masterPairKey")
+                and (self._family == "mini" or creds.get("clientId"))
+            )
+            if can_restore:
                 try:
                     new_creds = self._submit(
                         self._conn.reconnect(
-                            creds["clientId"], creds["masterPairKey"]
+                            creds.get("clientId"), creds["masterPairKey"]
                         ),
                         timeout=15.0,
                     )
@@ -558,13 +696,14 @@ class BleTransport:
                     save_credentials(self._address, creds)
                     self._authenticated = True
                 except Exception as exc:
+                    if self._family == "mini":
+                        raise
                     log.warning("reconnect failed: %s", exc)
             else:
                 log.info("no stored credentials for %s; run `devices pair` first "
                          "for encrypted RPCs", self._address)
         except Exception:
-            self._stop_loop()
-            self._conn = None
+            self.close()
             raise
 
     def close(self) -> None:
@@ -577,6 +716,7 @@ class BleTransport:
             log.warning("disconnect error: %s", exc)
         finally:
             self._conn = None
+            self._authenticated = False
             self._stop_loop()
 
     def __enter__(self) -> "BleTransport":
@@ -642,14 +782,36 @@ class BleTransport:
             return
 
 
+class MiniBleTransport(BleTransport):
+    """AirMini FIG transport over its A622 BLE GATT service."""
+
+    def __init__(self, address: str, *, debug: bool = False,
+                 scan_timeout: float = 20.0) -> None:
+        super().__init__(
+            address,
+            debug=debug,
+            scan_timeout=scan_timeout,
+            rpc_profile=AIRMINI_RPC_PROFILE,
+            family="mini",
+            name_prefix="mini-ble",
+            service_uuid=AIRMINI_SERVICE_UUID,
+        )
+
+    @classmethod
+    def from_args(cls, target: str, args) -> "MiniBleTransport":
+        return cls(address=target, debug=getattr(args, "debug", False))
+
+
 __all__ = [
     # Constants
-    "SERVICE_UUID", "TX_CHAR_UUID", "RX_CHAR_UUID", "DEVICE_NAME_PREFIX",
+    "SERVICE_UUID", "AIRMINI_SERVICE_UUID", "TX_CHAR_UUID", "RX_CHAR_UUID",
+    "DEVICE_NAME_PREFIX",
     "FIG_SYNC", "FIG_SYNC_BYTES", "FIG_HEADER_LEN",
     "FIG_VCID_RPC", "FIG_VCID_RPC_ENC", "FIG_VCID_RX_ENC",
     "CRED_FILE", "MAC_RE", "UUID_RE",
     # Classes
     "SRPClient", "FigCodec", "As11Connection", "BleTransport",
+    "MiniBleTransport",
     # Helpers
     "H", "decode_ncp_packet",
     "load_all_credentials", "save_all_credentials",
