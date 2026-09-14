@@ -1,65 +1,164 @@
 # resmed_flash
 
-UART firmware flash tool for ResMed Air 10 / S9 series. It flashes firmware
-through the device's standard bootloader. On supported Air 10 devices, it can
-also dump a complete image when a [patched bootloader](../guide/serial_dump.md)
-is installed.
+## Name
 
-Communicates over the USART3 service port at 57600 8N1. Enters the bootloader, negotiates baud rate, and transfers firmware blocks using the native ResMed flash protocol (S-records over F-frames).
+`resmed_flash.py` - flash Air 10 and S9 firmware through the UART bootloader.
+
+## Contents
+
+- [Synopsis](#synopsis)
+- [Description](#description)
+- [Connection](#connection)
+- [Operations](#operations)
+  - [Flash a firmware image](#flash-a-firmware-image)
+  - [Flash specific blocks](#flash-specific-blocks)
+  - [Dump an Air 10 firmware image](#dump-an-air-10-firmware-image)
+  - [Read device identity](#read-device-identity)
+- [Options](#options)
+- [Output](#output)
+- [Exit Status](#exit-status)
+- [Examples](#examples)
+- [See Also](#see-also)
+
+## Synopsis
+
+```text
+resmed_flash.py -p PORT -f IMAGE [OPTIONS]
+resmed_flash.py -p PORT --dump FILE [OPTIONS]
+resmed_flash.py -p PORT --info [OPTIONS]
+```
+
+## Description
+
+Reads device identity, flashes complete images or selected firmware blocks,
+and dumps internal flash through the UART bootloader. Checks input CRCs,
+supports CRC repair, and negotiates the transfer speed.
 
 ## Connection
 
-Serial port (direct or via USB-UART adapter):
-```
-resmed_flash.py -p /dev/ttyACM0 ...
+Bootloader entry uses USART3 at 57600 baud, 8N1. Transfer speed is selected
+with `--baud`. Transfer framing is described in the
+[serial protocol](../serial_protocol.md#flash-data-protocol).
+
+| `PORT` | Connection |
+|--------|------------|
+| Serial device path | UART, directly or through a USB-UART adapter |
+| `tcp:HOST[:PORT]` | AirBridge TCP bridge |
+
+## Operations
+
+### Flash a firmware image
+
+```text
+-f IMAGE [OPTIONS]
 ```
 
-TCP via AirBridge:
-```
-resmed_flash.py -p tcp:airbridge-host ...
-```
+Flash CMX on Air 10 or CCX+CDX on S9 from the complete internal-flash `IMAGE`.
 
-## Flash a firmware image
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `-f`, `--file IMAGE` | Firmware input path | Required |
+| `--include-bootloader` | Add BLX to the selected regions | Off |
+| `--fix-crc` | Repair input CRCs before flashing | Off |
+| `--force` | Permit flashing with invalid CRCs | Off |
+| `--dry-run` | Validate without writing; standalone blocks may require device identity | Off |
+| `--no-reset` | Skip the final reset | Off |
 
-```
+```sh
 resmed_flash.py -p /dev/ttyACM0 -f patched.bin
 ```
 
-Flashes CMX (or CCX+CDX on S9), skipping the bootloader by default.
+### Flash specific blocks
 
-## Flash specific blocks
-
-| Block | Content | Flag |
-|-------|---------|------|
-| `config` | CCX (configuration data) | `--block config` |
-| `firmware` | CDX (application code) | `--block firmware` |
-| `cmx` | CCX+CDX combined (S10) | `--block cmx` |
-| `all` | BLX+CMX (S10) or BLX+CCX+CDX (S9) | `--block all` |
-| `bootloader` | BLX | `--block bootloader --include-bootloader` |
-
+```text
+-f IMAGE --block NAME [--block NAME ...] [OPTIONS]
 ```
+
+Flash selected blocks from `IMAGE`, retaining the rest of the device's firmware.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--block NAME` | Select a block; repeatable and case-insensitive | CMX on Air 10; CCX+CDX on S9 |
+| `--raw` | Accept an image smaller than the single selected block | Off |
+
+A single selected block accepts a standalone image of its exact size.
+Bootloader writes require `--include-bootloader`, including with `all`.
+CRC and reset options follow [Flash a firmware image](#flash-a-firmware-image).
+
+| Name | Content |
+|------|---------|
+| `config`, `conf`, `ccx` | Model definition |
+| `firmware`, `fw`, `cdx` | Application firmware |
+| `cmx` | CCX+CDX combined (Air 10) |
+| `all` | BLX+CMX (Air 10) or BLX+CCX+CDX (S9) |
+| `bootloader`, `boot`, `blx` | Bootloader |
+
+```sh
 resmed_flash.py -p /dev/ttyACM0 -f patched.bin --block config
+resmed_flash.py -p /dev/ttyACM0 -f patched.bin --block all --include-bootloader
 ```
 
-## Dump an Air 10 firmware image
+### Dump an Air 10 firmware image
 
+```text
+--dump FILE [OPTIONS]
 ```
+
+Read complete internal flash into `FILE`; requires the
+[patched Air 10 bootloader](../guide/serial_dump.md).
+
+```sh
 resmed_flash.py -p /dev/ttyACM0 --dump firmware.bin
 ```
 
-Reads the complete Air 10 firmware image. See the [serial firmware dump
-guide](../guide/serial_dump.md) for preparing the bootloader, rebuilding an
-original image, and SWD recovery.
+### Read device identity
 
-## Other options
+```text
+--info [OPTIONS]
+```
 
-| Flag | Effect |
-|------|--------|
-| `--info` | Show device identity and exit |
-| `--dump FILE` | Read the complete firmware image |
-| `--fix-crc` | Recalculate CRC before flashing |
-| `--force` | Flash even with bad CRC |
-| `--dry-run` | Validate image without writing |
-| `--baud auto` | Auto-negotiate transfer speed (default) |
-| `--no-reset` | Do not reset device after flash |
-| `--no-enter` | Skip bootloader entry (already in BL) |
+Show device identity and exit.
+
+```sh
+resmed_flash.py -p /dev/ttyACM0 --info
+resmed_flash.py -p tcp:airbridge-host --info
+```
+
+## Options
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `-p`, `--port PORT` | Serial port or `tcp:HOST[:PORT]` | Required |
+| `--tcp-mode MODE` | `raw` or `transparent` | `transparent` |
+| `--baud BAUD` | `auto`, `57600`, `115200`, or `460800` | `auto` |
+| `--no-enter` | Use an already-running bootloader | Off |
+| `--no-wait` | Fail immediately if the device is unavailable | Off |
+| `--timing` | Print transfer timing statistics | Off |
+| `-h`, `--help` | Show help | -- |
+
+## Output
+
+Identity, validation, progress, and transfer summaries are printed to the terminal.
+`--dump FILE` writes a binary firmware image.
+
+## Exit Status
+
+| Status | Meaning |
+|--------|---------|
+| `0` | Operation completed |
+| `1` | Connection, validation, or transfer failure |
+| `2` | Invalid command-line syntax |
+
+## Examples
+
+Dump internal flash through the patched bootloader, then inspect its CRCs:
+
+```sh
+resmed_flash.py -p /dev/ttyACM0 --dump firmware.bin
+resmed_image.py info firmware.bin
+```
+
+## See Also
+
+[resmed_image](resmed_image.md), [serial protocol](../serial_protocol.md),
+[serial firmware dump guide](../guide/serial_dump.md).

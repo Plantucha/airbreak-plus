@@ -49,5 +49,5 @@
 # Unset by default; equivalent to PATCH_TARGET_RH=75.
 # --patch-target-rh 75
 
-# Configuration reference: docs/tools/patch_options.md
+# Configuration reference: docs/patch_options.md
 # Feature reference: docs/guide/patching.md

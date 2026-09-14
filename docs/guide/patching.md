@@ -135,7 +135,7 @@ PATCH_CODE=1 python3 python/patch-airsense.py \
 ```
 
 When building through Make, options can also be passed with `AIR10_PATCH_ARGS`.
-See [patch options](../tools/patch_options.md) for examples and saved preferences.
+See [patch options](../patch_options.md) for examples and saved preferences.
 
 ## Next
 

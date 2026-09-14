@@ -1,171 +1,264 @@
 # resmed_config
 
-UART configuration tool for ResMed Air 10 / s9 series
+## Name
 
-Read, write, dump, and restore device variables over the serial port. The tool
-can also subscribe to live runtime streams. It works with direct serial, TCP via
-AirBridge, and offline by writing a `Settings.ecp` file to an SD card for the
-device to consume on next mount.
+`resmed_config.py` - read, write, and stream Air 10 / S9 variables.
+
+## Contents
+
+- [Synopsis](#synopsis)
+- [Description](#description)
+- [Options](#options)
+- [Connection](#connection)
+  - [`ecp:` backend](#ecp-backend)
+- [Commands](#commands)
+  - [info](#info)
+  - [get](#get)
+  - [set / setv](#set--setv)
+  - [dump / restore](#dump--restore)
+  - [list](#list)
+  - [known](#known)
+  - [raw](#raw)
+  - [stream](#stream)
+  - [caps](#caps)
+  - [custom-settings](#custom-settings)
+  - [calibration eeprom](#calibration-eeprom)
+- [Variable groups](#variable-groups)
+- [Output](#output)
+- [Files](#files)
+- [Exit Status](#exit-status)
+- [Examples](#examples)
+- [See Also](#see-also)
+
+## Synopsis
+
+```text
+resmed_config.py [OPTIONS] COMMAND [ARGUMENTS]
+resmed_config.py -p PORT [OPTIONS] COMMAND [ARGUMENTS]
+```
+
+## Description
+
+Reads and writes variables as raw or scaled values, saves and restores
+configuration snapshots, decodes live streams, and queries variable limits and
+custom-setting metadata. Provides EEPROM backup, restore, and maintenance
+operations, offline variable lookup, and SD-card settings-file editing.
+
+## Options
+
+Global options precede the command.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `-p`, `--port PORT` | Serial port, `tcp:host[:port]`, or `ecp:path` | Required except for `list` and `known` |
+| `--tcp-mode MODE` | `raw`, `transparent`, or `text` | `text` |
+| `--baud BAUD` | `auto`, `57600`, `115200`, or `460800` | `auto` |
+| `-v`, `--verbose` | Include variable descriptions | Off |
+| `-h`, `--help` | Show help | -- |
 
 ## Connection
 
-```
-resmed_config.py -p /dev/ttyACM0 ...                 # direct serial
-resmed_config.py -p tcp:airbridge-host ...           # AirBridge TCP
-resmed_config.py -p ecp:/sdcard/SETTINGS/ ...        # SD-card Settings.ecp (offline)
-```
+| `PORT` | Target |
+|--------|--------|
+| Serial device path | Direct UART or USB-UART adapter |
+| `tcp:HOST[:PORT]` | AirBridge TCP bridge |
+| `ecp:PATH` | SD-card settings file or directory |
 
 ### `ecp:` backend
 
-Instead of talking to a live device, prepare a `Settings.ecp` file to be put into `SETTINGS` directory on SD card.
-When the SD card is inserted, the device reads `Settings.ecp` and applies the listed setting changes automatically.
-
-Required `Settings.crc` file is written automatically whenever `Settings.ecp` is updated.
-
+Reads assignments from `Settings.ecp`, appends setting changes, and updates
+`Settings.crc` on close. `PATH` selects an existing file or the SD card's
+`SETTINGS` directory. The device applies the changes on the next card mount.
+Live streaming, raw UART commands, custom-setting metadata, and calibration
+operations require a device connection.
 
 ## Commands
 
 ### info
 
-Show device identity (BID, SID, serial number, product name).
-
+```text
+info
 ```
+
+Show device identity: BID, SID, serial number, and product name.
+
+```sh
 resmed_config.py -p /dev/ttyACM0 info
 ```
 
 ### get
 
-Read one or more variables by name or group.
-
+```text
+get TARGET ...
 ```
+
+Read variables selected by each `TARGET`: a variable tag, group name, or
+`all`. Group names are listed under [Variable groups](#variable-groups).
+
+```sh
 resmed_config.py -p /dev/ttyACM0 get IPC MPA MPI
 resmed_config.py -p /dev/ttyACM0 get MGL
-resmed_config.py -p /dev/ttyACM0 get all
 ```
 
 ### set / setv
 
-Write one or more variables. `set` takes raw hex values, `setv` takes human-readable values with automatic scaling. Multiple `VAR VALUE` pairs may be passed in a single invocation.
-
+```text
+set VAR VALUE [VAR VALUE ...]
+setv VAR VALUE [VAR VALUE ...]
 ```
+
+Write one or more `VAR`/`VALUE` pairs. `VAR` is a variable tag. For numeric
+variables, `set` accepts raw hexadecimal values and `setv` accepts scaled
+numbers or enum labels. String variables take text values.
+
+```sh
 resmed_config.py -p /dev/ttyACM0 set IPC 01F4
-resmed_config.py -p /dev/ttyACM0 set SPT 0001 EPR 0002
-resmed_config.py -p /dev/ttyACM0 setv IPC 10.0
-resmed_config.py -p /dev/ttyACM0 setv MOP AutoSet
-resmed_config.py -p ecp:/media/RESMED set PNA AirSense_10_airbreak
+resmed_config.py -p /dev/ttyACM0 setv IPC 10.0 MOP AutoSet
 ```
 
 ### dump / restore
 
-Save all variables to JSON and restore them later.
-
+```text
+dump -o FILE [OPTIONS]
+restore -i FILE [OPTIONS]
 ```
-resmed_config.py -p /dev/ttyACM0 dump -o config.json
+
+`dump` writes a JSON configuration snapshot to host file `FILE`; `restore`
+applies settings from that file.
+
+| Option | Commands | Meaning |
+|--------|----------|---------|
+| `-o`, `--output FILE` | `dump` | Required JSON output path |
+| `-i`, `--input FILE` | `restore` | Required JSON input path |
+| `--groups GROUP ...` | `dump` | Include only selected groups; default: all |
+| `--exclude-groups GROUP ...` | `dump`, `restore` | Omit selected groups |
+| `--exclude-vars VAR ...` | `dump`, `restore` | Omit selected variables |
+| `--dry-run` | `restore` | Preview setting changes |
+
+```sh
 resmed_config.py -p /dev/ttyACM0 dump --groups MGL EGL -o therapy.json
-resmed_config.py -p /dev/ttyACM0 restore -i config.json
 resmed_config.py -p /dev/ttyACM0 restore -i config.json --exclude-groups BGL
 ```
 
 ### list
 
-Offline listing of known variables and descriptions.
-
+```text
+list [--groups GROUP ...]
 ```
-resmed_config.py list
+
+List known variables and descriptions offline.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--groups GROUP ...` | Select [variable groups](#variable-groups) | All groups |
+
+```sh
 resmed_config.py list --groups MGL DGL
 ```
 
 ### known
 
-Offline lookup of names the tool knows about.
-
+```text
+known [REGISTRY [PATTERN]]
 ```
-resmed_config.py known
+
+Look up names offline. `REGISTRY` selects `vars`, `groups`, or `enums`;
+the default is to list registries. `PATTERN` is a substring filter for `vars`,
+a group name for `groups`, or a variable tag for `enums`.
+
+```sh
 resmed_config.py known vars EPR
-resmed_config.py known groups MGL
 resmed_config.py known enums MOP
 ```
 
 ### raw
 
-Send one raw UART command to a live device.
-
+```text
+raw COMMAND ...
 ```
+
+Join `COMMAND` words with spaces and send the resulting UART command to the
+device. Quote text containing shell metacharacters such as `#`.
+
+```sh
 resmed_config.py -p /dev/ttyACM0 raw 'G S #BID'
 ```
 
 ### stream
 
-Subscribe to one or more live `L`-frame channels. Known fields are split,
-named, and scaled by default.
-
-```
-resmed_config.py -p /dev/ttyACM0 stream PMD
-resmed_config.py -p /dev/ttyACM0 stream PMD PBT BRH
-resmed_config.py -p /dev/ttyACM0 stream PMD --duration 30
+```text
+stream TAG ... [--raw] [--duration SECONDS]
 ```
 
-Airbreak-patched firmware reports the active field layout through `G C &TAG`.
-On stock firmware, the tool selects the public stream layout from ResScan
-metadata using the device MID and VID. Internal channels absent from that
-metadata can still be captured without decoding:
+Subscribe to the `L`-frame channels selected by `TAG`, splitting, naming, and
+scaling known fields by default.
 
-```
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--raw` | Print unchanged `L` payloads, including internal channels `RAW` and `FTX` | Off |
+| `--duration SECONDS` | Capture length | Until Ctrl-C |
+
+Patched firmware supplies its active layout through `G C &TAG`; stock
+layouts are selected from ResScan metadata using MID and VID. The command
+disables the channels it enabled on exit. AirBridge requires
+`--tcp-mode transparent`; text mode handles one command response at a time.
+
+```sh
 resmed_config.py -p /dev/ttyACM0 stream RAW FTX --raw
-```
-
-`--raw` prints each `L` payload unchanged. Without `--duration`, streaming
-continues until Ctrl-C. All channels enabled by the command are disabled before
-the tool exits.
-
-AirBridge streaming requires transparent mode because text mode handles one
-command response at a time:
-
-```
-resmed_config.py -p tcp:airbridge-host --tcp-mode transparent stream PMD
+resmed_config.py -p tcp:airbridge-host --tcp-mode transparent stream PMD PBT BRH --duration 30
 ```
 
 ### caps
 
+```text
+caps [TARGET ...]
+```
+
 Query variable values and limits from the device.
 
-```
+Each `TARGET` is a variable tag, group name, or `all`; default: `all`.
+
+```sh
 resmed_config.py -p /dev/ttyACM0 caps IPC MOP EPR
 ```
 
 ### custom-settings
 
+```text
+custom-settings
+```
+
 Show the custom variables exposed by Airbreak-patched firmware, including
 localized labels, categories, mode masks, current values, display metadata,
 and stock variable capabilities.
-
-```
-resmed_config.py -p /dev/ttyACM0 custom-settings
-```
 
 This command requires the UART metadata patch and a live serial or transparent
 TCP connection. See the [serial protocol](../serial_protocol.md#custom-settings-registry)
 for the underlying `G C &CSG` records.
 
+```sh
+resmed_config.py -p /dev/ttyACM0 custom-settings
+```
+
 ### calibration eeprom
 
-Run the stock firmware EEPROM/SD maintenance service (`CAL=000B`) from the
-normal UART variable protocol. These commands use fixed device-side SD paths;
-they do not read or write host files directly.
+```text
+calibration eeprom ACTION [--yes] [--really] [--timeout SECONDS]
+```
 
-```
-resmed_config.py -p /dev/ttyACM0 calibration eeprom sd-backup-raw
-resmed_config.py -p /dev/ttyACM0 calibration eeprom sd-export-tree
-resmed_config.py -p /dev/ttyACM0 calibration eeprom sd-restore-raw --yes
-resmed_config.py -p /dev/ttyACM0 calibration eeprom sd-import-tree --yes
-resmed_config.py -p /dev/ttyACM0 calibration eeprom erase-logical-pages --yes --really
-resmed_config.py -p /dev/ttyACM0 calibration eeprom format-eep-fat --yes --really
-```
+Run the stock firmware EEPROM/SD maintenance service (`CAL=000B`) from the
+normal UART variable protocol, using fixed paths on the device's SD card
+rather than host files.
 
 The command enters calibration mode with `ROP=0004`, selects `CAL=000B`, starts
 the selected `ETR` command, polls until `ETR=0000`, then restores the original
-`CAL` and `ROP` values. If `ETR` does not return to `0000`, it does not clear
-`ETR` blindly.
+`CAL` and `ROP` values. An unfinished operation retains its `ETR` value.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--yes` | Confirm restore/import operations | Off |
+| `--really` | Additional confirmation for erase/format; requires `--yes` | Off |
+| `--timeout SECONDS` | Wait for `ETR=0000` | `300` |
 
 | Action | `ETR` | Firmware behavior |
 |--------|-------|-------------------|
@@ -175,6 +268,11 @@ the selected `ETR` command, polls until `ETR=0000`, then restores the original
 | `sd-import-tree` | `0006` | copy the root, `DATALOG`, `ERRORLOG`, and `SETTINGS` directories back to `eep:0:` |
 | `erase-logical-pages` | `0001` | zero raw EEPROM pages 0 through 501; requires `--yes --really`; destroys unit-specific EEPROM data |
 | `format-eep-fat` | `0002` | formats/reinitializes the `eep:0` FAT filesystem; requires `--yes --really`; destroys unit-specific EEPROM data |
+
+```sh
+resmed_config.py -p /dev/ttyACM0 calibration eeprom sd-backup-raw
+resmed_config.py -p /dev/ttyACM0 calibration eeprom sd-import-tree --yes
+```
 
 ## Variable groups
 
@@ -202,3 +300,47 @@ This table describes stock variable meanings. Images built with
 so `resmed_config` continues to list them under its static `RGL` group.
 Device-side persistence for those values moves to `CSG.set`; see
 [Custom settings](../custom_settings.md).
+
+## Output
+
+Commands print identity, variable, capability, or status text. `dump` writes
+JSON; `restore` reads that format. `stream` prints decoded and scaled fields,
+or unchanged `L` payloads with `--raw`.
+
+## Files
+
+| File | Use |
+|------|-----|
+| `Settings.ecp` | Offline setting changes for the SD-card backend |
+| `Settings.crc` | Companion checksum, updated with `Settings.ecp` |
+| `dump -o FILE` / `restore -i FILE` | JSON configuration snapshot |
+
+## Exit Status
+
+| Status | Meaning |
+|--------|---------|
+| `0` | Command completed |
+| `1` | Missing target, connection failure, invalid value, or failed operation |
+| `2` | Invalid command-line syntax |
+
+## Examples
+
+Save settings, preview their restoration, then restore them:
+
+```sh
+resmed_config.py -p /dev/ttyACM0 dump -o config.json
+resmed_config.py -p /dev/ttyACM0 restore -i config.json --dry-run
+resmed_config.py -p /dev/ttyACM0 restore -i config.json
+```
+
+Prepare an SD-card assignment and inspect the stored value:
+
+```sh
+resmed_config.py -p ecp:/sdcard/SETTINGS/ set PNA AirSense_10_airbreak
+resmed_config.py -p ecp:/sdcard/SETTINGS/ get PNA
+```
+
+## See Also
+
+[Serial protocol](../serial_protocol.md), [custom settings](../custom_settings.md),
+[eeprom_tool](eeprom_tool.md), [resmed_flash](resmed_flash.md).

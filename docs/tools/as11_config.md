@@ -1,288 +1,392 @@
 # as11_config
 
-Configuration, RPC, and data access tool for Air11 devices.
+## Name
 
-Read and write settings, call JSON-RPC methods, stream live data, subscribe to events, download spool data, and manage BLE [pairing aliases](#devices).
+`as11_config.py` - configure Air11 devices and access RPC, streams, events, and spools.
+
+## Contents
+
+- [Synopsis](#synopsis)
+- [Description](#description)
+- [Arguments](#arguments)
+  - [JSON input](#json-input)
+  - [Time input](#time-input)
+- [Options](#options)
+- [Connection](#connection)
+- [Commands](#commands)
+  - [get](#get)
+  - [set](#set)
+  - [rpc](#rpc)
+  - [gettime / settime](#gettime--settime)
+  - [session](#session)
+  - [stream / subscribe](#stream--subscribe)
+  - [spool](#spool)
+  - [known](#known)
+  - [devices](#devices)
+- [Output](#output)
+- [Environment](#environment)
+- [Files](#files)
+- [Exit Status](#exit-status)
+- [Examples](#examples)
+- [See Also](#see-also)
+
+## Synopsis
+
+```text
+as11_config.py -d DEVICE [OPTIONS] COMMAND [ARGUMENTS]
+as11_config.py known [REGISTRY [PATTERN]] [OPTIONS]
+as11_config.py devices [COMMAND [ARGUMENTS]]
+as11_config.py spool [TYPE] --input FILE [OPTIONS]
+```
+
+## Description
+
+Reads and writes settings, calls JSON-RPC methods, streams measurements, and
+subscribes to events and value changes. Downloads and decodes historical spools
+(waveforms, profile snapshots, diagnostic errors), manages BLE pairing,
+aliases, and OTA keys, and looks up variables, groups, and selectors offline.
+
+## Arguments
+
+### JSON input
+
+`set --json JSON` and `rpc --params JSON` accept a literal JSON value,
+`-` for stdin, or `@PATH` for a file. `set --json` requires an object
+mapping setting names to values.
+
+### Time input
+
+`settime TIME` and `spool --from-dt TIME` accept:
+
+| Form | Interpretation |
+|------|----------------|
+| ISO 8601 timestamp | Explicit timezone, or host local time when omitted |
+| `YYYY-MM-DD`, `YYYY/MM/DD`, `DD.MM.YYYY`, `DD-MM-YYYY`, `DD/MM/YYYY` | Local midnight |
+| `HH:MM[:SS]` | Today at the given local time |
+| 10- or 11-digit integer | Unix epoch seconds |
+| `+Ns`, `-Nm`, `+Nh`, `-Nd` | Offset from now; either sign with seconds, minutes, hours, or days |
+| `now` | Current host time |
+
+Quote timestamps containing spaces. Use `--from-dt=-7d` for a negative
+spool offset; for a positional value use `settime -- -30m`.
+
+## Options
+
+Device and logging options are accepted before or after the command. RPC
+options belong to commands that contact a device.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `-d`, `--device TARGET` | Transport and target; see [Connection](#connection) | `AS11_DEVICE` |
+| `--addr ADDRESS` | Compatibility shortcut for `-d ble:ADDRESS` | None |
+| `-p`, `--port PORT` | Compatibility shortcut for `-d can:PORT` | None |
+| `--can-flavour NAME` | `slcan`, `socketcan`, or `waveshare`; `canable` aliases `slcan` | Inferred from target |
+| `--timeout SECONDS` | RPC response timeout | `5` |
+| `-v`, `--verbose` | Transfer and informational logging | Off |
+| `--debug` | Packet-level logging | Off |
+| `-h`, `--help` | Show help | -- |
+
+`set` consumes trailing name/value arguments itself: place common options before
+the first pair. `devices scan --timeout` instead controls scan duration.
 
 ## Connection
 
-BLE:
-```
-as11_config.py -d ble:alias get SerialNumber
-as11_config.py -d ble:AA:BB:CC:DD:EE:FF get SerialNumber
-```
+| Target | Transport |
+|--------|-----------|
+| `ble:MAC`, `ble:UUID`, `ble:ALIAS` | BLE; stored pairing or [devices pair](#devices) |
+| `can:TARGET` | CAN adapter or SocketCAN interface |
+| `tcp:HOST[:PORT]` | AirCANnect TCP bridge; default port `39011` |
 
-CAN:
-```
-as11_config.py -d can:/dev/ttyACM0 get SerialNumber
-as11_config.py -d can:slcan0 --can-flavour socketcan get SerialNumber
-```
-
-Use `-d TRANSPORT:TARGET` to select the device. `--addr` and `-p/--port` are
-compatibility shortcuts for `-d ble:...` and `-d can:...`, respectively.
-When no target is specified, the optional `AS11_DEVICE` environment variable supplies
-it in the same format as `-d`.
+`can0`, `vcan0`, and `slcan0` select SocketCAN. Serial targets such as
+`/dev/ttyACM0`, `/dev/ttyUSB0`, and `COM3` select SLCAN. Waveshare requires
+explicit selection. The same syntax applies to [AS11_DEVICE](#environment).
 
 ## Commands
 
 ### get
 
-Read one or more variables by name or group.
-
+```text
+get [NAME ...] [--group GROUP]...
+get --list-groups
 ```
-as11_config.py -d ble:as11 get SerialNumber
-as11_config.py -d ble:as11 get MOP GOM TOM
+
+Read variables selected by `NAME` or `--group GROUP`. Supply at least one name
+or group. `NAME` accepts a protocol long name, short tag (with or without the
+leading `_`), or one of the three-character CONF groups.
+
+| Option | Meaning |
+|--------|---------|
+| `-g`, `--group NAME` | Expand a named group; repeatable |
+| `--list-groups` | List group sizes offline |
+
+CONF groups `BGL`, `DDO`, `DID`, `HST`, `MCA`, `MCF`, `TLP`, and `PDL` may be
+passed directly; other named groups require `--group`. Use `known groups
+<group>` to list members. See [CONF g[6] and g[7]](../as11/conf_block_format.md#g6----external-nor-settingsgroup-schemas).
+
+```sh
+as11_config.py -d ble:as11 get SerialNumber MOP GOM
 as11_config.py -d ble:as11 get --group DeviceConfiguration
-as11_config.py -d ble:as11 get HST
-as11_config.py -d ble:as11 get SerialNumber --group Network
 ```
-
-Three-character variable tags may be passed with or without the leading `_`.
-
-Three-character CONF groups may be passed directly or through `--group`:
-`BGL`, `DDO`, `DID`, `HST`, `MCA`, `MCF`, `TLP`, and `PDL`. Other named groups
-require `--group`. Use `--list-groups` to list group sizes and
-`known groups <group>` to list members. The CONF groups are described in
-[CONF g[6] and g[7]](../as11/conf_block_format.md#g6----external-nor-settingsgroup-schemas).
 
 ### set
 
-Write one or more settings using the `Set` RPC. Values default to strings unless `--type` is given.
-
+```text
+set NAME VALUE [--type TYPE] [NAME VALUE [--type TYPE] ...]
+set --json JSON
 ```
-as11_config.py -d ble:as11 set TherapyMode AutoSet
-as11_config.py -d ble:as11 set MOP AutoSetProfile
-as11_config.py -d ble:as11 set SetPressure 10 --type int RampEnable true --type bool
-as11_config.py -d ble:as11 set --json '{"SetPressure":10}'
+
+Write `NAME`/`VALUE` pairs using the `Set` RPC. `NAME` identifies a setting by
+protocol long name or short tag. `--type TYPE` follows the pair it modifies.
+`set --json` supplies the entire mapping using [JSON input](#json-input).
+
+| Type | Value |
+|------|-------|
+| `str` | String; default |
+| `int` | Decimal integer |
+| `float` | Floating-point number |
+| `bool` | `true`, `yes`, `1`, `false`, `no`, or `0`; case-insensitive |
+| `json` | JSON literal |
+
+```sh
+as11_config.py -d ble:as11 set Cpap-SetPressure 10 --type float RampEnable On
+as11_config.py -d ble:as11 set --json '{"Cpap-SetPressure":10}'
 ```
 
 ### rpc
 
+```text
+rpc --method NAME [--params JSON]
+```
+
 Call an arbitrary JSON-RPC method.
 
-```
+| Option | Meaning |
+|--------|---------|
+| `--method NAME` | Required method name |
+| `--params JSON` | Method parameters; see [JSON input](#json-input); omitted by default |
+
+```sh
 as11_config.py -d ble:as11 rpc --method GetVersion
 as11_config.py -d ble:as11 rpc --method Get --params '["SerialNumber"]'
-as11_config.py -d ble:as11 rpc --method SetDateTime --params '{"dateTime":"2026-01-01T00:00:00.000Z"}'
 ```
 
 ### gettime / settime
 
-Read or set the device clock.
-
+```text
+gettime
+settime [TIME] [--dry-run]
 ```
+
+Read or set the device clock. `settime` defaults to the current host time; see
+[Time input](#time-input) for `TIME`. `--dry-run` previews the payload offline.
+
+```sh
 as11_config.py -d ble:as11 gettime
-as11_config.py -d ble:as11 settime
-as11_config.py -d ble:as11 settime 2026-01-01T00:00:00Z
 as11_config.py -d ble:as11 settime +1h --dry-run
 ```
 
 ### session
 
 Open an interactive CLI and keep the transport open across commands. Interactive
-commands use the same syntax and options as normal `as11_config.py` commands;
-use `help [COMMAND]` to show their standard help. A nested `session` command is
-not accepted.
+commands use the same syntax and options as normal commands; `help [COMMAND]`
+shows command help, and `quit`, `exit`, or `q` closes the session.
 
-```
+`SubscribeEvent` subscriptions end with their RPC connection, so after an
+interactive `subscribe` the session reconnects before the next prompt.
+
+```sh
 as11_config.py -d ble:as11 session
 ```
 
-`SubscribeEvent` subscriptions end with their RPC connection. After an
-interactive `subscribe` command finishes, the session reconnects before showing
-the next prompt.
-
 ### stream / subscribe
 
-Receive live NDJSON notifications from the device.
-
-Without `--data-ids` or `--edf`, `stream` requests all EDF alias data IDs
-(`BRP`, `PLD`, `SA2`, `TCV`) at the fastest accepted interval:
-`sampleIntervalMs=10`, `reportIntervalMs=50`.
-
+```text
+stream [--data-ids ID,...] [--edf ALIAS,...] [OPTIONS]
+subscribe [SELECTOR ...] [--events LABEL,...] [--duration SECONDS]
 ```
-as11_config.py -d ble:as11 stream
-as11_config.py -d can:can0 stream --duration 60
-as11_config.py -d can:can0 stream --edf BRP
+
+`stream` receives sampled measurements; `subscribe` receives event and DataItem
+notifications. Output is NDJSON. `SELECTOR` is an exact event-family selector or
+DataItem name; DataItems produce an initial value followed by `ValueChange`
+notifications. With no selector, `subscribe` sends an empty `dataIds` list.
+
+| Option | Command | Meaning / default |
+|--------|---------|-------------------|
+| `--data-ids ID,...` | `stream` | Explicit data IDs |
+| `--edf ALIAS,...` | `stream` | Expand EDF aliases; may combine with `--data-ids` |
+| `--sample-ms MS` | `stream` | `10` with no selectors, fastest selected alias period for `--edf` alone, otherwise `200` |
+| `--report-ms MS` | `stream` | Default `5 * sampleIntervalMs` |
+| `--events LABEL,...`, `--event LABEL,...` | `subscribe` | Resolve payload labels to event selectors |
+| `--duration SECONDS` | Both | Stop after the duration; default until Ctrl-C |
+
+Without `--data-ids` or `--edf`, `stream` requests all `BRP`, `PLD`, `SA2`, and
+`TCV` alias data IDs. Sample intervals are `10..65000 ms`, report intervals
+`10..300000 ms`, both rounded down to `10 ms`; the report interval must be one
+to five sample intervals, and one stream carries at most 30 data IDs. See the
+[stream mappings](../as11/rpc_streams.md) and [event selectors](../as11/rpc_events.md).
+
+```sh
 as11_config.py -d can:can0 stream --edf BRP,PLD --sample-ms 40
-as11_config.py -d ble:as11 stream --data-ids Leak-50hz,RespiratoryRate-50hz --duration 60
-as11_config.py -d ble:as11 subscribe --duration 60
 as11_config.py -d ble:as11 subscribe UsageEvents-TherapyStatusEvents --duration 60
-as11_config.py -d ble:as11 subscribe _ROP --duration 60
-as11_config.py -d ble:as11 subscribe --events PressureStart --duration 60
 ```
-
-EDF stream aliases (`BRP`, `PLD`, `SA2`, `TCV`) and their raw data IDs are
-listed in [AS11 RPC Stream Reference](../as11/rpc_streams.md).
-Event subscription selectors and payload event families are listed in
-[AS11 RPC Event Reference](../as11/rpc_events.md). Positional `subscribe`
-arguments accept exact event-family selectors or DataItem names. DataItems
-produce an initial value followed by `ValueChange` notifications.
-`subscribe --events` accepts payload event labels and expands them to the
-selector or selectors that carry those events. `--event` is accepted as an
-alias for `--events`.
-
-StartStream interval limits verified so far: minimum sample interval is `10 ms`,
-intervals are rounded down to a `10 ms` boundary, and `reportIntervalMs` must
-not exceed `sampleIntervalMs * 5`.
 
 ### spool
 
-Download and decode spool data.
-
-```
-as11_config.py -d ble:as11 spool Summary
-as11_config.py -d ble:as11 spool TherapyEvents-RespiratoryEvents --format table
-as11_config.py -d ble:as11 spool DiagnosticExceptionEvents-AppErrors --details
-as11_config.py -d ble:as11 spool RespiratoryFlow6p25Hz --format csv
-as11_config.py -d ble:as11 spool Summary --format summary
-as11_config.py -d ble:as11 spool Summary --from-dt 2026-08-01
-as11_config.py -d ble:as11 spool Summary --from-dt=-7d -o summary.bin
-as11_config.py -d ble:as11 spool Summary --no-decode
-as11_config.py spool --input summary.bin
-as11_config.py spool Summary --input summary.bin
-as11_config.py -d ble:as11 spool --list-types
+```text
+spool TYPE [OPTIONS]
+spool [TYPE] --input FILE [OPTIONS]
+spool --list-types
 ```
 
-Spool types, payload families, and inner record shapes are listed in
-[AS11 RPC Spool Reference](../as11/rpc_spools.md).
+Download and decode spool data. `TYPE` is a spool name from `--list-types`;
+live downloads require it, offline decoding detects it from `FILE`.
 
-The tool builds the `spoolAddress` as:
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--from-dt TIME` | Earliest record timestamp; see [Time input](#time-input) | All records |
+| `--max-size BYTES` | Unencoded payload ceiling per round | `4096` |
+| `--max-rounds N` | Maximum continuation rounds | Unlimited |
+| `--no-follow` | Stop after the first round | Off |
+| `--fragment-timeout SECONDS` | Deadline for a round's fragments; separate from `--timeout` | `30` |
+| `--fragment-max BYTES` | Requested fragment size | `3000`; device ceiling `3576` |
+| `--format FORMAT` | `table`, `json`, `csv`, or `summary` | `table` |
+| `--details` | Event interpretations and unknown fields below the table; table only | Off |
+| `--no-decode` | Raw download; exclusive with `--input`, `--format`, `--details` | Off |
+| `--app-version VERSION` | Diagnostic error-map version | Queried live; all bundled maps offline |
+| `-i`, `--input FILE` | Decode a captured payload offline | None |
+| `-o`, `--output FILE` | Save the downloaded raw payload; exclusive with `--input` | None |
+| `--list-types` | List spool types offline | Off |
 
-```
-{ "<spool type>": { "fromDateTime": "<ISO timestamp>" } }
-```
-
-The confirmed spool-address selector is `fromDateTime`. The returned
-`nextSpoolAddress` uses the same shape and is followed automatically unless
-`--no-follow` is passed.
-
-`--from-dt` accepts a full ISO 8601 timestamp, a local date such as
-`2026-08-01`, Unix epoch seconds, or a relative value such as `-7d`, `-12h`,
-or `-30m`. Without the option, the tool requests all available records.
-
-Each round validates the fragment sequence and the terminal SHA-256 before
-accepting its payload. `--max-size` controls the unencoded payload ceiling per
-round. `--fragment-max` defaults to `3000`; the device clamps larger requests
-to `3576` bytes. Use `-v` to show transfer rounds, fragments, and hash checks.
-
-Spool payloads are decoded by default. `--format` selects the presentation:
+Downloads follow continuation addresses automatically and validate fragment
+order and the terminal SHA-256 each round. `--format` selects the presentation:
 
 | Format | Output |
 |--------|--------|
-| `table` | Terminal-oriented record, event, metric, and sample tables; the default. |
-| `json` | Complete decoded model. |
-| `csv` | Complete model flattened to `path,value` rows. |
-| `summary` | Compact record, event-count, or sample-range summary. |
+| `table` | Terminal-oriented record, event, metric, and sample tables |
+| `json` | Complete decoded model |
+| `csv` | Decoded model flattened to `path,value` rows |
+| `summary` | Compact record, event-count, or sample-range summary |
 
-Event tables contain one line per record. Known event-specific values are
-included in the `Details` column. `--details` additionally prints diagnostic
-interpretations and unrecognized fields below the table.
+`--no-decode` output is a Base64 envelope with transfer metadata. Payload
+semantics are in the [spool reference](../as11/rpc_spools.md).
 
-The complete model includes all decoded samples, raw values, units, timing,
-compression metadata, and unrecognized protobuf fields. `--no-decode` instead
-returns a JSON envelope containing the payload as Base64 and the transfer
-metadata. The `-o` option writes the raw payload to a file; combined with
-`--no-decode`, it suppresses payload output on stdout.
-
-Use `-i/--input` to decode a previously captured raw payload without contacting
-a device. The spool type is detected from the payload when omitted. Supply it
-as the positional argument when the outer protobuf field is ambiguous.
-
-Archived signal spools such as `RespiratoryFlow6p25Hz` include complete RC03
-record metadata and both raw and scaled sample arrays.
-
-`SettingProfilesCollection` contains historical active-profile,
-therapy-profile, feature-profile, and alarm-profile snapshots. Pressures and
-time values include their scaled values and units; enum-like settings retain
-their raw values.
-
-`ConfigurationProfilesCollection` contains the configuration
-attributes and `DataDeliveryControlV2` spool on/off mask.
-
-`TherapyOneMinutePeriodic` contains one-minute pressure, leak, ventilation,
-respiratory-rate, I:E-ratio, and oximetry series when oximetry is present.
-
-Metric snapshots (`MachineMetrics`, `MemoryMetrics`, `CellularDataUsage`)
-contain named current snapshot fields where known. `MemoryMetrics` reports
-write, erase, and FTL generation counters for the `SETTINGS`, `DATALOG`, and
-`UPGRADE` volumes in external NOR flash.
-
-`DiagnosticTenMinutePeriodic` contains ten-minute cellular signal-strength and
-signal-quality series.
-
-For `atmosphericPressure10min`, the archive scale is decoded; the physical unit
-is not identified.
-
-`SoundcheckVector` contains soundcheck vector bins and peak pairs.
-
-`AcousticSignatureV2` and `RecordedSound` retain their blob data as Base64.
-`RecordedSound` is gated by `SoundDownloadAllowed`.
-
-Event records include the numeric type, known event name, start/end timestamps,
-duration, and all extra fields.
-
-Diagnostic exception spools use APPX-specific error manifests. Live `spool`
-decoding reads `ApplicationIdentifier` automatically. For an offline capture,
-pass `--app-version`, or omit it to compare all bundled firmware maps:
-
+```sh
+as11_config.py -d ble:as11 spool Summary --from-dt=-7d
+as11_config.py -d ble:as11 spool DiagnosticExceptionEvents-AppErrors --details
 ```
+
+### known
+
+```text
+known [REGISTRY [PATTERN]] [--selector TEXT]
+```
+
+Offline listing of the known registries.
+`REGISTRY` selects `vars`, `groups`, `subtrees`, `streams`, `edf`, `events`, or
+`spools`; the default lists registries. `PATTERN` filters the chosen registry,
+selects a group, or selects EDF aliases for `streams`. `--selector TEXT`
+filters selector names in `known events`.
+
+`known subtrees` prints the non-DataItem selectors accepted by `Get` (see the
+[Get input reference](../as11/rpc_get_inputs.md)). `known streams <EDF>` prints
+the data IDs behind an alias. `known events <text>` resolves payload event
+labels to the selector to subscribe.
+
+```sh
+as11_config.py known groups HST
+as11_config.py known events PressureStart
+```
+
+### devices
+
+```text
+devices [list]
+devices scan [--timeout SECONDS] [--all]
+devices pair TARGET [--passkey CODE]
+devices alias TARGET NAME
+devices unalias NAME
+devices ota-key TARGET [KEY | --key HEX64 | --key-file FILE | --clear]
+```
+
+BLE device management.
+`TARGET` is a BLE address, UUID, or stored alias. `KEY` and `HEX64` accept 64
+hexadecimal digits; `FILE` contains 32 raw bytes or hex text.
+
+| Command | Operation |
+|---------|-----------|
+| `scan` | List BLE advertisements; `--timeout` defaults to 10 s; `--all` removes filters |
+| `list` | List stored devices; default subcommand |
+| `pair` | Pair with a device; prompts when the passkey is omitted |
+| `alias` | Assign an alias |
+| `unalias` | Remove an alias |
+| `ota-key` | Store a key, remove it with `--clear`, or report its status by default |
+
+```sh
+as11_config.py devices pair AA:BB:CC:DD:EE:FF
+as11_config.py devices ota-key bedroom --key-file ota-key.hex
+```
+
+## Output
+
+`get`, `set`, `rpc`, `gettime`, and `settime` print JSON responses. `stream` and
+`subscribe` print one notification per line (NDJSON); setup responses and
+transfer diagnostics go to stderr. `known` and `devices` print text tables.
+Spool formats are listed under [spool](#spool).
+
+## Environment
+
+| Variable | Meaning |
+|----------|---------|
+| `AS11_DEVICE` | Optional target in `-d` format; explicit `-d`, `--addr`, or `--port` takes precedence |
+| `AS11_SESSION_HISTORY` | Override the interactive history file |
+| `XDG_STATE_HOME` | History directory base when `AS11_SESSION_HISTORY` is unset |
+
+## Files
+
+| File | Use |
+|------|-----|
+| `~/.as11_ble.json` | Pairing credentials, aliases, and optional OTA keys |
+| `$XDG_STATE_HOME/airsense11/as11_config_history` | Session history when `XDG_STATE_HOME` is set |
+| `~/.as11_config_history` | Default session history path |
+| `spool -o FILE` / `spool -i FILE` | Raw binary spool payload |
+| `--params @PATH` / `--json @PATH` | JSON RPC parameters |
+| `devices ota-key --key-file FILE` | 32 raw key bytes or hex text |
+
+## Exit Status
+
+| Status | Meaning |
+|--------|---------|
+| `0` | Command completed; returned JSON may still contain an RPC `error` |
+| `1` | Target, transport, timeout, spool, or processing error |
+| `2` | Invalid command-line syntax or argument type |
+| `130` | Unhandled Ctrl-C; `stream` and `subscribe` handle Ctrl-C and return `0` |
+
+## Examples
+
+Capture a spool raw, then decode it offline later:
+
+```sh
+as11_config.py -d ble:as11 spool Summary --from-dt=-7d -o summary.bin
+as11_config.py spool --input summary.bin
+```
+
+Pair a device, alias it, then read by alias:
+
+```sh
+as11_config.py devices pair AA:BB:CC:DD:EE:FF
+as11_config.py devices alias AA:BB:CC:DD:EE:FF bedroom
+as11_config.py -d ble:bedroom get SerialNumber
+```
+
+Decode captured diagnostic errors with a specific firmware map:
+
+```sh
 as11_config.py spool DiagnosticExceptionEvents-AppErrors --input app-errors.bin \
     --app-version 8.4.0
 ```
 
-The output retains the numeric code and lists every matching direct producer,
-producer call site, mapped filesystem status, and recognized NOR/SD volume
-monitor. `ResettableErrors` records also include the firmware `SystemError`
-symbol. Codes with more than one possible producer are marked `[ambiguous]`.
+## See Also
 
-`Summary` records contain the period range, duration, timezone offset, session
-entries, scalar values, and percentile metrics.
-
-### known
-
-Offline listing of known variables, groups, streams, events, and spool types.
-
-```
-as11_config.py known
-as11_config.py known vars
-as11_config.py known groups
-as11_config.py known groups HST
-as11_config.py known subtrees
-as11_config.py known streams
-as11_config.py known streams BRP
-as11_config.py known streams BRP,SA2
-as11_config.py known edf
-as11_config.py known events
-as11_config.py known events PressureStart
-as11_config.py known events --selector SystemActivityEvents-FrequentActivityEvents
-as11_config.py known spools
-```
-
-`known subtrees` prints the named non-DataItem selectors accepted by
-`Get`; their semantics and release-scoped catalog are documented in the
-[Air11 RPC Get Input Reference](../as11/rpc_get_inputs.md).
-`known streams <EDF>` prints the data IDs behind an EDF stream alias.
-`known events` prints `SubscribeEvent` selectors and event label counts.
-`known events <text>` resolves payload event labels to the selector that
-should be subscribed. `known spools` prints spool types grouped by current
-payload-family hints.
-
-### devices
-
-BLE device management: scan, pair, list, alias, unalias, and default OTA-key
-storage for paired devices.
-
-```
-as11_config.py devices scan
-as11_config.py devices pair AA:BB:CC:DD:EE:FF
-as11_config.py devices alias AA:BB:CC:DD:EE:FF bedroom
-as11_config.py devices ota-key bedroom --key HEXSTR
-as11_config.py devices ota-key bedroom --key-file ota-key.hex
-as11_config.py devices ota-key bedroom --clear
-as11_config.py devices list
-```
-
-`devices ota-key` stores the key in the existing BLE credential record. The
-normal device list only shows whether an OTA key is configured; it does not
-print the key.
+[RPC protocol](../as11/rpc_protocol.md), [RPC streams](../as11/rpc_streams.md),
+[RPC events](../as11/rpc_events.md), [RPC spools](../as11/rpc_spools.md),
+[as11_flash](as11_flash.md), [as11_descriptors](as11_descriptors.md).

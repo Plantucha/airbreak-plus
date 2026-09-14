@@ -1,77 +1,123 @@
 # as10_descriptors
 
-Offline CCX descriptor explorer for AirSense 10 / AirCurve 10 firmware images.
+## Name
 
-Use this tool to inspect variable descriptors, option masks, therapy-mode
-tables, EDF metadata, variable groups, dependency chains, and localized GUI
-text. It does not connect to a device. Read commands do not modify firmware;
-`edit` writes a separate output image and never overwrites the input image.
+`as10_descriptors.py` - inspect and edit Air 10 CCX descriptors offline.
 
-## Output
+## Contents
 
-Most listing commands emit one record per line. Default `var` and table output
-is compact and intended for scanning with shell tools.
+- [Synopsis](#synopsis)
+- [Description](#description)
+- [Arguments](#arguments)
+- [Options](#options)
+- [Commands](#commands)
+  - [info](#info)
+  - [var](#var)
+  - [globals](#globals)
+  - [mode](#mode)
+  - [channels](#channels)
+  - [strid / strinfo / search](#strid--strinfo--search)
+  - [chain](#chain)
+  - [edit](#edit)
+  - [dump-tsv](#dump-tsv)
+- [Interactive Mode](#interactive-mode)
+- [Output](#output)
+- [Exit Status](#exit-status)
+- [Examples](#examples)
+- [See Also](#see-also)
 
+## Synopsis
+
+```text
+as10_descriptors.py FIRMWARE [OPTIONS] [COMMAND [ARGUMENTS]]
+as10_descriptors.py FIRMWARE [OPTIONS] -i
 ```
-0x000 var=0x020D:MOP @0x08008584 +0x0000  fl=0x0007 [ACT|VIS|EDT]  def=1  opts=12  perm=0x00000003  dep=[4]0x0173->0x0191:SGT "Mode"
-```
 
-Use `--verbose` with `var` for multi-line details.
-For editable descriptor types, verbose output also lists the accepted `edit`
-field names.
+## Description
+
+Decodes the firmware configuration model: variable descriptors and dependencies,
+therapy-mode assignments, EDF and EEPROM recording schemas, storage groups,
+persistent-state rules, identity exports, and localized GUI text. Resolves UART
+tags to variable IDs and exports descriptor tables as TSV.
+
+Edits defaults, numeric limits, steps, scaling, flags, enum permissions, string
+references, and dependency links. Validates changes and updates the CCX
+checksum when writing the modified firmware image.
+
+## Arguments
+
+`FIRMWARE`: raw firmware image to inspect or edit.
 
 Bare numeric values are decimal. Use `0x` for hexadecimal.
 
+## Options
+
+Global options precede the command.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `-i`, `--interactive` | Start the interactive shell | Off |
+| `-v`, `--verbose` | Multi-line variable details, including editable field names | Off |
+| `--globals ADDRESS` | Override automatic `globals[]` discovery | Auto-detect |
+| `-h`, `--help` | Show help | -- |
+
 ## Commands
+
+The default command is `info`.
 
 ### info
 
+```text
+info
+```
+
 Show the firmware identity, language set, therapy modes, and variable count.
 
-```
+```sh
 as10_descriptors.py firmware.bin info
 ```
 
 ### var
 
-Show one variable descriptor by numeric var id or UART tag.
+```text
+var VAR
+```
 
-```
-as10_descriptors.py firmware.bin var 0x020D
-as10_descriptors.py firmware.bin var MOP
-as10_descriptors.py firmware.bin --verbose var MOP
-```
+Show one variable descriptor. `VAR` is a numeric variable ID or UART tag.
 
 For numeric variables the output includes the raw limits, display scaling,
 step, units, and dependency-chain link if present. For enum variables it
 includes option count, permission mask, option labels, and dependency-chain
 head if present.
 
+```sh
+as10_descriptors.py firmware.bin var 0x020D
+as10_descriptors.py firmware.bin --verbose var MOP
+```
+
 ### globals
 
-Show the `globals[]` pointer map, or decode selected globals entries.
-
-```
-as10_descriptors.py firmware.bin globals
-as10_descriptors.py firmware.bin globals 0 2 24
-as10_descriptors.py firmware.bin globals 8
-as10_descriptors.py firmware.bin globals 8:0,0x10
-as10_descriptors.py firmware.bin globals 16:MGL
-as10_descriptors.py firmware.bin globals 22:OP
-as10_descriptors.py firmware.bin globals 22:header
-as10_descriptors.py firmware.bin globals 23:MOP
+```text
+globals [SELECTOR ...]
 ```
 
-For descriptor tables `g[3]`, `g[4]`, `g[6]`, `g[8]`, `g[9]`, and `g[10]`,
-the form is:
+Show the `globals[]` pointer map by default. Each `SELECTOR` selects one globals
+entry for decoding; multiple selectors are processed in command-line order.
 
-```
-globals TABLE
-globals TABLE:IDX
-globals TABLE:FROM,TO
-```
+| Selector | Meaning |
+|----------|---------|
+| `TABLE` | Decode the globals entry at index `TABLE`; indexes are listed below |
+| `TABLE:INDEX` | Show one zero-based descriptor row; applies to tables 3, 4, 6, 8, 9, 10 |
+| `TABLE:FROM,TO` | Show descriptor rows from `FROM` inclusive to `TO` exclusive; same tables |
+| `16:GROUP` | Show one EEPROM variable group by name |
+| `22` | List the 16 variable IDs in the [identity TGT export list](../config_variables.md#g22----identity-tgt-export-list), with their UART tags |
+| `23` | List all UART tags and their variable IDs |
+| `23:QUERY` | Look up a full UART tag, two-character suffix, or numeric variable ID; tags are case-insensitive |
 
-Useful decoded globals:
+`INDEX`, `FROM`, and `TO` refer to descriptor rows within the selected table.
+Use `var VAR` to select a descriptor by variable ID or UART tag.
+
+Decoded globals:
 
 | Index | Content |
 |-------|---------|
@@ -92,18 +138,19 @@ Useful decoded globals:
 | `23` | UART-name index |
 | `24` | therapy-mode setting map |
 
-Use `--globals 0xADDR` if automatic `globals[]` discovery fails.
+```sh
+as10_descriptors.py firmware.bin globals 0 2 24
+as10_descriptors.py firmware.bin globals 8:0,0x10 16:MGL 22 23:OP
+```
 
 ### mode
 
-List variables mapped to one therapy mode.
+```text
+mode [MODE]
+```
 
-```
-as10_descriptors.py firmware.bin mode 1
-as10_descriptors.py firmware.bin mode 0xa
-as10_descriptors.py firmware.bin mode AutoSet
-as10_descriptors.py firmware.bin mode "AutoSet for Her"
-```
+List known therapy modes by default. `MODE` selects one mode by numeric index
+or name and lists its mapped variables.
 
 Known mode indexes are taken from the firmware's `MOP` enum.
 
@@ -122,125 +169,163 @@ Known mode indexes are taken from the firmware's `MOP` enum.
 | `10` | PAC |
 | `11` | AutoSet for Her |
 
+```sh
+as10_descriptors.py firmware.bin mode 0xa
+as10_descriptors.py firmware.bin mode "AutoSet for Her"
+```
+
 ### channels
 
-List decoded signal channels, or show one channel by name.
-
+```text
+channels [NAME]
 ```
+
+List decoded signal channels. `NAME` selects one channel, such as `BRP` or `STR`.
+
+Channel output maps EDF/live-stream fields to firmware signal descriptors.
+
+```sh
 as10_descriptors.py firmware.bin channels
 as10_descriptors.py firmware.bin channels BRP
-as10_descriptors.py firmware.bin channels STR
 ```
-
-This is useful when mapping EDF/live-stream fields back to firmware signal
-descriptors.
 
 ### strid / strinfo / search
 
-Decode localized GUI strings and search descriptor text.
-
+```text
+strid ID [LANG]
+strinfo [ID]
+search QUERY ...
 ```
-as10_descriptors.py firmware.bin strid 0x000C
+
+`strid` decodes GUI string `ID`; `LANG` selects a numeric language slot.
+`strinfo` shows the raw string-table record and locale pointers for `ID`
+(default `0`). `search` joins the `QUERY` words into a descriptor-text search.
+
+`strid` prints all detected languages by default.
+
+```sh
 as10_descriptors.py firmware.bin strid 0x000C 0
-as10_descriptors.py firmware.bin strinfo 0x000C
 as10_descriptors.py firmware.bin search ramp time
 ```
 
-`strid` without a language prints all detected languages. With a language
-argument it prints that numeric language slot only. `strinfo` shows the raw
-string table record and locale pointers.
-
 ### chain
 
-Walk a variable descriptor's dependency chain into g[4] numeric variables.
-
+```text
+chain VAR
 ```
+
+Walk the g[4] numeric dependency chain for variable ID or UART tag `VAR`,
+stopping at `0x7FFF` or the firmware depth limit.
+
+Link fields and index semantics are described in the
+[dependency-chain reference](../config_variables.md#dependency-chain).
+
+```sh
 as10_descriptors.py firmware.bin chain MOP
-as10_descriptors.py firmware.bin chain 0x020D
 ```
-
-For g[3], g[6], and g[8], the chain starts at descriptor offset `+0x04`. For a
-g[4] source, `+0x04` is already its next link. These fields contain g[4]
-indexes, not var IDs. Each g[4] record follows its own `+0x04` link until
-`0x7FFF` or the firmware depth limit.
 
 ### edit
 
+```text
+edit VAR.FIELD=VALUE ... [OPTIONS]
+```
+
 Edit one or more variable descriptors and write a new firmware image.
 
-```
-as10_descriptors.py firmware.bin edit -o edited.bin \
-    MXS.min=0 MXS.max=25 MXS.default=15 \
-    MOP.flags=0x0007 MOP.dependency=RGT
-```
-
 Assignments use `VAR.FIELD=VALUE`. `VAR` may be a UART tag or numeric var ID.
-All assignments are validated before any output is written, and the modified
-image is parsed again to verify the stored values. The command validates the
-input BLX, CCX, and CDX checksums and updates the CCX checksum after editing.
+The command checks input BLX, CCX, and CDX checksums, validates assignments,
+updates the CCX checksum, and reparses the result to verify stored values
+before writing.
 
-Use `--dry-run` to validate and display the result without writing a file. Use
-`--overwrite` to replace an existing output file. `--ignore-input-crc` permits
-research on an image whose input checksums are already invalid; it does not
-permit overwriting the input image.
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `-o`, `--output FILE` | Output image; required unless `--dry-run` | None |
+| `--dry-run` | Validate and preview changes | Off |
+| `--overwrite` | Replace an existing output file | Off |
+| `--ignore-input-crc` | Accept invalid input checksums | Off |
 
-Editable descriptor tables are g[3], g[4], g[6], and g[8]. Run `edit --help`
-for the fields accepted by each table. Invalid fields also report the valid
-fields for that variable type.
+Editable tables are g[3], g[4], g[6], and g[8]. The command does not resize
+tables, allocate strings, or change EEPROM groups and therapy-mode tables.
+`edit --help` lists accepted fields; an invalid field reports that type's
+accepted names. The input image is never overwritten, including with
+`--overwrite` or `--ignore-input-crc`.
 
-Numeric g[4] values such as `default`, `min`, `max`, and `step` use the
-descriptor's display scaling:
-
-```
-MXS.max=25
-MXS.max_raw=1250
-```
-
-The first form writes 25 cmH2O using the descriptor scale. The second form
-writes the raw integer directly. If `scale` and a scaled field are changed in
-one command, the scaled field uses the new scale. A value that cannot be
-represented exactly is rejected.
+Numeric g[4] fields `default`, `min`, `max`, and `step` use display scaling;
+fields with a `_raw` suffix use raw integers. For example, `MXS.max=25`
+sets 25 cmH2O, while `MXS.max_raw=1250` stores the integer 1250. If `scale` and
+a scaled field are changed in one command, the scaled field uses the new scale.
+Values must be exactly representable.
 
 Dependency fields accept `none`, a g[4] table index, or the UART name of a
 g[4] variable. String fields accept an existing numeric string ID. Flags accept
-a numeric mask or a quoted symbolic expression:
+a numeric mask or a quoted symbolic expression such as `MOP.flags='ACT|VIS|EDT'`.
 
+```sh
+as10_descriptors.py firmware.bin edit -o edited.bin \
+    MXS.min=0 MXS.max=25 MXS.default=15 \
+    MOP.flags='ACT|VIS|EDT' MOP.dependency=RGT
 ```
-MOP.flags='ACT|VIS|EDT'
-```
-
-`edit` changes existing descriptor records. It does not resize descriptor
-tables, allocate strings, or change EEPROM group and therapy-mode tables.
 
 ### dump-tsv
 
-Write descriptor tables as TSV for spreadsheets or diffing between firmware
-versions.
-
+```text
+dump-tsv FILE [--tables TABLE,...]
 ```
+
+Export descriptor tables to `FILE` (`-` for stdout), including resolved
+dependency-chain variable IDs and UART names for g[4] and g[8].
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--tables TABLE,...` | Comma-separated descriptor table indexes | `3,4,6,8,9,10` |
+
+```sh
 as10_descriptors.py firmware.bin dump-tsv descriptors.tsv
-as10_descriptors.py firmware.bin dump-tsv descriptors.tsv --tables 4,8
-as10_descriptors.py firmware.bin dump-tsv - --tables 8
+as10_descriptors.py firmware.bin dump-tsv - --tables 4,8
 ```
-
-Default tables are `3,4,6,8,9,10`. The g[4] and g[8] TSV output includes
-resolved dependency-chain var ids and UART names.
 
 ## Interactive Mode
 
-Use `-i` to keep the firmware image loaded and run repeated descriptor queries.
+`-i` keeps the firmware image loaded across descriptor queries.
 
-```
+Inside the shell, use the same command names without repeating the firmware
+path; `quit` closes the shell. Firmware editing is available only as a
+non-interactive command.
+
+```sh
 as10_descriptors.py firmware.bin -i
 ```
 
-Inside the shell, use the same command names without repeating the firmware
-path. Firmware editing is available only as a non-interactive command.
+## Output
 
+Most listings emit one record per line. `--verbose var` prints multi-line
+details and accepted `edit` fields.
+
+```text
+0x000 var=0x020D:MOP @0x08008584 +0x0000  fl=0x0007 [ACT|VIS|EDT]  def=1  opts=12  perm=0x00000003  dep=[4]0x0173->0x0191:SGT "Mode"
 ```
-as10> var MOP
-as10> globals 8:0,4
-as10> mode ASV
-as10> chain MOP
-as10> quit
+
+`dump-tsv` writes TSV to its output path or stdout (`-`). Errors go to stderr.
+
+## Exit Status
+
+| Status | Meaning |
+|--------|---------|
+| `0` | Successful command or closed output pipe |
+| `1` | Image, lookup, edit, or file error |
+| `2` | Invalid command-line syntax |
+
+## Examples
+
+Inspect a descriptor, edit its limit, and inspect the result:
+
+```sh
+as10_descriptors.py firmware.bin --verbose var MXS
+as10_descriptors.py firmware.bin edit MXS.max=25 -o edited.bin
+as10_descriptors.py edited.bin --verbose var MXS
 ```
+
+## See Also
+
+[Air 10 configuration variables](../config_variables.md),
+[resmed_image](resmed_image.md), [resmed_config](resmed_config.md).

@@ -1,108 +1,219 @@
 # as11_flash
 
-Firmware upgrade and bootloader service tool for Air11 devices.
+## Name
 
-Build an `.abc` OTA container from one or more firmware regions, upload it to
-the device, and optionally apply the upgrade. The selected firmware inputs
-determine the target flash range.
+`as11_flash.py` - build and transfer Air11 firmware; access bootloader service storage.
 
 ## Contents
 
+- [Synopsis](#synopsis)
+- [Description](#description)
+- [Arguments](#arguments)
+- [Options](#options)
+  - [Container options](#container-options)
 - [Commands](#commands)
-  - [`flash`](#flash)
-  - [`upload`](#upload)
-  - [`build`](#build)
-  - [`info`](#info)
-  - [`apply`](#apply)
-  - [`targets`](#targets)
+  - [flash](#flash)
+  - [upload](#upload)
+  - [build](#build)
+  - [info](#info)
+  - [apply](#apply)
+  - [targets](#targets)
 - [Firmware inputs](#firmware-inputs)
 - [Apply modes](#apply-modes)
   - [Apply over BLE](#apply-over-ble)
 - [Bootloader service](#bootloader-service)
-  - [Install and enter service mode](#install-and-enter-service-mode)
-  - [Service identity and reset](#service-identity-and-reset)
-  - [Flash firmware](#flash-firmware)
+  - [enter](#enter)
+  - [info / reset](#info--reset)
+  - [service flash](#service-flash)
   - [Read storage](#read-storage)
   - [Write storage](#write-storage)
   - [Transport options](#transport-options)
+- [Output](#output)
+- [Environment](#environment)
+- [Files](#files)
+- [Exit Status](#exit-status)
+- [Examples](#examples)
+- [See Also](#see-also)
+
+## Synopsis
+
+```text
+as11_flash.py build INPUT_OPTIONS -o ABC [OPTIONS]
+as11_flash.py info ABC
+as11_flash.py targets
+as11_flash.py -d DEVICE flash INPUT_OPTIONS [OPTIONS]
+as11_flash.py -d DEVICE upload ABC [OPTIONS]
+as11_flash.py -d DEVICE apply ABC [OPTIONS]
+as11_flash.py -d DEVICE apply --hash HEX64 [OPTIONS]
+as11_flash.py -d DEVICE service COMMAND [ARGUMENTS] [OPTIONS]
+```
+
+## Description
+
+Builds and inspects OTA containers, checks firmware CRCs, uploads images,
+verifies staging, and applies upgrades. Selects and combines firmware regions
+from complete images or separate blocks.
+
+Programs firmware and reads or writes internal flash, external NOR, and backup
+SRAM through the bootloader service extension.
+
+## Arguments
+
+| Argument | Meaning |
+|----------|---------|
+| `DEVICE` | Transport target; see the device options below |
+| `INPUT_OPTIONS` | Firmware source options listed under [Firmware inputs](#firmware-inputs) |
+| `ABC` | Host path to an OTA container; output for `build`, input for `info`, `upload`, and `apply` |
+| `HEX64` | SHA-256 container hash as 64 hexadecimal digits |
+
+## Options
+
+Device options are accepted before or after the command.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `-d`, `--device TARGET` | `ble:ADDRESS`, `can:TARGET`, or `tcp:HOST[:PORT]` | `AS11_DEVICE` |
+| `--addr ADDRESS` | Compatibility shortcut for `-d ble:ADDRESS` | None |
+| `-p`, `--port PORT` | Compatibility shortcut for `-d can:PORT` | None |
+| `--can-flavour NAME` | `slcan`, `socketcan`, or `waveshare`; `canable` aliases `slcan` | Inferred from target |
+| `--debug` | Transport packet logging | Off |
+| `-h`, `--help` | Show help | -- |
+
+BLE targets accept a MAC, UUID, or stored alias. TCP targets use the AirCANnect
+bridge, default port `39011`. See [connection syntax](as11_config.md#connection).
+
+### Container options
+
+| Option | Commands | Meaning / default |
+|--------|----------|-------------------|
+| `--fingerprint-preset NAME` | `build`, `flash` | Default `auto`: live `flash` queries `ApplicationIdentifier`; offline `build` requires an explicit preset or fingerprint overrides when needed |
+| `--conf-appl-fingerprint U32` | `build`, `flash` | Override CONF/APPL compatibility fingerprint |
+| `--fgbl-appl-fingerprint U32` | `build`, `flash` | Override FGBL/APPL compatibility fingerprint |
+| `--fg-security-fingerprint U32` | `build`, `flash` | Override security fingerprint; queried live, zero offline |
+| `--fix-crc` | `build`, `flash` | Repair input CRC footers in memory |
+| `--force` | `build`, `flash`, `upload` | Override local validation failures |
+| `--dry-run` | `flash`, `upload` | Validate and preview the plan offline; `flash` requires explicit fingerprints when automatic discovery would need the device |
+| `--verify-timeout SECONDS` | `flash`, `upload` | `CheckUpgradeFile` and apply timeout; default `120` |
+
+`build --help` lists fingerprint presets. Individual fingerprint options
+override preset values.
+
+For the security fingerprint, live `flash` reads `_SBA` and `_SKF` unless
+overridden. When `_SBA` is `No`, it uses zero.
+
+Input options and target selection are listed under [Firmware inputs](#firmware-inputs).
+Apply options are listed under [Apply modes](#apply-modes).
 
 ## Commands
 
-`AS11_DEVICE` supplies the default target in `-d` format, e.g. `ble:alias`
-or `can:can0`. Explicit `-d`, `--addr`, or `-p/--port` takes precedence.
-
 ### flash
 
-Build the OTA container from a raw firmware image and upload it in one step.
-This is the primary path -- start here.
-
-```
-as11_flash.py flash -d ble:as11 -f patched.bin
-as11_flash.py flash -d ble:AA:BB:CC:DD:EE:FF -f patched.bin
-as11_flash.py flash -d can:/dev/ttyACM0 -f patched.bin
-as11_flash.py flash -d can:can0 --can-flavour socketcan -f patched.bin
-as11_flash.py flash -d ble:as11 -f patched.bin --block config --apply-plain
-as11_flash.py flash -d ble:as11 -f patched.bin --block full --include-bootloader --apply
+```text
+flash INPUT_OPTIONS [OPTIONS]
 ```
 
-`--fgbl`, `--conf`, and `--appl` accept either the corresponding raw region or
-a complete 2 MiB internal image. The tool extracts each selected region and
-infers the OTA target from their combination. See [Firmware inputs](#firmware-inputs).
+Build, upload, verify, and apply an OTA container from
+[firmware inputs](#firmware-inputs), using authenticated apply on BLE and
+plain apply on CAN/TCP by default.
 
-By default `flash` applies after `CheckUpgradeFile`: authenticated apply on
-BLE, plain `ApplyUpgrade` on CAN/TCP. Use separate `build` and `upload`
-commands when the staged image should not be applied immediately.
+| Option | Meaning |
+|--------|---------|
+| `--save-abc PATH` | Save the built container |
+
+Shared flags are listed under [Container options](#container-options) and
+[Apply modes](#apply-modes).
+
+```sh
+as11_flash.py -d ble:as11 flash -f patched.bin
+as11_flash.py -d can:can0 flash -f patched.bin --block full --include-bootloader
+```
 
 ### upload
 
-Push a pre-built `.abc` container without rebuilding it. Useful when the
-container was produced ahead of time or by a separate workflow. Unlike
-`flash`, `upload` stops after `CheckUpgradeFile` by default.
-
+```text
+upload ABC [OPTIONS]
 ```
-as11_flash.py upload -d ble:as11 patched.abc
-as11_flash.py upload -d ble:as11 patched.abc --apply
+
+Upload a pre-built `ABC` container and stop after `CheckUpgradeFile` by default.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--apply`, `--apply-authenticated` | Apply after verification, using an OTA key | Off |
+| `--apply-plain` | Apply after verification without authentication | Off |
+
+Validation and timeout flags are in [Container options](#container-options);
+keys and reset settings are in [Apply modes](#apply-modes).
+
+```sh
+as11_flash.py -d ble:as11 upload patched.abc
+as11_flash.py -d ble:as11 upload patched.abc --apply
 ```
 
 ### build
 
-Offline: assemble an `.abc` container from a raw image without touching a device.
-
+```text
+build INPUT_OPTIONS -o ABC [OPTIONS]
 ```
+
+Assemble an `ABC` container offline from [firmware inputs](#firmware-inputs).
+
+| Option | Meaning |
+|--------|---------|
+| `-o`, `--output PATH` | Required output container path |
+
+Use the input release's [fingerprint preset](#container-options) for targets
+with release-specific fingerprints. Offline builds do not require
+`--include-bootloader`.
+
+```sh
 as11_flash.py build --appl patched.bin --fingerprint-preset 16.8.5.0 -o patched.abc
 as11_flash.py build --full patched.bin --block fgcb -o full.abc
 ```
 
-For targets that use release-specific compatibility fingerprints, select the
-preset matching the input image. An offline build does not require an
-additional confirmation flag. `flash` retains explicit confirmation for the
-FGBL and FGCB targets.
-
 ### info
+
+```text
+info ABC
+```
 
 Inspect an existing `.abc` container.
 
-```
+```sh
 as11_flash.py info patched.abc
 ```
 
 ### apply
 
-Apply a previously uploaded and verified container. Pass the same `.abc` file
-or its SHA-256 hash from the successful upload.
-
+```text
+apply ABC [OPTIONS]
+apply --hash HEX64 [OPTIONS]
 ```
-as11_flash.py apply -d can:/dev/ttyACM0 --hash HASH64
-as11_flash.py apply -d ble:as11 patched.abc
-as11_flash.py apply -d can:/dev/ttyACM0 --hash HASH64 \
-    --authentication HMAC64
+
+Apply a previously uploaded and verified container without repeating
+`CheckUpgradeFile`.
+
+| Option | Meaning |
+|--------|---------|
+| `--hash HEX64` | Successful upload's SHA-256 instead of a host `ABC` file |
+| `--authentication HEX64` | Precomputed HMAC instead of an OTA key |
+
+Default apply mode and key sources are listed under [Apply modes](#apply-modes).
+The host file must be the same container that was uploaded.
+
+```sh
+as11_flash.py -d ble:as11 apply patched.abc
+as11_flash.py -d can:/dev/ttyACM0 apply --hash HASH64 --authentication HMAC64
 ```
 
 ### targets
 
-List the base firmware input combinations and their inferred OTA targets.
-
+```text
+targets
 ```
+
+List firmware input combinations and their inferred OTA targets.
+
+```sh
 as11_flash.py targets
 ```
 
@@ -111,43 +222,33 @@ as11_flash.py targets
 | Inputs | OTA target | Content | `flash` confirmation |
 |--------|------------|---------|--------------------------------|
 | `--fgbl PATH` | `FGBL` | bootloader and lower updater | `--include-bootloader` |
-| `--conf PATH` | `CONF` | configuration and product data | -- |
-| `--appl PATH` | `APPL` | application | -- |
-| `--conf PATH --appl PATH` | `APCX` | configuration and application | -- |
+| `--conf PATH` | `CONF` | model definition | -- |
+| `--appl PATH` | `APPL` | application firmware | -- |
+| `--conf PATH --appl PATH` | `APCX` | model definition and application firmware | -- |
 | `--fgbl PATH --conf PATH --appl PATH` | `FGCB` | complete internal flash | `--include-bootloader` |
 | `-f PATH` / `--full PATH` | `APCX` | configuration and application from a complete image | -- |
 | `-f PATH --include-bootloader` | `FGCB` | complete internal flash | `--include-bootloader` |
 
-Each regional argument accepts either an exact raw region or a complete 2 MiB
-internal image. The same full image can therefore be supplied to more than one
-regional argument. `-f` is shorthand for `--full`; both require a complete
-2 MiB image. For `flash`, they select `APCX` by default and `FGCB` when
-`--include-bootloader` is present. A regional argument used together with
-`--full` replaces that region from the full image.
+Each regional option accepts an exact raw region or a complete 2 MiB image.
+`-f`, `--full` requires a complete image. A regional option supplied alongside
+`--full` replaces that region's source.
 
-With `flash`, `--block NAME` selects a target from the supplied regions. The
-inputs must cover the selected target; additional regions are ignored. Block
-names and aliases are case-insensitive.
+`--block NAME` selects a target from the supplied regions; without it, the
+input combination determines the target. Inputs must cover the target without
+gaps; additional regions are ignored. Names and aliases are case-insensitive.
 
-The release preset supplies the CONF/APPL and FGBL/APPL compatibility
-fingerprints. They can be overridden with
-`--conf-appl-fingerprint` and `--fgbl-appl-fingerprint`.
+| Target | Aliases |
+|--------|---------|
+| `FGBL` | `bootloader` |
+| `CONF` | `config` |
+| `APPL` | `app`, `firmware` |
+| `APCX` | `conf+app`, `config+firmware` |
+| `FGCB` | `full`, `all` |
 
-Unless `--fg-security-fingerprint` is supplied, `flash` reads `_SBA` and
-`_SKF` for the descriptor's FG security fingerprint. If `_SBA` is `No`, the
-field is written as zero. An offline `build` defaults to zero when no override
-is supplied.
-
-Without `--block`, regional inputs must match one of the combinations listed
-above. Offline `build` defaults a complete image to `APCX`; use `--block FGCB`
-to build a complete-image container. The updater erases the whole selected
-target before programming it, so the supplied inputs must cover that target
-without gaps.
-
-```
-as11_flash.py flash -d ble:as11 --appl patched.bin
-as11_flash.py flash -d ble:as11 --conf patched.bin --appl patched.bin --apply
-```
+Offline `build` defaults a complete image to `APCX`; use `--block FGCB`
+for a complete-image container. Live `flash` and `service flash` require
+`--include-bootloader` for any target containing `FGBL`.
+The updater erases the selected target before programming it.
 
 ## Apply modes
 
@@ -159,11 +260,11 @@ as11_flash.py flash -d ble:as11 --conf patched.bin --appl patched.bin --apply
 | `--apply` | Use `ApplyAuthenticatedUpgrade` |
 | `--apply-authenticated` | Synonym for `--apply` |
 | `--apply-plain` | Use `ApplyUpgrade` (unauthenticated) |
-| `--authentication HEX64` | Use a precomputed authentication value with standalone `apply` |
+| `--reset-settings` | Send `resetSettingsToDefault=true`; plain apply only; default is false |
+| `--key HEX64` | OTA signing key as 64 hex characters |
+| `--key-file PATH` | OTA signing key as 32 raw bytes or hex text |
 
-`upload` and `flash` always run `CheckUpgradeFile` before an apply method.
-Standalone `apply` addresses a container that was uploaded and verified
-earlier; it does not repeat `CheckUpgradeFile`.
+`upload` and `flash` always run `CheckUpgradeFile` before applying.
 
 Authenticated apply resolves the OTA signing key from `--key`, `--key-file`,
 `$AS11_OTA_KEY`, or a stored BLE device `otaKey`. The standalone `apply`
@@ -171,116 +272,112 @@ command can instead receive the resulting HMAC through `--authentication`.
 
 ### Apply over BLE
 
-The stock BLE RPC exposes authenticated apply, but the HMAC needs the
-device's OTA key. Plain `ApplyUpgrade` over BLE needs a firmware permission
-patch first. Pick one path before flashing:
+| Mode | Requirement |
+|------|-------------|
+| Authenticated (default) | Device-specific OTA key; see [key retrieval](../as11/ota_protocol.md#retrieving-the-local-ota-key) |
+| `--apply-plain` | Firmware with `ApplyUpgrade` enabled for encrypted BLE, e.g. `patch-rpc-permissions` installed through SWD or CAN |
 
-1. **Authenticated path.** Retrieve the device's OTA key over SWD/OpenOCD
-   using `tcl/as11-keys.tcl` and pass it via `--key`, `--key-file`, or
-   `$AS11_OTA_KEY`, or store it as the device alias `otaKey`. The key is
-   per-device. Procedure documented in
-   [`docs/as11/ota_protocol.md`](../as11/ota_protocol.md#retrieving-the-local-ota-key).
-
-2. **Unauthenticated path (`--apply-plain`).** Flash the `patch-rpc-permissions`
-   patch first, which exposes `ApplyUpgrade` on encrypted BLE permission
-   selector `0x0396`. Host requests still go over the paired VCID `0x0397`.
-   After that `--apply-plain` works over BLE with no key. The first install
-   of the patched firmware still has to land via SWD or CAN; subsequent BLE
-   flashes can use unauthenticated apply.
-
-CAN exposes `ApplyUpgrade` natively, so `--apply-plain` works there
-without either step.
+CAN exposes plain `ApplyUpgrade` natively, without a key or permission patch.
+Encrypted-BLE selectors are listed in
+[RPC permissions](../as11/rpc_protocol.md#rpc-permission-selectors).
 
 ## Bootloader service
 
-The `service` command communicates with the bootloader service extension over
-direct CAN or AirCANnect binary TCP. It reads and writes internal STM32 flash
-and the physical SPI NOR independently of the normal OTA mechanism.
+The `service` command accesses bootloader storage over CAN or an AirCANnect
+TCP bridge. It requires `patch-fgbl-service`; see the
+[installation and entry guide](../guide/as11/service_dump.md).
 
-### Install and enter service mode
+| Command | Operation |
+|---------|-----------|
+| `enter` | Enter service mode, or report an already-running service |
+| `info` | Report service identity |
+| `reset` | Leave service mode and reset |
+| `flash` | Program selected firmware regions and reset |
+| `read-flash` / `write-flash` | Read/write internal flash |
+| `read-nor` / `write-nor` | Read/write physical NOR |
+| `read-bkpsram` / `write-bkpsram` | Read/write backup SRAM |
 
-The device must contain the `patch-fgbl-service` patch. While resetting or
-powering on the device, either hold the physical Start/Stop button or transmit
-a continuous 1 Mbit/s CAN burst. Release the button or stop the burst when the
-status LED starts blinking.
+### enter
 
-Enter service mode with:
-
+```text
+service enter [--timeout SECONDS]
 ```
+
+Report an already-running service without resetting it, or send
+`ResetDevice(Fast)` and request service mode during reboot.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--timeout SECONDS` | Entry window | `30` |
+
+Direct CAN sends a continuous 1 Mbit/s entry burst with `INFO` probes every
+100 ms and returns as soon as the service responds. AirCANnect runs this
+sequence at the bridge; its response handling is specified in the
+[TCP service protocol](../as11/bootloader_service_protocol.md#aircannect-tcp-transport).
+
+Manual entry holds Start/Stop during reset or power-on, or supplies the CAN
+burst; release the button or stop the burst when the status LED blinks.
+
+```sh
 as11_flash.py -d can:/dev/ttyACM0 service enter
 ```
 
-If the service is already running, `enter` reports its identity without
-resetting it. Otherwise it sends `ResetDevice(Fast)` and starts a CAN burst.
-`INFO` probes are interleaved with the burst every 100 ms, and the command
-returns as soon as service mode responds. The entry window is 30 seconds.
-With AirCANnect, the bridge performs the same sequence locally and converts
-the successful internal `INFO` response into the `enter` response.
+### info / reset
 
-Check that the service responds:
-
+```text
+service info [--timeout SECONDS]
+service reset [--timeout SECONDS]
 ```
-as11_flash.py -d can:/dev/ttyACM0 service info
-as11_flash.py -d can:can0 --can-flavour socketcan service info
+
+`info` reports the service version and bootloader build ID without accessing
+storage; `reset` starts the normal application once Start/Stop is released.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--timeout SECONDS` | Service response timeout | `5` |
+
+```sh
 as11_flash.py -d tcp:aircannect service info
-```
-
-See the [CAN firmware dump guide](../guide/as11/service_dump.md) for installing
-the service patch when the device does not already contain it.
-
-### Service identity and reset
-
-`service info` reports the service version and bootloader build ID. It does not
-read or modify storage.
-
-`service reset` leaves service mode and starts the normal application when the
-Start/Stop button is released.
-
-```
 as11_flash.py -d can:/dev/ttyACM0 service reset
 ```
 
-### Flash firmware
+### service flash
 
-`service flash` enters service mode if necessary, programs the selected
-internal-flash range, and resets the device. If service mode already responds,
-the command uses the active session without resetting it first. A failed write
-leaves the device in service mode for another attempt.
-
-Firmware inputs and `--block` follow the same rules as the normal `flash`
-command; see [Firmware inputs](#firmware-inputs).
-
+```text
+service flash INPUT_OPTIONS [OPTIONS]
 ```
-as11_flash.py -d can:/dev/ttyACM0 service flash -f patched.bin
+
+Enter service mode if necessary, program selected internal-flash regions,
+verify each fragment by readback, and reset.
+
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--fix-crc` | Repair input CRC footers in memory before programming | Off |
+| `--force` | Permit programming despite local validation failures | Off |
+
+[Firmware inputs](#firmware-inputs) and [Transport options](#transport-options)
+apply. CRC checks run before connecting. An already-running service is reused
+without an initial reset; a failed write leaves it active for another attempt.
+
+```sh
 as11_flash.py -d can:/dev/ttyACM0 service flash -f patched.bin --block APPL
-as11_flash.py -d can:/dev/ttyACM0 service flash \
-  --conf conf.bin --appl appl.bin
+as11_flash.py -d can:/dev/ttyACM0 service flash --conf conf.bin --appl appl.bin
 ```
-
-A complete image passed with `-f` selects `APCX` by default. Add
-`--include-bootloader` to program the complete `FGCB` image. Any target that
-contains `FGBL` requires this flag.
-
-The command checks the firmware CRC footers before connecting. `--fix-crc`
-repairs mismatched footers in memory before programming; `--force` permits
-programming an image that still fails local validation. Each programmed
-fragment is read back and verified by the service.
 
 ### Read storage
 
+```text
+service read-flash FILE [REGION | OFFSET LENGTH] [OPTIONS]
+service read-nor FILE [OFFSET LENGTH] [OPTIONS]
+service read-bkpsram FILE [OFFSET LENGTH] [OPTIONS]
+```
+
 `read-flash` reads internal STM32 flash, `read-nor` reads the physical SPI NOR,
 and `read-bkpsram` reads the 4 KiB battery-backed SRAM. All commands require an
-output file; without a region or range they read the complete target.
-
-```
-as11_flash.py -d can:/dev/ttyACM0 service read-flash flash.bin
-as11_flash.py -d can:/dev/ttyACM0 service read-flash appl.bin APPL
-as11_flash.py -d can:/dev/ttyACM0 service read-flash part.bin \
-  0x08040000 0x20000
-as11_flash.py -d tcp:aircannect service read-nor nor.bin
-as11_flash.py -d tcp:aircannect service read-nor part.bin 0 0x10000
-as11_flash.py -d can:/dev/ttyACM0 service read-bkpsram bkpsram.bin
-```
+output file `FILE`; the default range is the complete target.
+`REGION` selects a named flash region. `OFFSET` and `LENGTH` select a byte
+range: flash uses absolute addresses from `0x08000000`; NOR and backup SRAM
+use zero-based offsets. Backup-SRAM offset zero corresponds to `0x38800000`.
 
 Flash reads accept the named regions `FGBL`, `CONF`, `APPL`, `APCX`, and
 `FGCB`, together with their normal `as11_flash.py` aliases. The output file is
@@ -290,46 +387,104 @@ failure in that file.
 Complete NOR dumps can be inspected and extracted with
 [`as11_nor_tool.py`](as11_nor_tool.md).
 
+```sh
+as11_flash.py -d can:/dev/ttyACM0 service read-flash part.bin 0x08040000 0x20000
+as11_flash.py -d tcp:aircannect service read-nor nor.bin
+```
+
 ### Write storage
 
-`write-flash` and `write-nor` require an input file. They erase each selected
-erase unit before programming it, then read back and verify each programmed
-fragment. Ranges must align to the storage erase unit: 128 KiB for internal
-flash and 64 KiB for SPI NOR.
+```text
+service write-flash FILE [REGION | OFFSET LENGTH] [OPTIONS]
+service write-nor FILE [OFFSET LENGTH] [OPTIONS]
+service write-bkpsram FILE [OFFSET LENGTH] [OPTIONS]
+```
+
+`write-flash` and `write-nor` erase the selected storage units, program them,
+and verify each fragment by readback.
+
+`FILE` is the host input image; range arguments follow [Read storage](#read-storage).
+Ranges must align to the storage erase unit: 128 KiB for internal flash and
+64 KiB for SPI NOR.
 
 `write-bkpsram` writes backup SRAM directly and verifies it without erase. Its
 offset is relative to `0x38800000`; without a range it writes all 4096 bytes.
-
-```
-as11_flash.py -d can:/dev/ttyACM0 service write-flash flash.bin
-as11_flash.py -d can:/dev/ttyACM0 service write-flash appl.bin APPL
-as11_flash.py -d can:/dev/ttyACM0 service write-flash flash.bin APPL
-as11_flash.py -d can:/dev/ttyACM0 service write-flash part.bin \
-  0x08040000 0x20000
-as11_flash.py -d tcp:aircannect service write-nor nor.bin
-as11_flash.py -d can:/dev/ttyACM0 service write-bkpsram bkpsram.bin
-```
 
 For a named flash region or numeric range, the input may contain either that
 range alone or the complete 2 MiB internal-flash image. A numeric SPI-NOR range
 similarly accepts either the selected range or a complete physical-NOR image.
 
+```sh
+as11_flash.py -d can:/dev/ttyACM0 service write-flash flash.bin APPL
+as11_flash.py -d can:/dev/ttyACM0 service write-bkpsram bkpsram.bin
+```
+
 ### Transport options
 
-The service uses fixed classic-CAN and ISO-TP settings, independently of the
-stock DatagramCan and JSON-RPC endpoint. The complete wire contract is in the
-[bootloader service protocol](../as11/bootloader_service_protocol.md).
+Reads and writes use LZ4 compression automatically when the Python `lz4`
+module and service support it; other transfers use uncompressed blocks.
 
-When the Python `lz4` module and service compression commands are available,
-reads and writes use independent LZ4 blocks automatically. Unsupported or
-incompressible transfers use the normal READ and WRITE commands.
+| Option | Meaning | Default |
+|--------|---------|---------|
+| `--timeout SECONDS` | Service response timeout; entry window for `enter` | `5`; `30` for `enter` |
+| `--block-size FRAMES` | Direct CAN receive block size, `0..255`; `0` disables intermediate Flow Control | `255` |
 
-The receiver controls multi-frame transfers with ISO-TP Flow Control frames.
-The AS11 advertises a block size of 32 frames and zero separation time. The
-direct CAN host advertises a block size of 255 and zero separation time;
-AirCANnect selects its own receive block size. Direct CAN commands accept
-`--block-size 0..255`; zero disables intermediate Flow Control frames.
+Direct CAN advertises zero separation time. AirCANnect selects its own receive
+block size. Device flow control and framing are specified in the
+[service protocol](../as11/bootloader_service_protocol.md#iso-tp-framing).
 
-With `-d tcp:<host>[:<port>]`, the tool uses AirCANnect binary mode on port
-`39011` by default. AirCANnect handles ISO-TP fragmentation, flow control, and
-reassembly and carries complete service packets over TCP.
+## Output
+
+Text identity, container, validation, and transfer reports. Transport logs and
+errors go to stderr. `build`, `--save-abc`, and `service read-*` write binary
+files; failed service reads leave partial output at the requested path.
+
+## Environment
+
+| Variable | Meaning |
+|----------|---------|
+| `AS11_DEVICE` | Optional target in `-d` format; explicit `-d`, `--addr`, or `--port` takes precedence |
+| `AS11_OTA_KEY` | OTA key used when no explicit key argument is supplied |
+
+## Files
+
+| File | Use |
+|------|-----|
+| `~/.as11_ble.json` | BLE pairing, aliases, and fallback `otaKey` |
+| `--key-file PATH` | Device-specific OTA key, binary or hex text |
+| `ABC` | OTA container used by `info`, `upload`, or `apply` |
+
+## Exit Status
+
+| Status | Meaning |
+|--------|---------|
+| `0` | Operation completed |
+| `1` | Target, file, validation, transport, RPC, or timeout error |
+| `2` | Invalid command-line syntax or argument type |
+| `130` | Interrupted by Ctrl-C |
+
+## Examples
+
+Build an application container, verify its upload, then apply it:
+
+```sh
+as11_flash.py build --appl patched.bin --fingerprint-preset 16.8.5.0 -o patched.abc
+as11_flash.py -d can:can0 upload patched.abc
+as11_flash.py -d can:can0 apply patched.abc
+```
+
+Enter service mode, capture NOR, then inspect the dump:
+
+```sh
+as11_flash.py -d can:can0 service enter
+as11_flash.py -d can:can0 service read-nor nor.bin
+as11_flash.py -d can:can0 service reset
+as11_nor_tool.py nor.bin info
+```
+
+## See Also
+
+[OTA protocol](../as11/ota_protocol.md),
+[bootloader service protocol](../as11/bootloader_service_protocol.md),
+[as11_config](as11_config.md), [as11_nor_tool](as11_nor_tool.md),
+[Air11 flashing guide](../guide/as11/flashing.md).

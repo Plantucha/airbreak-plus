@@ -1,22 +1,68 @@
 # as11_nor_tool
 
-`as11_nor_tool.py` inspects and edits complete 16 MiB Air11 external SPI NOR
-dumps.
+## Name
+
+`as11_nor_tool.py` - inspect and edit Air11 external SPI NOR dumps offline.
+
+## Contents
+
+- [Synopsis](#synopsis)
+- [Description](#description)
+- [Arguments](#arguments)
+- [Options](#options)
+- [Layout](#layout)
+- [Commands](#commands)
+  - [info / region-list](#info--region-list)
+  - [region-get](#region-get)
+  - [key-list / key-get / key-set](#key-list--key-get--key-set)
+  - [fat-ls / fat-get / fat-getdir / fat-put / fat-putdir](#fat-ls--fat-get--fat-getdir--fat-put--fat-putdir)
+  - [upgrade-info / upgrade-get](#upgrade-info--upgrade-get)
+  - [extract-volume](#extract-volume)
+- [Output](#output)
+- [Exit Status](#exit-status)
+- [Examples](#examples)
+- [See Also](#see-also)
+
+## Synopsis
+
+```text
+as11_nor_tool.py IMAGE COMMAND [ARGUMENTS] [OPTIONS]
+```
+
+## Description
+
+Reconstructs logical volumes from wear-levelled NOR storage. Inspects geometry
+and CRCs, extracts raw regions and FAT files, imports files and directory
+trees, reads and replaces the OTA key, extracts staged upgrades, and exports
+volumes as mountable FAT images.
+
+## Arguments
+
+`IMAGE`: complete 16 MiB physical NOR dump.
+
+## Options
+
+Options follow the command.
+
+| Option | Commands | Meaning |
+|--------|----------|---------|
+| `--json` | `info`, `region-list`, `key-list`, `upgrade-info`, `fat-ls` | JSON output |
+| `-o`, `--output FILE` | `key-set`, `fat-put`, `fat-putdir` | Write a modified copy; default: update `IMAGE` in place |
+| `-o`, `--output FILE` | `key-get` | Write the key as hex text to FILE |
+| `--key-file FILE` | `key-set` | Read a 32-byte key or hex text |
+| `-r`, `--recursive` | `fat-ls` | Recurse into subdirectories |
+| `-h`, `--help` | All | Show help |
 
 ## Layout
 
-The first 64 KiB erase block contains raw security and manufacturing data. The
-rest of the device is split into three Micrium uC/FS NOR devices:
+The first 64 KiB erase block holds raw security and manufacturing data. The
+rest is split into three Micrium uC/FS NOR devices:
 
 | Device | Physical range | Logical filesystem |
 |--------|----------------|--------------------|
 | `nor:0` | `0x010000..0x06ffff` | settings |
 | `nor:1` | `0x070000..0xa7ffff` | datalog |
 | `nor:2` | `0xa80000..0xffffff` | firmware upgrade staging |
-
-The physical ranges are wear-levelled. They are not directly mountable FAT
-images. The tool rebuilds the native logical-to-physical sector map and then
-exposes each logical FAT12 filesystem.
 
 Named raw regions:
 
@@ -29,134 +75,153 @@ Named raw regions:
 | `manufacturing-data` | `0x00e000` | `0x400` | `md0`, `_md0` |
 | `manufacturing-test-record` | `0x00f000` | `0x400` | `md1`, `_md1` |
 
-## Inspection
+## Commands
 
-```
-python3 python/as11_nor_tool.py nor.bin info
-python3 python/as11_nor_tool.py nor.bin info --json
-python3 python/as11_nor_tool.py nor.bin region-list
-```
+### info / region-list
 
-`info` reports the FTL geometry, erase-count range, sector-state counts,
-logical mapping coverage, CRC errors, and FAT geometry for every volume.
-List commands use aligned tables by default and accept `--json` for structured
-output.
-
-## Raw Regions
-
-```
-python3 python/as11_nor_tool.py nor.bin region-get md0 MD0.bin
-python3 python/as11_nor_tool.py nor.bin region-get md1 MD1.bin
+```text
+info [--json]
+region-list [--json]
 ```
 
-Use `-` as the output name to write bytes to standard output.
+`info` reports FTL geometry, erase-count range, sector-state counts, logical
+mapping coverage, CRC errors, and FAT geometry per volume. `region-list` lists
+named raw regions with offsets and sizes.
 
-## Security Data
-
-The first `0x200` bytes form one `SecurityData` object. `StoreSecurityData`
-replaces the complete object and `VerifySecurityData` verifies its SHA-256
-digest.
-
-The first `0x100` bytes are a cyclic key ring used by `GenerateAuthCode`. For
-HMAC-SHA256, `keyLocation` selects the first byte of a 32-byte key. Reads that
-cross offset `0x100` continue at offset `0x000`.
-
-The device-specific OTA key occupies `0x100..0x11f`. The range
-`0x180..0x1ff` is exposed to the Steehl service. The purpose of
-`0x120..0x17f` is not identified.
-
-`key-list` reports named keys without printing key material. Currently only
-the OTA key has an independently confirmed name and range. `key-get` prints it
-as 64 uppercase hex characters. `--output` writes the same hex text to a file:
-
-```
-python3 python/as11_nor_tool.py nor.bin key-list
-python3 python/as11_nor_tool.py nor.bin key-get OTA
-python3 python/as11_nor_tool.py nor.bin key-get OTA --output ota-key.txt
-python3 python/as11_config.py devices ota-key bedroom --key-file ota-key.txt
+```sh
+as11_nor_tool.py nor.bin info
+as11_nor_tool.py nor.bin region-list
 ```
 
-`key-set` accepts hex directly or reads either 32 raw bytes or hex text from a
-file. It updates the input image by default:
+### region-get
 
-```
-python3 python/as11_nor_tool.py nor.bin key-set OTA HEX64
-python3 python/as11_nor_tool.py nor.bin key-set OTA --key-file ota-key.txt
+```text
+region-get REGION OUTPUT
 ```
 
-Use `--output` to write a modified copy instead:
+Extract the raw `REGION` named in [Layout](#layout) to `OUTPUT`, or `-` for
+stdout.
 
-```
-python3 python/as11_nor_tool.py nor.bin key-set OTA HEX64 \
-    --output nor-with-key.bin
-```
-
-The key name is always explicit.
-
-## FAT Filesystems
-
-The `fat-*` commands require the optional `pyfatfs` package. They are not
-registered when it is unavailable.
-
-List files:
-
-```
-python3 python/as11_nor_tool.py nor.bin fat-ls settings /
-python3 python/as11_nor_tool.py nor.bin fat-ls datalog / -r
-python3 python/as11_nor_tool.py nor.bin fat-ls upgrade /
+```sh
+as11_nor_tool.py nor.bin region-get md0 MD0.bin
 ```
 
-Extract a file or directory tree:
+### key-list / key-get / key-set
 
-```
-python3 python/as11_nor_tool.py nor.bin fat-get \
-    datalog /Summary.bin Summary.bin
-python3 python/as11_nor_tool.py nor.bin fat-getdir \
-    settings /SETTINGS settings-backup/
-```
-
-Write one file or a directory tree:
-
-```
-python3 python/as11_nor_tool.py nor.bin fat-put \
-    settings BGL.set /SETTINGS/BGL.set
-python3 python/as11_nor_tool.py nor.bin fat-putdir \
-    settings settings-backup/ /SETTINGS
+```text
+key-list [--json]
+key-get NAME [-o FILE]
+key-set NAME HEX64 [-o FILE]
+key-set NAME --key-file FILE [-o OUTPUT]
 ```
 
-Writes update the input image by default. Add `--output modified.bin` to write
-a modified copy. `pyfatfs` handles directory entries and cluster allocation;
-the NOR writer maps changed logical sectors into uC/FS records and updates the
-sector data and header CRCs.
+`NAME` selects a key; currently only `OTA` has a confirmed name and range.
+`HEX64` is a 32-byte key as 64 hexadecimal digits. `key-list` lists key names
+and status without printing key material; `key-get` prints the key as uppercase
+hex or writes it to `-o FILE`; `key-set` replaces it from `HEX64` or
+`--key-file`. A key of all zero or all `FF` bytes is rejected.
 
-Volume arguments accept `settings`, `datalog`, `upgrade`, a numeric index, or
-the native `nor:N` name.
+```sh
+as11_nor_tool.py nor.bin key-get OTA
+as11_nor_tool.py nor.bin key-set OTA --key-file ota-key.txt -o nor-with-key.bin
+```
 
-## Staged Upgrade
+Key storage and authenticated upgrades are described in the
+[OTA protocol](../as11/ota_protocol.md#retrieving-the-local-ota-key).
+
+### fat-ls / fat-get / fat-getdir / fat-put / fat-putdir
+
+```text
+fat-ls VOLUME [PATH] [-r] [--json]
+fat-get VOLUME PATH OUTPUT
+fat-getdir VOLUME PATH DIRECTORY
+fat-put VOLUME INPUT PATH [-o OUTPUT]
+fat-putdir VOLUME DIRECTORY PATH [-o OUTPUT]
+```
+
+Requires `pyfatfs`. `VOLUME` accepts `settings`, `datalog`, `upgrade`, a numeric
+index, or the native `nor:N` name. `PATH` addresses a file or directory inside
+the volume.
+
+| Command | Operation |
+|---------|-----------|
+| `fat-ls` | List a directory; default path `/` |
+| `fat-get` | Extract a file; `OUTPUT=-` writes to stdout |
+| `fat-getdir` | Extract a directory tree |
+| `fat-put` | Write a file; `INPUT=-` reads from stdin |
+| `fat-putdir` | Copy a directory tree, creating directories and replacing matching files |
+
+```sh
+as11_nor_tool.py nor.bin fat-ls datalog / -r
+as11_nor_tool.py nor.bin fat-get datalog /Summary.bin Summary.bin
+as11_nor_tool.py nor.bin fat-put settings BGL.set /SETTINGS/BGL.set -o updated.bin
+```
+
+<a id="staged-upgrade"></a>
+
+### upgrade-info / upgrade-get
+
+```text
+upgrade-info [--json]
+upgrade-get OUTPUT
+```
 
 `/UPGRADE/Upgrade.abc` is a fixed-size staging file with a four-byte used-size
-prefix and zero-filled spare space. Use the upgrade commands to inspect or
-extract the embedded OTA container itself:
+prefix. `upgrade-info` inspects the embedded OTA container; `upgrade-get`
+extracts it to `OUTPUT` (`-` for stdout).
 
-```
-python3 python/as11_nor_tool.py nor.bin upgrade-info
-python3 python/as11_nor_tool.py nor.bin upgrade-get staged.abc
-python3 python/as11_flash.py info staged.abc
-```
-
-## Logical Volume Images
-
-`extract-volume` writes the reconstructed logical block device. The resulting
-file starts with its FAT boot sector and can be inspected by other FAT tools.
-
-```
-python3 python/as11_nor_tool.py nor.bin extract-volume settings settings.fat
-python3 python/as11_nor_tool.py nor.bin extract-volume datalog datalog.fat
-python3 python/as11_nor_tool.py nor.bin extract-volume upgrade upgrade.fat
+```sh
+as11_nor_tool.py nor.bin upgrade-info
+as11_nor_tool.py nor.bin upgrade-get staged.abc
 ```
 
-`extract-volume` does not provide a matching whole-volume import command. Use
-`fat-put` or `fat-putdir` to replace files in the physical NOR image.
+### extract-volume
 
-NOR dumps contain unit-specific manufacturing, settings, security, therapy,
-and staged-upgrade data. Treat complete dumps and extracted trees as private.
+```text
+extract-volume VOLUME OUTPUT
+```
+
+Reconstruct the logical block device `VOLUME` into `OUTPUT` (`-` for stdout),
+starting with its FAT boot sector. `VOLUME` accepts the same names as `fat-*`.
+There is no whole-volume import; use `fat-put` or `fat-putdir` to change files
+in the image.
+
+```sh
+as11_nor_tool.py nor.bin extract-volume settings settings.fat
+```
+
+## Output
+
+Listings are text tables, or JSON with `--json`. Errors go to stderr.
+
+Dumps and extracts contain unit-specific security, manufacturing, and therapy
+data; treat them as private.
+
+## Exit Status
+
+| Status | Meaning |
+|--------|---------|
+| `0` | Operation completed |
+| `1` | Image, filesystem, key, or file error |
+| `2` | Invalid command-line syntax |
+
+## Examples
+
+Extract the OTA key from a dump and store it for a paired BLE device:
+
+```sh
+as11_nor_tool.py nor.bin key-get OTA -o ota-key.txt
+as11_config.py devices ota-key bedroom --key-file ota-key.txt
+```
+
+Extract the staged upgrade container and inspect it:
+
+```sh
+as11_nor_tool.py nor.bin upgrade-get staged.abc
+as11_flash.py info staged.abc
+```
+
+## See Also
+
+[as11_flash service commands](as11_flash.md#bootloader-service),
+[OTA protocol](../as11/ota_protocol.md).

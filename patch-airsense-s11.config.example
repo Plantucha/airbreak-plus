@@ -60,4 +60,4 @@
 # --rpc-permission ApplyAuthenticatedUpgrade:0x0788:0
 
 # Method and VCID reference: docs/as11/rpc_protocol.md
-# Configuration reference: docs/tools/patch_options.md
+# Configuration reference: docs/patch_options.md
