@@ -91,6 +91,13 @@ Windows users can prepare the common build environment with the
 | [OTA protocol](docs/as11/ota_protocol.md) | Upgrade containers, authentication, and targets |
 | [EDF signals](docs/as11/edf_signals.md) | Air11 EDF file and signal schemas |
 
+### AirMini
+
+| Document | Content |
+|----------|---------|
+| [airmini_descriptors](docs/tools/airmini_descriptors.md) | CONF inspection and scalar descriptor editing for firmware 4.0.3.50927 |
+| [CONF block format](docs/airmini/conf_block_format.md) | All 17 roots, record layouts and APPL consumers |
+
 ## Related
 
 - [airbridge](https://github.com/m-kozlowski/airbridge) - ESP32 WiFi bridge for AirSense 10 service port
