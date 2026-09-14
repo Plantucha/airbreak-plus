@@ -65,6 +65,7 @@ as11_header_clock               0x081DBDD8   446   0x081DBF96   0x081DBDD8   0x0
 as11_airbreak_info              0x081DBF98   2216  0x081DC840   0x081DBF98   0x081DC840
 as11_asv_backup_rate            0x081DC840   102   0x081DC8A6   0x081DC840   0x081DC8A6
 as11_custom_settings            0x081DC8A8   1184  0x081DCD48   0x081DC8A8   0x081DCD48
+as11_screen_keep_awake          0x081DCD48   836   0x081DD08C   0x081DCD48   0x081DD08C
 ```
 
 Build all Air11 payloads and inspect a layout with:
@@ -164,15 +165,16 @@ table reserves space for eight objects. It extends the objects accepted by
 
 ## Payload families
 
-| Payload | Integration |
+| Payload | Function |
 |---------|-------------|
-| `as11_airbreak_info` | read-only [AirbreakInfo](patch_airbreak_info.md) RPC object |
-| `as11_mop_callback_dispatcher` | owns the shared enum-writeback vtable slot and calls registered MOP handlers |
-| `as11_rpc_dispatcher` | adapts registered Airbreak objects to the stock `Get` and `Set` formatter paths |
-| `as11_vid_spoof` | MOP handler; publishes `VID` and its `FGT`, `GCD`, `CID`, and `PVI` derivatives |
-| `as11_header_clock` | replaces the dashboard and therapy-screen title labels, reuses the root-widget timer for minute updates, and optionally binds a Configuration control through custom settings |
-| `as11_asv_backup_rate` | wraps the ASV feature update callback through its own vtable slot |
-| `as11_custom_settings` | appends persistent controls to selected clinical menu sections and updates their runtime visibility after MOP changes |
+| `as11_airbreak_info` | reports the Airbreak build, enabled patches, and custom settings through [AirbreakInfo](patch_airbreak_info.md) |
+| `as11_mop_callback_dispatcher` | lets patches react to therapy-mode changes |
+| `as11_rpc_dispatcher` | lets patches add custom objects readable and writable through RPC `Get` and `Set` |
+| `as11_vid_spoof` | reports a product variant matching the selected therapy mode |
+| `as11_header_clock` | shows local time in the dashboard and therapy-screen headers |
+| `as11_screen_keep_awake` | toggles automatic screen dimming with a three-finger hold |
+| `as11_asv_backup_rate` | allows automatic backup breaths to be disabled in ASV and ASVAuto |
+| `as11_custom_settings` | lets patches add persistent settings to the clinical menu, optionally restricted to selected therapy modes |
 
 With [custom settings](custom_settings.md), the ASV backup-rate and header-clock
 payloads expose persistent clinical-menu controls. Without custom settings,
