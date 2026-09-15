@@ -438,6 +438,13 @@ def cmd_set(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_reset(args: argparse.Namespace) -> int:
+    with connect_transport(args) as t:
+        resp = call_rpc(t, args, "ResetDevice", {"type": args.reset_mode})
+    print_response(resp)
+    return 0
+
+
 def cmd_gettime(args: argparse.Namespace) -> int:
     with connect_transport(args) as t:
         resp = call_rpc(t, args, "GetDateTime", None)
@@ -1430,6 +1437,16 @@ def build_parser() -> argparse.ArgumentParser:
     st.add_argument("rest", nargs=argparse.REMAINDER,
                     help="NAME VALUE [--type T] [NAME2 VALUE2 [--type T2]] ...")
     st.set_defaults(func=cmd_set)
+
+    reset = sub.add_parser(
+        "reset", parents=[command_common],
+        help="request a device reset (ResetDevice)",
+    )
+    add_rpc_args(reset)
+    reset.add_argument("reset_mode", nargs="?", default="Fast", metavar="MODE",
+                       choices=("Off", "TriggerWatchdog", "Fast", "TriggerPowerLoss"),
+                       help="Off, TriggerWatchdog, Fast (default), or TriggerPowerLoss")
+    reset.set_defaults(func=cmd_reset)
 
     gt = sub.add_parser(
         "gettime", parents=[command_common],

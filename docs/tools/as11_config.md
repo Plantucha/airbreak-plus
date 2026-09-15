@@ -17,6 +17,7 @@
   - [get](#get)
   - [set](#set)
   - [rpc](#rpc)
+  - [reset](#reset)
   - [gettime / settime](#gettime--settime)
   - [session](#session)
   - [stream / subscribe](#stream--subscribe)
@@ -168,6 +169,22 @@ Call an arbitrary JSON-RPC method.
 ```sh
 as11_config.py -d ble:as11 rpc --method GetVersion
 as11_config.py -d ble:as11 rpc --method Get --params '["SerialNumber"]'
+```
+
+### reset
+
+```text
+reset [MODE]
+```
+
+Call `ResetDevice` with `type=MODE`; default: `Fast`.
+
+`MODE` accepts `Off`, `TriggerWatchdog`, `Fast`, or `TriggerPowerLoss`.
+See [reset modes](../as11/rpc_protocol.md#resetdevice) for their behavior.
+
+```sh
+as11_config.py -d can:can0 reset
+as11_config.py -d can:can0 reset TriggerWatchdog
 ```
 
 ### gettime / settime
