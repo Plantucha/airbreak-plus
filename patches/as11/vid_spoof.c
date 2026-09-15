@@ -12,10 +12,14 @@
 
 /*
  * AS11 dump-backed mode groups:
- *   VID  3: CPAP, AutoSet, AutoSet For Her
- *   VID  7: Spont, VAuto
- *   VID 10: ST, Timed
- *   VID 12: ASV, ASVAuto
+ *   VID  3: AutoSet: CPAP, AutoSet, AutoSet For Her
+ *   VID  5: VAutoEU: Spont, VAuto
+ *   VID  6: VAutoAmericas: Spont, VAuto
+ *   VID  7: VAutoGermany: Spont, VAuto
+ *   VID  8: VPAPSAmericas
+ *   VID  9: VPAPSGermany
+ *   VID 10: VPAPST: ST, Timed
+ *   VID 12: AutoCSSleep: ASV, ASVAuto
  *
  * iVAPS and PAC are not mapped for now.
  */
@@ -23,10 +27,10 @@ static const unsigned char vid_lut[11] = {
     3,   // CPAP
     3,   // AutoSet
     3,   // AutoSet For Her
-    7,   // Spont
+    5,   // Spont
     10,  // ST
     10,  // Timed
-    7,   // VAuto
+    5,   // VAuto
     12,  // ASV
     12,  // ASVAuto
     0,   // iVAPS
