@@ -38,7 +38,9 @@ PLATFORMS = {
               'flash_status': 'BLE'},
     'SX525': {'baud_method': 'fixed', 'default_baud': 57600,
               'baud_rates': {57600: 'E100'},
-              'enter_cmd': 'P S #RES 0001', 'reset_cmd': None},
+              'enter_cmd': 'P S #RES 0001', 'reset_cmd': None,
+              'flash_status': 'PST', 'end_record': 7,
+              'bls_errors': {0x6004: 1, 0x600E: 0}},
 }
 
 BLOCK_MAPS = {
@@ -272,14 +274,6 @@ def send_cmd(ser, cmd_str, timeout=2.0, quiet=False):
             print(f"  [{r['type']}] {r['payload'].decode('ascii', errors='replace')}")
     return raw, responses
 
-def sync_uart(ser):
-    ser.reset_input_buffer()
-    ser.write(b'\x55' * 128)
-    ser.flush()
-    time.sleep(0.05)
-    ser.reset_input_buffer()
-
-
 def _extract_bid(responses):
     for r in responses:
         if b'BID' in r['payload']:
@@ -295,10 +289,10 @@ def query_bid(ser):
     _, resp = send_cmd(ser, "G S #BID", timeout=0.5, quiet=True)
     return _extract_bid(resp)
 
-def _extract_hex_var(responses, name):
+def _extract_hex_var(responses, name, frame_type='R'):
     marker = name.encode()
     for r in responses:
-        if marker in r['payload']:
+        if r['type'] == frame_type and marker in r['payload']:
             text = r['payload'].decode('ascii', errors='replace')
             if '= ' in text:
                 try:
@@ -307,13 +301,36 @@ def _extract_hex_var(responses, name):
                     pass
     return None
 
-def query_boot_var(ser, name, timeout=0.3):
+def query_boot_var(ser, name, timeout=0.3, wait_final=False):
     _, resp = send_cmd(ser, f"G S #{name}", timeout=timeout, quiet=True)
-    return _extract_hex_var(resp, name)
+    if not wait_final:
+        return _extract_hex_var(resp, name)
+    # S9 answers PST with P while checking flash, then R with the result.
+    deadline = time.monotonic() + 15.0
+    acknowledged = False
+    while time.monotonic() < deadline:
+        value = _extract_hex_var(resp, name)
+        if value is not None:
+            return value
+        if any(r['type'] == 'E' for r in resp):
+            return None
+        acknowledged |= any(r['type'] == 'P' for r in resp)
+        if acknowledged:
+            _, resp = read_responses(ser, timeout=0.5)
+        else:
+            _, resp = send_cmd(ser, f"G S #{name}", timeout=0.5, quiet=True)
+    return None
 
-def query_bls(ser, timeout=0.3):
-    """Query bootloader status. Returns 0=CDX, 1=bootloader, 2=bootloader(invalid fw), None=no response."""
-    return query_boot_var(ser, 'BLS', timeout)
+
+def query_bls(ser, timeout=0.3, platform=None):
+    """Return 0=application, 1=bootloader, 2=invalid firmware, None=no state."""
+    _, resp = send_cmd(ser, "G S #BLS", timeout=timeout, quiet=True)
+    value = _extract_hex_var(resp, 'BLS')
+    if value is None and platform:
+        # S9 has no BLS value: BLX replies E 6004, running CDX replies E 600E.
+        error = _extract_hex_var(resp, 'BLS', frame_type='E')
+        return platform.get('bls_errors', {}).get(error)
+    return value
 
 def wait_for_application(ser, status_var, timeout=15.0,
                          clean_status_grace=5.0, quiet_time=3.0):
@@ -407,7 +424,7 @@ def switch_baud(ser, target, quiet=False):
     time.sleep(0.3)
     read_responses(ser, timeout=0.5)  # consume ACK at old baud
     ser.baudrate = target
-    sync_uart(ser)
+    time.sleep(0.05)
     _, resp = send_cmd(ser, "G S #BID", timeout=0.5, quiet=True)
     if any(b'BID' in r['payload'] for r in resp):
         if not quiet:
@@ -416,7 +433,7 @@ def switch_baud(ser, target, quiet=False):
     if not quiet:
         print(f"[!] No response at {target}, reverting")
     ser.baudrate = old
-    sync_uart(ser)
+    time.sleep(0.05)
     return False
 
 def negotiate_best_baud(ser):
@@ -460,17 +477,8 @@ def connect_device(ser, baud_arg, wait=True):
     return bid
 
 
-def enter_bootloader(ser, max_retries=3, enter_cmd='P S #BLL 0001', flood=True):
-    """Enter bootloader mode. Returns bootloader BID on success, None on failure.
-    flood=True:  S10 style preamble flood to catch short bootloader window
-    flood=False: S9 style send reset, wait, then poll gently
-    """
-    """The flood thing comes from early stage of protocol reversing. Shouldn't be needed anymore.
-    Let’s disable this for now and remove it from the code later.
-    """
-    flood=False
-
-    bls_frame = build_q_frame("G S #BLS")
+def enter_bootloader(ser, max_retries=3, enter_cmd='P S #BLL 0001', platform=None):
+    """Enter bootloader mode. Returns bootloader BID on success, None on failure."""
     for retry in range(max_retries):
         if retry > 0:
             print(f"[*] Retry {retry}/{max_retries-1}...")
@@ -479,7 +487,7 @@ def enter_bootloader(ser, max_retries=3, enter_cmd='P S #BLL 0001', flood=True):
         # Quick probe: BLS tells us where we are
         ser.reset_input_buffer()
         print("[*] Checking device...")
-        bls = query_bls(ser, timeout=0.3)
+        bls = query_bls(ser, timeout=0.3, platform=platform)
 
         if bls is not None and bls >= 1:
             # Already in bootloader, just grab BID and go
@@ -491,7 +499,7 @@ def enter_bootloader(ser, max_retries=3, enter_cmd='P S #BLL 0001', flood=True):
         if bls is None:
             # No response device may be mid-reset or off
             # Try one more BLS with slightly longer timeout
-            bls = query_bls(ser, timeout=0.3)
+            bls = query_bls(ser, timeout=0.3, platform=platform)
             if bls is not None and bls >= 1:
                 print(f"[+] Already in bootloader (BLS={bls})")
                 bid = query_bid(ser)
@@ -508,68 +516,38 @@ def enter_bootloader(ser, max_retries=3, enter_cmd='P S #BLL 0001', flood=True):
         time.sleep(0.05)
         ser.reset_input_buffer()
 
-        if flood:
-            # S10: bootloader window is tight, flood sync+BLS to catch it
-            preamble = b'\x55' * 128
-            print("[*] Flooding to catch bootloader...")
-            t0 = time.time()
-            cdx_seen = False
-            for _ in range(300):
-                ser.write(preamble + bls_frame)
-                _, responses = read_responses(ser, timeout=0.05)
-                bls = _extract_hex_var(responses, 'BLS')
-                if bls is not None and bls >= 1:
-                    print(f"[+] Bootloader caught at t+{time.time()-t0:.2f}s (BLS={bls})")
-                    time.sleep(0.2)
-                    ser.reset_input_buffer()
-                    bid = query_bid(ser)
-                    if bid:
-                        return bid
-                    print("[!] BLS confirmed bootloader but BID query failed")
-                    break
-                elif bls == 0 and not cdx_seen:
-                    # Caught CDX - BLL was sent but may not have been
-                    # processed yet, or device fast-booted past BL. Resend.
-                    print(f"[*] CDX responded (BLS=0), re-sending {enter_cmd}...")
-                    ser.reset_input_buffer()
-                    ser.write(build_q_frame(enter_cmd))
-                    ser.flush()
-                    time.sleep(0.05)
-                    ser.reset_input_buffer()
-                    cdx_seen = True
-        else:
-            # S9: bootloader can't handle flood, poll with spacing
-            print("[*] Waiting for bootloader...")
-            t0 = time.time()
-            time.sleep(0.2)
-            for _ in range(60):
+        # Poll with spacing after reboot.
+        print("[*] Waiting for bootloader...")
+        t0 = time.time()
+        time.sleep(0.2)
+        for _ in range(60):
+            bls = query_bls(ser, timeout=0.3, platform=platform)
+            if bls is not None and bls >= 1:
+                print(f"[+] Bootloader caught at t+{time.time()-t0:.2f}s (BLS={bls})")
+                time.sleep(0.2)
                 ser.reset_input_buffer()
-                ser.write(bls_frame)
+                bid = query_bid(ser)
+                if bid:
+                    return bid
+                break
+            elif bls == 0:
+                ser.write(build_q_frame(enter_cmd))
                 ser.flush()
-                _, responses = read_responses(ser, timeout=0.3)
-                bls = _extract_hex_var(responses, 'BLS')
-                if bls is not None and bls >= 1:
-                    print(f"[+] Bootloader caught at t+{time.time()-t0:.2f}s (BLS={bls})")
-                    time.sleep(0.2)
-                    ser.reset_input_buffer()
-                    bid = query_bid(ser)
-                    if bid:
-                        return bid
-                    break
-                elif bls == 0:
-                    ser.write(build_q_frame(enter_cmd))
-                    ser.flush()
-                    time.sleep(0.3)
+                time.sleep(0.3)
 
         print("[!] Failed to catch bootloader")
     return None
 
 def _finish_erase(ser, initial_responses, timeout=30.0):
     """Collect P-ACKs until R-frame. Returns baud from R-frame or None on failure."""
+    # S9's first P echo has a damaged CRC (overlapping RX/TX buffer copy).
+    # Keep the existing burst reader here; P only indicates progress.
     t0 = time.time()
     p_count = 0
     for r in initial_responses:
         p = r['payload'].decode('ascii', errors='replace')
+        if r['type'] == 'E':
+            raise RuntimeError(f"erase rejected: {p}")
         if r['type'] == 'P':
             p_count += 1
         elif r['type'] == 'R':
@@ -584,6 +562,8 @@ def _finish_erase(ser, initial_responses, timeout=30.0):
         _, responses = read_responses(ser, timeout=0.5)
         for r in responses:
             p = r['payload'].decode('ascii', errors='replace')
+            if r['type'] == 'E':
+                raise RuntimeError(f"erase rejected: {p}")
             if r['type'] == 'P':
                 p_count += 1
                 sys.stdout.write(f"\r    Erase progress: {p_count} ACKs...")
@@ -703,7 +683,7 @@ def dump_firmware(ser, output_path, args):
     if not args.no_enter:
         if ser.baudrate != default_baud:
             switch_baud(ser, default_baud)
-        boot_bid = enter_bootloader(ser, enter_cmd=platform['enter_cmd'], flood=True)
+        boot_bid = enter_bootloader(ser, enter_cmd=platform['enter_cmd'], platform=platform)
         if boot_bid != device_bid:
             raise RuntimeError("unexpected bootloader BID: %s" % boot_bid)
     elif (query_bls(ser, timeout=0.5) or 0) < 1:
@@ -775,20 +755,21 @@ CHUNK_SIZE = 250
 FLASH_COMPLETE_OK = 0x0000
 
 
-def check_flash_status(ser, status_var, expected, context):
-    status = query_boot_var(ser, status_var, timeout=1.0)
+def check_flash_status(ser, status_var, expected, context, wait_final=False):
+    status = query_boot_var(ser, status_var, timeout=1.0, wait_final=wait_final)
     if status is None:
         print(f"\n[!] No {status_var} response {context}")
         return False
     if status != expected:
-        print(f"\n[!] Flash failed {context}: {status_var}={status:04X}, expected {expected:04X}")
+        print(f"\n[!] Unexpected {status_var} {context}: {status:04X}, expected {expected:04X}")
         return False
     return True
 
 def flash_block(ser, block_id, data, flash_start, blocks, dry_run=False,
-                skip_completion=False, status_var=None, timing=False):
+                skip_completion=False, status_var=None, timing=False,
+                end_record=None, default_baud=57600):
     """Erase and flash a single block. Returns True on success.
-    skip_completion: don't send completion frame. Bootloader stays in state 1
+    skip_completion (Air10 only): don't send completion frame. Bootloader stays in state 1
     (FLASH_ACTIVE) until mode 5 timeout fires (~2s after last F-frame), then
     does a plain reset. Next boot: BKP7R=0x7003 (non-zero), no SF magic ->
     bootloader enters mode 1 (infinite timeout), waiting for commands.
@@ -818,7 +799,8 @@ def flash_block(ser, block_id, data, flash_start, blocks, dry_run=False,
         return True
 
     # ERASE
-    for attempt in range(3):
+    attempts = 1 if end_record is not None else 3
+    for attempt in range(attempts):
         print(f"\n[*] Erasing {block_id} (attempt {attempt+1})...")
         ser.reset_input_buffer()
         ser.write(build_q_frame(blk['erase_cmd']))
@@ -827,7 +809,7 @@ def flash_block(ser, block_id, data, flash_start, blocks, dry_run=False,
 
         if erase_baud is not None:
             break
-        elif attempt < 2:
+        elif attempt + 1 < attempts:
             print("[!] Erase stalled, retrying...")
             time.sleep(1.0)
         else:
@@ -911,19 +893,32 @@ def flash_block(ser, block_id, data, flash_start, blocks, dry_run=False,
               f"max flush {max_flush[0]:.3f}s after frame {max_flush[1]}, "
               f"max host gap {max_gap[0]:.3f}s before frame {max_gap[1]}")
 
+    # S9 requires a type-7 end record before the ASCII F completion.
+    if end_record is not None:
+        record = bytes([end_record, 5]) + struct.pack('>I', flash_start) + b'\0'
+        frame = build_f_frame(block_name, seq, record)
+        if ser.write(frame) != len(frame):
+            raise OSError('short write of transfer end record')
+        seq = (seq + 1) & 0xff
+
     # Completion frame
-    if skip_completion:
+    if skip_completion and end_record is None:
         print("[*] Skipping completion frame (non-final block)")
         print(f"[*] Waiting for mode 5 timeout (~2s)...")
         time.sleep(2.5)
         ser.reset_input_buffer()
     else:
         print("[*] Sending completion frame...")
-        ser.write(build_completion_frame(block_name, seq))
+        frame = build_completion_frame(block_name, seq)
+        if ser.write(frame) != len(frame):
+            raise OSError('short write of transfer completion')
         ser.flush()
+        if end_record is not None:
+            # S9 returns to 57600 before verifying flash and answering PST.
+            ser.baudrate = default_baud
         if status_var:
             if not check_flash_status(ser, status_var, FLASH_COMPLETE_OK,
-                                      "after completion"):
+                                      "after completion", wait_final=end_record is not None):
                 return False
             print(f"[+] Completion confirmed: {status_var}=0000")
         else:
@@ -1014,11 +1009,7 @@ Examples:
             return cmd_info(ser, wait=not args.no_wait)
 
         if args.dump:
-            try:
-                return dump_firmware(ser, args.dump, args)
-            except (OSError, RuntimeError) as exc:
-                print("[!] %s" % exc)
-                return 1
+            return dump_firmware(ser, args.dump, args)
 
         with open(args.file, 'rb') as f:
             file_data = f.read()
@@ -1223,7 +1214,7 @@ Examples:
                 else:
                     ser.baudrate = default_baud
 
-            bl_bid = enter_bootloader(ser, enter_cmd=enter_cmd, flood=can_bdd)
+            bl_bid = enter_bootloader(ser, enter_cmd=enter_cmd, platform=plat)
             if not bl_bid:
                 return 1
 
@@ -1263,7 +1254,7 @@ Examples:
                     time.sleep(0.5)
                     if ser.baudrate != default_baud:
                         ser.baudrate = default_baud
-                    if not enter_bootloader(ser, 30, enter_cmd=enter_cmd, flood=can_bdd):
+                    if not enter_bootloader(ser, 30, enter_cmd=enter_cmd, platform=plat):
                         return 1
                     if can_bdd:
                         if args.baud == 'auto':
@@ -1273,10 +1264,10 @@ Examples:
                             if target != ser.baudrate:
                                 switch_baud(ser, target)
                 else:
-                    # No software reset from bootloader. Need power cycle.
+                    # Wait for the device to return after transfer completion.
                     ser.baudrate = default_baud
+                    print(f"\n[*] Waiting for device to continue with {block_id}...")
                     if not args.no_wait:
-                        print(f"\n[*] Power cycle device to continue with {block_id}...")
                         while _extract_bid(send_cmd(ser, "G S #BID", timeout=0.3, quiet=True)[1]):
                             time.sleep(0.3)
                         baud, bid = wait_for_device(ser)
@@ -1285,21 +1276,30 @@ Examples:
                         print()
                         ser.baudrate = baud
                     else:
-                        print(f"\n[*] Power cycle device to continue with {block_id}, then press Enter...")
-                        input()
+                        baud, bid = probe_baud(ser)
+                        if not baud:
+                            print("[!] Device not responding")
+                            return 1
+                        ser.baudrate = baud
                     print("[*] Entering bootloader...")
-                    bl_bid = enter_bootloader(ser, enter_cmd=enter_cmd, flood=False)
+                    bl_bid = enter_bootloader(ser, enter_cmd=enter_cmd, platform=plat)
                     if not bl_bid:
                         return 1
 
-            # Skip completion on BLX when more blocks follow.
+            if plat.get('end_record') is not None:
+                if not check_flash_status(ser, flash_status, FLASH_COMPLETE_OK,
+                                          "before erasing"):
+                    return 1
+
+            # Air10: skip completion on BLX when more blocks follow.
             # Avoids fast_boot_reset (completion -> state=2 + BKP7R=0 -> BKP6R
             # gate -> boots CDX, no BL window). Without completion: mode 5
             # timeout (~2s) -> plain reset -> BL with infinite timeout.
-            skip = (block_id == 'BLX' and not is_last)
+            skip = (plat.get('end_record') is None and block_id == 'BLX' and not is_last)
             if not flash_block(ser, block_id, data, flash_start, blocks,
                                skip_completion=skip, status_var=flash_status,
-                               timing=args.timing):
+                               timing=args.timing, end_record=plat.get('end_record'),
+                               default_baud=default_baud):
                 print(f"\n[!] Failed to flash {block_id}")
                 return 1
 
@@ -1318,12 +1318,13 @@ Examples:
                         print(f"[!] Application did not start ({state}{error})")
                         return 1
                     print("[+] Application responding (BLS=0000)")
-            else:
-                print("\n[*] Power cycle device to boot new firmware")
 
         print("\n[+] Flash complete!")
         return 0
 
+    except (OSError, RuntimeError) as exc:
+        print(f"[!] {exc}")
+        return 1
     finally:
         ser.close()
 if __name__ == "__main__":
