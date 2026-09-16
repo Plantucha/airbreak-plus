@@ -146,6 +146,22 @@ def build_languages(fw, sources, ignore_input_crc=False, *, skip_english=True):
     if mask & ((1 << 13) | (1 << 19)) and mask & ((1 << 16) | (1 << 17)):
         raise ValueError('Japanese and Chinese cannot be enabled together: firmware uses one font family')
 
+    # Distinguish regional variants only when both are included and their menu
+    # labels collide. Preserve distinct custom labels and explicitly empty text.
+    base_str = fw.read_u16(fw.lan + fw.G8_BASE_STR)
+    for first, second, first_suffix, second_suffix in (
+        (4, 5, b' (ES)', b' (LatAm)'),
+        (6, 7, b' (PT)', b' (BR)'),
+        (16, 17, b' (TW)', b' (CN)'),
+    ):
+        if first not in translations or second not in translations:
+            continue
+        for texts in translations.values():
+            label = texts[base_str + first]
+            if label and label == texts[base_str + second]:
+                texts[base_str + first] = label + first_suffix
+                texts[base_str + second] = label + second_suffix
+
     # Allocate by UTF-8 bytes, but g[2] length metadata counts characters.
     lengths = []
     for tid in range(count):

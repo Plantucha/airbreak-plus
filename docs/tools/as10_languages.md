@@ -115,6 +115,11 @@ non-English translations. Languages are ordered by numeric LAN ID, not source
 argument order. The image's default language is retained if included;
 otherwise the default becomes English.
 
+When both regional variants are included and their menu names are identical,
+`build` adds suffixes: `ES`/`LatAm` for Spanish, `PT`/`BR` for Portuguese,
+and `TW`/`CN` for Chinese. Each menu language is checked separately;
+distinct names and empty labels are left unchanged.
+
 | Option | Meaning | Default |
 |--------|---------|---------|
 | `-o`, `--output FILE` | Write a separate complete firmware image | Required unless `--dry-run` |
