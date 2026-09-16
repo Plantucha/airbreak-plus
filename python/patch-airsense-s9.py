@@ -94,7 +94,7 @@ PATCHES = (
     PatchSpec('patch-asv-ps-range', 'ps_ranges', True, 'Unlock ASV/ASVAuto PS ranges and fixed separation.'),
     PatchSpec('patch-motor-nagscreen', 'motor', True, 'Extend motor life warning threshold.'),
     PatchSpec('patch-alarm-board', 'no_alarm_board', True, 'Set AOA.default=0 and hide HLE when present; skip images without AOA.'),
-    PatchSpec('patch-fw-lcd', 'lcd', False, 'Install ILI9225 replacement LCD driver.', 'Compiled payloads'),
+    PatchSpec('patch-fw-lcd', 'lcd', False, 'Detect ILI9225 automatically; retain native display support.', 'Compiled payloads'),
 )
 PATCH_PHASES = tuple((phase, tuple(spec for spec in PATCHES if spec.phase == phase))
                      for phase in dict.fromkeys(spec.phase for spec in PATCHES))
@@ -222,28 +222,45 @@ class S9Patcher:
 
     def lcd(self):
         if self.fw.cdx_version not in LCD:
-            raise ValueError(f'ILI9225 unsupported for {self.fw.cdx_version}')
+            raise ValueError(f'LCD adapter unsupported for {self.fw.cdx_version}')
         version = self.fw.cdx_version.removeprefix('SX474-')
-        elf = str(REPO / 'build' / f's9_lcd_ili9225_{version}.elf')
-        binary = REPO / 'build' / f's9_lcd_ili9225_{version}.bin'
+        elf = str(REPO / 'build' / f's9_lcd_{version}.elf')
+        binary = REPO / 'build' / f's9_lcd_{version}.bin'
         payload = binary.read_bytes()
         if elf_text_address(elf) != 0x080D8000 or payload != elf_binary_data(elf):
-            raise ValueError('LCD ELF/binary mismatch or wrong link address; rebuild s9_lcd_ili9225')
+            raise ValueError('LCD ELF/binary mismatch or wrong link address; run make s9_lcd_driver')
         base = 0xD8000
         if not payload or base + len(payload) > 0xFFFFE:
             raise ValueError('LCD payload exceeds available flash')
         old = self.data[base:base + len(payload)]
         if old != payload and old != b'\xff' * len(payload):
             raise ValueError('LCD injection area is occupied')
-        originals = ('80b517f0' if version != '1301' else '80b51bf0', 'f8b50700', '38b50500')
-        symbols = ('ili9225_lcd_init', 'ili9225_set_window', 'ili9225_set_cursor')
+        # Init displaces a complete six-byte PUSH/BL sequence. The other hooks
+        # displace four bytes of position-independent PUSH/MOVS instructions.
+        init_prefix = {'1201': '80b517f003fe', '1203': '80b517f013fe',
+                       '1301': '80b51bf039fd'}[version]
+        originals = (init_prefix, 'f8b50700', '38b50500')
+        symbols = ('s9_lcd_init', 's9_lcd_set_window', 's9_lcd_set_cursor')
+        init, window, cursor = LCD[self.fw.cdx_version]
+        native_symbols = {'stock_lcd_init_resume': 0x08000000 + init + 7,
+                          'stock_lcd_window_resume': 0x08000000 + window + 5,
+                          'stock_lcd_cursor_resume': 0x08000000 + cursor + 5}
+        # Cache pointers come from the native window function's literal pool.
+        for name, relative in (('x0', 0), ('y0', 8), ('x1', 4), ('y1', 12)):
+            native_symbols['lcd_window_' + name] = self.fw.fl.u32(window + 0x5fc + relative)
+        for symbol, address in native_symbols.items():
+            if elf_symbol_address(elf, symbol) != address:
+                raise ValueError(f'LCD native symbol mismatch: {symbol}')
         for off, expected, symbol in zip(LCD[self.fw.cdx_version], originals, symbols):
             target = elf_symbol_address(elf, symbol) & ~1
             if not 0x080D8000 <= target < 0x080D8000 + len(payload):
                 raise ValueError(f'LCD symbol outside payload: {symbol}')
-            self.checked(off, bytes.fromhex(expected), encode_bw(0x08000000 + off, target))
+            replacement = encode_bw(0x08000000 + off, target)
+            if len(bytes.fromhex(expected)) == 6:
+                replacement += bytes.fromhex('00bf')
+            self.checked(off, bytes.fromhex(expected), replacement)
         self.write(base, payload)
-        return PatchOutcome.ok('ILI9225 installed with checked original sites, free space and ELF symbols.')
+        return PatchOutcome.ok('Automatic ILI9225/native LCD selection installed; native entry points and window cache verified.')
 
     def checksums(self):
         for name, start, end in self.fw.regions:

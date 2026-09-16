@@ -1,13 +1,8 @@
 /*
- * s9_lcd_ili9225.c - ILI9225 LCD driver for SX474-0905 hardware
- *
- * Replaces HX8347-D driver in SX474-12xx firmware.
- * Both LCDs are 176x220 16-bit color on FSMC bank 2 (0x64000000).
- *
- * Patched functions:
- *   lcd_init    - replaces 0x08080EC8
- *   set_window  - replaces 0x08045290
- *   set_cursor  - replaces 0x0804526A
+ * Universal S9 LCD adapter for SX474-1201, 1203 and 1301.
+ * Detect ILI9225 through register 0; keep the native driver for other IDs.
+ * Window/cursor dispatch rereads the ID and restores GRAM write mode before
+ * returning. No unallocated SRAM or persistent controller-selection flag.
  */
 
 #define MAIN    __attribute__((section(".text.0.main")))
@@ -19,6 +14,12 @@ typedef unsigned char     uint8;
 
 extern void lcd_write_cmd(uint16 index);
 extern void lcd_write_data(uint16 value);
+extern void lcd_read_data(uint16 *value);
+extern uint32 stock_lcd_init(void);
+extern uint32 stock_lcd_set_window(int x0, int y0, int x1, int y1);
+extern uint32 stock_lcd_set_cursor(int x, int y, uint32 r2, uint32 r3);
+extern volatile uint32 lcd_window_x0, lcd_window_y0;
+extern volatile uint32 lcd_window_x1, lcd_window_y1;
 extern void gpio_set_bit(uint32 gpio_base, uint16 bit);
 extern void gpio_clear_bit(uint32 gpio_base, uint16 bit);
 extern void gpio_init(uint32 gpio_base, void *init_struct);
@@ -45,8 +46,8 @@ STATIC void ili_delay_ms(int ms)
         delay_spin();
 }
 
-// ILI9225 init - register values from SX474-0905 firmware at 0x08050030
-MAIN void ili9225_lcd_init(void)
+// Prepare both boards before reading the controller ID.
+STATIC void lcd_prepare(void)
 {
     uint32 gpioe = 0x40011800;
     uint16 pin4  = 0x10;
@@ -55,7 +56,7 @@ MAIN void ili9225_lcd_init(void)
     lcd_rs_gpio_init();
 
     // GPIOG.9 (FSMC_NE2) - chip select for bank 2 (0x64000000)
-    // 0905 board routes LCD CS through PG9; 1203 ties CS low
+    // Enable chip select for boards that route LCD CS through PG9.
     {
         gpio_init_t cfg = { 0x0200, 0x0B, 0x10 };
         gpio_init(0x40012000, &cfg);
@@ -72,7 +73,39 @@ MAIN void ili9225_lcd_init(void)
     ili_delay_ms(10);
     gpio_set_bit(gpioe, pin4);
     ili_delay_ms(50);
+}
 
+/* Register 0 reads 0x9225 on ILI9225 (datasheet section 8.2.3).
+ * Discard an initial read, then require the same ID on two separate accesses.
+ * Invalid/unstable values (including an open bus) retain the native driver.
+ */
+STATIC uint16 lcd_read_id(void)
+{
+    uint16 value;
+    lcd_write_cmd(0);
+    lcd_read_data(&value);
+    lcd_read_data(&value);
+    return value;
+}
+
+STATIC int lcd_is_ili9225(int startup)
+{
+    int attempt;
+    for (attempt = 0; attempt < 3; ++attempt) {
+        uint16 id = lcd_read_id();
+        if (id == 0x0047)  // Native Himax controller ID.
+            return 0;
+        if (id == 0x9225 && lcd_read_id() == 0x9225)
+            return 1;
+        if (startup && attempt < 2)
+            ili_delay_ms(1);
+    }
+    return 0;
+}
+
+// ILI9225 init values from SX474-0905 firmware at 0x08050030.
+STATIC void ili9225_lcd_init(void)
+{
     // power-on sequence
     ili_write_reg(0x28, 0x00FF);  ili_delay_ms(5);
     ili_write_reg(0x07, 0x0000);
@@ -139,13 +172,16 @@ MAIN void ili9225_lcd_init(void)
  * AM=1 in entry mode makes pixel fill match emWin's x-major scan.
  */
 __attribute__((section(".text.1.set_window"), used, noinline))
-void ili9225_set_window(int x0, int y0, int x1, int y1)
+uint32 s9_lcd_set_window(int x0, int y0, int x1, int y1)
 {
-    // emWin window cache
-    *(volatile uint32 *)0x200164F4 = x0;
-    *(volatile uint32 *)0x200164F8 = y0;
-    *(volatile uint32 *)0x200164FC = x1;
-    *(volatile uint32 *)0x20016500 = y1;
+    if (!lcd_is_ili9225(0))
+        return stock_lcd_set_window(x0, y0, x1, y1);
+
+    // Native emWin cache; addresses are supplied by the CDX-specific stubs.
+    lcd_window_x0 = x0;
+    lcd_window_y0 = y0;
+    lcd_window_x1 = x1;
+    lcd_window_y1 = y1;
 
     ili_write_reg(0x37, (uint16)y0);            // H start
     ili_write_reg(0x36, (uint16)y1);            // H end
@@ -154,14 +190,28 @@ void ili9225_set_window(int x0, int y0, int x1, int y1)
     ili_write_reg(0x20, (uint16)y0);            // cursor H
     ili_write_reg(0x21, (uint16)(219 - x0));    // cursor V
     lcd_write_cmd(0x22);
+    return (uint32)y1;
 }
 
 
 // Set GRAM cursor + enter write mode.
 __attribute__((section(".text.2.set_cursor"), used, noinline))
-void ili9225_set_cursor(int x, int y)
+uint32 s9_lcd_set_cursor(int x, int y, uint32 r2, uint32 r3)
 {
+    if (!lcd_is_ili9225(0))
+        return stock_lcd_set_cursor(x, y, r2, r3);
     ili_write_reg(0x20, (uint16)y);
     ili_write_reg(0x21, (uint16)(219 - x));
     lcd_write_cmd(0x22);
+    return r3;
+}
+
+MAIN uint32 s9_lcd_init(void)
+{
+    lcd_prepare();
+    if (lcd_is_ili9225(1)) {
+        ili9225_lcd_init();
+        return 0x10030010;
+    }
+    return stock_lcd_init();
 }

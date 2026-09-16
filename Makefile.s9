@@ -5,9 +5,9 @@ ifneq ($(origin PATCH_S9_LCD),undefined)
 export PATCH_S9_LCD
 endif
 
-# S9 LCD patch - ILI9225 driver for SX474-09xx boards
+# S9 LCD patch - detect ILI9225 or retain the native display driver
 #
-# Build: make s9_lcd_ili9225
+# Build: make s9_lcd_driver
 # Usage: PATCH_S9_LCD=1 ./patch-airsense-s9 stm32-s9.bin output.bin
 #
 # S9 is STM32F103 (Cortex-M3), different flags from S10 (Cortex-M4)
@@ -20,7 +20,10 @@ S9_CFLAGS := -Os -mcpu=cortex-m3 -mthumb \
 S9_LCD_OFFSET := 0x080d8000
 S9_VERSIONS := 1201 1203 1301
 
-$(BUILD)/s9_lcd_ili9225.o: $(SRC)/s9_lcd_ili9225.c Makefile Makefile.s9 | $(BUILD)
+$(BUILD)/s9_lcd.o: $(SRC)/s9_lcd.c Makefile Makefile.s9 | $(BUILD)
+	$(CC) $(S9_CFLAGS) -c -o $@ $<
+
+$(BUILD)/s9_lcd_native.o: $(SRC)/s9_lcd_native.S Makefile Makefile.s9 | $(BUILD)
 	$(CC) $(S9_CFLAGS) -c -o $@ $<
 
 # Generate per-version stubs + link + objcopy rules
@@ -28,28 +31,31 @@ define S9_LCD_VERSION_template
 $(BUILD)/s9_$(1)_stubs.o: $(SRC)/s9_$(1)_stubs.S Makefile Makefile.s9 | $(BUILD)
 	$$(CC) $$(S9_CFLAGS) -c -o $$@ $$<
 
-$(BUILD)/s9_lcd_ili9225_$(1).elf: $(BUILD)/s9_lcd_ili9225.o $(BUILD)/s9_$(1)_stubs.o | $(BUILD)
+$(BUILD)/s9_lcd_$(1).elf: $(BUILD)/s9_lcd.o $(BUILD)/s9_lcd_native.o $(BUILD)/s9_$(1)_stubs.o | $(BUILD)
 	$$(LD) --nostdlib --no-dynamic-linker \
-		--Ttext $$(S9_LCD_OFFSET) --entry ili9225_lcd_init --sort-section=name \
+		--Ttext $$(S9_LCD_OFFSET) --entry s9_lcd_init --sort-section=name \
 		-o $$@ $$^
 
-$(BUILD)/s9_lcd_ili9225_$(1).bin: $(BUILD)/s9_lcd_ili9225_$(1).elf
+$(BUILD)/s9_lcd_$(1).bin: $(BUILD)/s9_lcd_$(1).elf
 	$$(OBJCOPY) -Obinary $$< $$@
 endef
 
 $(foreach v,$(S9_VERSIONS),$(eval $(call S9_LCD_VERSION_template,$(v))))
 
-s9_lcd_ili9225: $(foreach v,$(S9_VERSIONS),$(BUILD)/s9_lcd_ili9225_$(v).bin)
+s9_lcd_driver: $(foreach v,$(S9_VERSIONS),$(BUILD)/s9_lcd_$(v).bin)
 	@echo "S9 LCD patches built:"
-	@$(foreach v,$(S9_VERSIONS),echo "  $(BUILD)/s9_lcd_ili9225_$(v).bin";)
+	@$(foreach v,$(S9_VERSIONS),echo "  $(BUILD)/s9_lcd_$(v).bin";)
 
-.PHONY: s9 s9_lcd s9_lcd_ili9225
+# Keep the previous build target as an alias.
+s9_lcd_ili9225: s9_lcd_driver
+
+.PHONY: s9 s9_lcd s9_lcd_driver s9_lcd_ili9225
 s9: $(BUILD)/stm32-s9.bin
 
 s9_lcd: $(BUILD)/stm32-s9-lcd.bin
 
 S9_PATCH_SOURCES = Makefile.s9 patch-airsense-s9 python/patch-airsense-s9.py python/lib/s9_firmware.py python/lib/compiled_payload.py
-S9_PAYLOADS = $(foreach v,$(S9_VERSIONS),$(BUILD)/s9_lcd_ili9225_$(v).bin)
+S9_PAYLOADS = $(foreach v,$(S9_VERSIONS),$(BUILD)/s9_lcd_$(v).bin)
 
 $(BUILD)/stm32-s9.bin: $(S9_PATCH_SOURCES) $(S9_PAYLOADS) | $(BUILD)
 	$(announce_image)

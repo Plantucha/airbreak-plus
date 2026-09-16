@@ -27,6 +27,6 @@
 # Allow operation without an alarm board
 # --patch-alarm-board y
 
-# Replacement ILI9225 display (requires compiled S9 LCD payloads)
+# Automatically select ILI9225 or the native display driver (requires compiled LCD payloads)
 # --patch-fw-lcd n
 
