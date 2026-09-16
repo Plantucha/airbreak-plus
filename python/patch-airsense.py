@@ -1823,6 +1823,74 @@ class ASFirmwarePatches(CompiledPayloadMixin):
             'patch_graph_keep_screen_on: backlight timeout call')
         return PatchOutcome.ok(None, detail)
 
+    def patch_language_fonts(self):
+        """Select fonts for the active language and for individual LAN option rows."""
+        sites_by_version = {
+            'SX567-0302': (0x6aa02, 0x79642, 0x6e5c0, 0x6442e, 0x6e890, 0x63ee0),
+            'SX567-0305': (0x6b132, 0x79dba, 0x6ecf0, 0x64b52, 0x6efc0, 0x64604),
+            'SX567-0306': (0x6b136, 0x79db6, 0x6ecf0, 0x64b52, 0x6efc0, 0x64604),
+            'SX567-0401': (0x6b136, 0x79db6, 0x6ecf0, 0x64b52, 0x6efc0, 0x64604),
+            'SX567-0402': (0x6b136, 0x79db6, 0x6ecf0, 0x64b52, 0x6efc0, 0x64604),
+        }
+        sites = sites_by_version.get(self.asf.cdx_ver)
+        if sites is None:
+            return PatchOutcome.skip("unsupported CDX version %s" % self.asf.cdx_ver)
+
+        # Use image languages, not LNC, which can change through EEPROM settings.
+        # One font profile needs neither runtime switching nor per-row fonts.
+        self.asf.load_firmware_string_metadata()
+        font_profiles = set()
+        for lang_id in self.asf.fw_lang_ids:
+            if lang_id in (13, 19):
+                font_profiles.add('japanese')
+            elif lang_id in (16, 17):
+                font_profiles.add('chinese')
+            else:
+                font_profiles.add('standard')
+        if len(font_profiles) < 2:
+            return PatchOutcome.skip("available languages use a single font profile")
+
+        data, _, elf_path = self._load_versioned_payload('language_fonts')
+        init, refresh, option, gauge, editor, widget_vtable_literal = sites
+        calls = (
+            (init, 'gui_font_profile_select_for_lnc', 'start', 'font initialization'),
+            (refresh, 'gui_variable_binding_update_value', 'language_fonts_update', 'language font refresh'),
+            (option, 'gui_disp_string_lookup_left', 'language_fonts_draw_option', 'language option text'),
+            (gauge, 'gui_draw_breath_arc', 'language_fonts_draw_arc', 'pressure gauge text layout'),
+            (editor, 'gui_draw_breath_arc', 'language_fonts_draw_arc', 'pressure editor text layout'),
+        )
+
+        # The constructor literal identifies the version's widget vtable. Check
+        # its stock methods before replacing them; no fixed vtable address needed.
+        vtable = self.asf.read_u32(widget_vtable_literal) - self.asf.FLASH_BASE
+        pointers = (
+            (vtable + 8, 'gui_variable_text_widget_update', 'language_fonts_update_value'),
+            (vtable + 12, 'gui_variable_text_widget_draw', 'language_fonts_draw_value'),
+        )
+        replacements = []
+        for site, original, target, label in calls:
+            expected = self._encode_thumb_bl(site, self._elf_symbol_addr(elf_path, original) & ~1)
+            address = self._elf_symbol_addr(elf_path, target)
+            replacement = self._encode_thumb_bl(site, address)
+            replacements.append((site, expected, replacement, label, address))
+        for site, original, target in pointers:
+            expected = struct.pack('<I', self._elf_symbol_addr(elf_path, original) | 1)
+            address = self._elf_symbol_addr(elf_path, target) | 1
+            replacements.append((site, expected, struct.pack('<I', address), original, address))
+
+        for site, expected, _, label, _ in replacements:
+            if self.asf.read_bytes(site, len(expected)) != expected:
+                raise ValueError("language_fonts: unexpected %s bytes at 0x%X" % (label, site))
+
+        flash, _ = self._inject_payload('language_fonts', data)
+        details = [self._payload_detail('language_fonts', len(data), flash)]
+        for site, expected, replacement, label, address in replacements:
+            self._replace_bytes_checked(site, expected, replacement, label)
+            details.append(self._hook_detail(label, self.asf.FLASH_BASE + site, address))
+
+        self.applied_payloads.add('language_fonts')
+        return PatchOutcome.ok("Fonts follow the active language", *details)
+
     def patch_backlight_adapt(self):
         """improved backlight response to ambient light"""
         ver = self._payload_version_key()
@@ -2081,6 +2149,8 @@ PATCH_PHASES = (
                   True, 'bypass_psucheck'),
         PatchSpec('patch-unlock-languages', 'Unlock all built-in languages.',
                   True, 'unlock_languages'),
+        PatchSpec('patch-language-fonts', 'Select GUI fonts for the active language.',
+                  True, 'patch_language_fonts'),
         PatchSpec('patch-therapy-screen', 'Enable additional therapy-screen information.',
                   True, 'patch_therapy_screen'),
         PatchSpec('patch-defaults', 'Change firmware defaults.',

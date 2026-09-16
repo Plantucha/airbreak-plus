@@ -78,6 +78,7 @@ All patches below are **enabled by default** unless noted.
 | Motor nag removal | Removes the "Motor life exceeded" message that appears after ~20,000 runtime hours | `--patch-motor-nagscreen` |
 | Past date | Allows setting date to past values via menu and UART | `--patch-past-date` |
 | Unlock languages | Enables all built-in languages | `--patch-unlock-languages` |
+| Language fonts | Selects the correct font for each language, including the language selection list | `--patch-language-fonts` |
 | Therapy screen | Enables additional information on the therapy screen | `--patch-therapy-screen` |
 | Defaults | Sets firmware defaults (English, cmH2O, pillows mask, slim tube) | `--patch-defaults` |
 | Bypass integrity check | Disables firmware integrity checks that prevent boot on CRC mismatch | `--patch-integrity-check` |

@@ -54,6 +54,23 @@ NSTUB(0x08066CB2, variable_handler_wire_width)
 NSTUB(0x08004100, ccx_get_globals)
 NSTUB(0x0806D09F, string_id_lookup_current_locale)
 
+// Active-language fonts and cached GUI layout
+NSTUB(0x0806B115, gui_font_profile_get)
+NSTUB(0x0806B159, gui_font_profile_select_for_lnc)
+NSTUB(0x0806F1A3, gui_variable_binding_update_value)
+NSTUB(0x08067339, g8_index_from_short_var_id)
+NSTUB(0x0806A229, gui_get_string_width)
+NSTUB(0x0806D47D, gui_base_window_height)
+NSTUB(0x0806E41F, gui_disp_string_lookup_left)
+NSTUB(0x080646A9, gui_variable_text_widget_update)
+NSTUB(0x08064609, gui_variable_text_widget_draw)
+NSTUB(0x0806D635, gui_pressure_arc_layout_init)
+NSTUB(0x0806D6CD, gui_draw_breath_arc)
+NSTUB_VAR(0x08059D50, font_text_japanese)
+NSTUB_VAR(0x0804ED40, font_text_chinese)
+NSTUB_VAR(0x08099E48, font_large_standard)
+NSTUB_VAR(0x08097BBC, font_large_cjk)
+
 // Config persistence
 NSTUB(0x0809E4A9, file_get_size)
 
