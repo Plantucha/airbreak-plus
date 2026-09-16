@@ -9,12 +9,12 @@ from __future__ import annotations
 
 import struct
 import binascii
-import os
-import tempfile
 from decimal import Decimal, DecimalException
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+
+from .firmware_io import write_output
 
 
 FLASH_BASE = 0x08000000
@@ -129,25 +129,6 @@ def hx(value: Optional[int], width: int = 4) -> str:
     if value is None:
         return "-"
     return f"0x{value:0{width}X}"
-
-
-def write_output(path, data, overwrite=False):
-    """Publish a complete file atomically, without clobbering by default."""
-    path = Path(path)
-    name = None
-    try:
-        with tempfile.NamedTemporaryFile(dir=path.parent, prefix='.' + path.name + '.', delete=False) as handle:
-            name = handle.name
-            handle.write(data)
-            handle.flush()
-            os.fsync(handle.fileno())
-        if overwrite:
-            os.replace(name, path)
-        else:
-            os.link(name, path)
-    finally:
-        if name and os.path.exists(name):
-            os.unlink(name)
 
 
 def parse_int(text: str) -> int:

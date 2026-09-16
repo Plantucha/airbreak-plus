@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
 """Export S9 language TSV files and build an independent language image."""
 import argparse
-import os
 from pathlib import Path
 import sys
 
-from lib.s9_firmware import write_output
+from lib.firmware_io import paths_alias, write_output
 from lib.s9_languages import S9LanguageFirmware, language_id, export_tsv, build_languages, resource_arena
-
-
-def paths_alias(a, b):
-    return a.resolve() == b.resolve() or (a.exists() and b.exists() and os.path.samefile(a, b))
 
 
 def main(argv=None):
