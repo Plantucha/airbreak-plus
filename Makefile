@@ -358,55 +358,6 @@ $(BUILD)/eeprom_stub_full.bin: $(BUILD)/eeprom_stub_nocrc.bin
 	@python3 python/fix_crc.py $< -o $@ --pad 0xC0000
 
 
-# S9 LCD patch - ILI9225 driver for SX474-09xx boards
-#
-# Build: make s9_lcd_ili9225
-# Usage: PATCH_S9_LCD=1 ./patch-airsense-s9 stm32-s9.bin output.bin
-#
-# S9 is STM32F103 (Cortex-M3), different flags from S10 (Cortex-M4)
-# One binary per CDX version (stub addresses differ)
-
-S9_CFLAGS := -Os -mcpu=cortex-m3 -mthumb \
-	-W -Wall -Wno-unused-variable \
-	-nostdlib -nostdinc -ffreestanding
-
-S9_LCD_OFFSET := 0x080d8000
-S9_VERSIONS := 1201 1203 1301
-
-$(BUILD)/s9_lcd_ili9225.o: $(SRC)/s9_lcd_ili9225.c | $(BUILD)
-	$(CC) $(S9_CFLAGS) -c -o $@ $<
-
-# Generate per-version stubs + link + objcopy rules
-define S9_LCD_VERSION_template
-$(BUILD)/s9_$(1)_stubs.o: $(SRC)/s9_$(1)_stubs.S | $(BUILD)
-	$$(CC) $$(S9_CFLAGS) -c -o $$@ $$<
-
-$(BUILD)/s9_lcd_ili9225_$(1).elf: $(BUILD)/s9_lcd_ili9225.o $(BUILD)/s9_$(1)_stubs.o | $(BUILD)
-	$$(LD) --nostdlib --no-dynamic-linker \
-		--Ttext $$(S9_LCD_OFFSET) --entry ili9225_lcd_init --sort-section=name \
-		-o $$@ $$^
-
-$(BUILD)/s9_lcd_ili9225_$(1).bin: $(BUILD)/s9_lcd_ili9225_$(1).elf
-	$$(OBJCOPY) -Obinary $$< $$@
-endef
-
-$(foreach v,$(S9_VERSIONS),$(eval $(call S9_LCD_VERSION_template,$(v))))
-
-s9_lcd_ili9225: $(foreach v,$(S9_VERSIONS),$(BUILD)/s9_lcd_ili9225_$(v).bin)
-	@echo "S9 LCD patches built:"
-	@$(foreach v,$(S9_VERSIONS),echo "  $(BUILD)/s9_lcd_ili9225_$(v).bin";)
-
-s9: $(BUILD)/stm32-s9.bin
-
-s9_lcd: $(BUILD)/stm32-s9-lcd.bin
-
-$(BUILD)/stm32-s9.bin: patch-airsense-s9 | $(BUILD)
-	./patch-airsense-s9 stm32-s9.bin $@
-
-$(BUILD)/stm32-s9-lcd.bin: patch-airsense-s9 s9_lcd_ili9225 | $(BUILD)
-	PATCH_S9_LCD=1 ./patch-airsense-s9 stm32-s9.bin $@
-
-
 # S10 LCD patch - ILI9325/ILI9328 driver for AirSense 10
 #
 # Build: make s10_lcd_ili9325
@@ -476,4 +427,5 @@ endef
 
 $(foreach image,$(BUILD_VARIANTS),$(eval $(call patch_config_rule,$(image),air10,stm32.bin)))
 
+-include Makefile.s9
 -include Makefile.as11
