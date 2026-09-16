@@ -15,6 +15,9 @@
 # Enable additional clinical settings
 # --patch-gui-config y
 
+# Customize default settings
+# --patch-defaults y
+
 # Pressure UI ranges 1..30 cmH2O and Ti Min/Max 0.1..4s
 # --patch-unlock-uilimits y
 
@@ -29,4 +32,3 @@
 
 # Automatically select ILI9225 or the native display driver (requires compiled LCD payloads)
 # --patch-fw-lcd n
-

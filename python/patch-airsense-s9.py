@@ -29,6 +29,18 @@ LK9 LKM LMX MSP PE9 PEA PEM PM9 PMA PT9 PTA PTM'''.split()
 
 REPORT_SETTINGS = 'AQD ARD CRD LRD LRS SRD TRD'.split()
 
+DEFAULTS = (
+    ('MOP', 1),  # Therapy mode: AutoSet
+    ('PRD', 0),  # Pressure units: cmH2O
+    ('MSK', 0),  # Mask type: Pillows
+    ('TBT', 0),  # Tube type: SlimLine
+    ('MTP', 1),  # Menu access: Full
+    ('CCA', 2),  # Climate control: Patient
+    ('EPA', 4),  # EPR level: Patient
+    ('LLA', 2),  # Leak alert: Patient
+    ('SSA', 2),  # SmartStart: Patient
+)
+
 MOTOR = {'SX474-0907': 0x45A14, 'SX474-0912': 0x46580, 'SX474-1201': 0x470A0,
          'SX474-1203': 0x47168, 'SX474-1301': 0x4CC88}
 
@@ -90,6 +102,7 @@ PATCHES = (
     PatchSpec('patch-extra-modes', 'extra_modes', True, 'Enable declared therapy mode options.'),
     PatchSpec('patch-respiratory-events', 'respiratory_events', True, 'Enable CEN, respiratory statistics, EVE recording.'),
     PatchSpec('patch-gui-config', 'gui_config', True, 'Activate named clinical settings.'),
+    PatchSpec('patch-defaults', 'patch_defaults', True, 'Set AutoSet, cmH2O, Pillows, SlimLine, Full access and Patient control defaults.'),
     PatchSpec('patch-unlock-uilimits', 'ui_limits', True, 'Extend pressure UI ranges and set Ti Min/Max to 0.1..4 s.'),
     PatchSpec('patch-asv-ps-range', 'ps_ranges', True, 'Unlock ASV/ASVAuto PS ranges and fixed separation.'),
     PatchSpec('patch-motor-nagscreen', 'motor', True, 'Extend motor life warning threshold.'),
@@ -182,6 +195,16 @@ class S9Patcher:
             self.write(rec.flags_offset, bytes([rec.flags | 1]))
         return PatchOutcome.ok(f'{len(names)} named clinical settings active.')
 
+    def patch_defaults(self):
+        targets = []
+        for name, value in DEFAULTS:
+            rec = self.descriptor(name, 'setting')
+            if rec.option_count is None or not 0 <= value < rec.option_count:
+                raise ValueError(f'{name}: default outside declared options')
+            targets.append((rec.off, value))
+        for offset, value in targets:
+            self.write(offset, struct.pack('<I', value))
+        return PatchOutcome.ok(f'Updated defaults for {len(targets)} vars.')
 
     def ranges(self, names, minimum, maximum):
         present = [name for name in names if self.fw.name_entry(name)]
