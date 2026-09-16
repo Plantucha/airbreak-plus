@@ -66,6 +66,7 @@ Windows users can prepare the common build environment with the
 |----------|---------|
 | [resmed_config](docs/tools/resmed_config.md) | UART configuration tool |
 | [resmed_flash](docs/tools/resmed_flash.md) | UART firmware flash and dump tool |
+| [as10_languages](docs/tools/as10_languages.md) | Firmware language export and rebuilding |
 | [Config variables](docs/config_variables.md) | Firmware variable system and globals[] structures |
 | [Variable reference](docs/var_reference.tsv) | Firmware variables with var_id, UART name, EDF signal |
 | [Patching: Custom settings](docs/custom_settings.md) | Variable assignments, reclaimed resources, persistence, and menu registry |
