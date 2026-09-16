@@ -1,6 +1,7 @@
 /*
  * Universal S9 LCD adapter for SX474-1201, 1203 and 1301.
- * Detect ILI9225 through register 0; keep the native driver for other IDs.
+ * Select the ILI9225-compatible driver for register-0 IDs 0x9225 and 0x0164;
+ * keep the native driver for other IDs.
  * Window/cursor dispatch rereads the ID and restores GRAM write mode before
  * returning. No unallocated SRAM or persistent controller-selection flag.
  */
@@ -76,6 +77,7 @@ STATIC void lcd_prepare(void)
 }
 
 /* Register 0 reads 0x9225 on ILI9225 (datasheet section 8.2.3).
+ * The S9 panel reporting 0x0164 also works with this init/drawing sequence
  * Discard an initial read, then require the same ID on two separate accesses.
  * Invalid/unstable values (including an open bus) retain the native driver.
  */
@@ -95,7 +97,7 @@ STATIC int lcd_is_ili9225(int startup)
         uint16 id = lcd_read_id();
         if (id == 0x0047)  // Native Himax controller ID.
             return 0;
-        if (id == 0x9225 && lcd_read_id() == 0x9225)
+        if ((id == 0x9225 || id == 0x0164) && lcd_read_id() == id)
             return 1;
         if (startup && attempt < 2)
             ili_delay_ms(1);

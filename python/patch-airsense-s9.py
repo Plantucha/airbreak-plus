@@ -94,7 +94,7 @@ PATCHES = (
     PatchSpec('patch-asv-ps-range', 'ps_ranges', True, 'Unlock ASV/ASVAuto PS ranges and fixed separation.'),
     PatchSpec('patch-motor-nagscreen', 'motor', True, 'Extend motor life warning threshold.'),
     PatchSpec('patch-alarm-board', 'no_alarm_board', True, 'Set AOA.default=0 and hide HLE when present; skip images without AOA.'),
-    PatchSpec('patch-fw-lcd', 'lcd', False, 'Detect ILI9225 automatically; retain native display support.', 'Compiled payloads'),
+    PatchSpec('patch-fw-lcd', 'lcd', False, 'Automatically select a compatible LCD driver.', 'Compiled payloads'),
 )
 PATCH_PHASES = tuple((phase, tuple(spec for spec in PATCHES if spec.phase == phase))
                      for phase in dict.fromkeys(spec.phase for spec in PATCHES))
@@ -260,7 +260,7 @@ class S9Patcher:
                 replacement += bytes.fromhex('00bf')
             self.checked(off, bytes.fromhex(expected), replacement)
         self.write(base, payload)
-        return PatchOutcome.ok('Automatic ILI9225/native LCD selection installed; native entry points and window cache verified.')
+        return PatchOutcome.ok('Automatic LCD selection installed (0x9225/0x0164 or native); native entry points and window cache verified.')
 
     def checksums(self):
         for name, start, end in self.fw.regions:
