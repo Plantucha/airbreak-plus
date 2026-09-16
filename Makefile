@@ -64,6 +64,7 @@ S10_PATCHER_DEPS := \
 	patch-airsense \
 	python/patch-airsense.py \
 	python/edf_ccx_merge.py \
+	python/lib/as10_firmware.py \
 	python/lib/compiled_payload.py
 
 # Payloads build in parallel; firmware patchers run serially for streaming output.

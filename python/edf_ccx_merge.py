@@ -3,14 +3,15 @@
 Takes a firmware image (dumped from any SX567 variant - AutoSet, VAuto, CS PaceWave)
 and patches the CCX region so all EDF file types contain the full universal signal set.
 
-This helper uses the AS10 ASFirmware framework from patch-airsense.py for
+This helper uses the shared ASFirmware framework from lib/as10_firmware.py for
 firmware layout, globals[], UART name resolution, and CRC finalization.
 """
 
 import struct
 import sys
-import importlib.util
 from pathlib import Path
+
+from lib.as10_firmware import ASFirmware
 
 
 ADDR_BASE = 0x08000000
@@ -1602,14 +1603,6 @@ def patch_edf_merge(asf, force=True, verbose=False):
     return patches
 
 
-def load_as10_firmware_class():
-    patcher_path = Path(__file__).resolve().with_name("patch-airsense.py")
-    spec = importlib.util.spec_from_file_location("patch_airsense", patcher_path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module.ASFirmware
-
-
 def main():
     import argparse
     parser = argparse.ArgumentParser(
@@ -1631,9 +1624,8 @@ def main():
     args = parser.parse_args()
 
     input_path = Path(args.input)
-    firmware_cls = load_as10_firmware_class()
     with input_path.open("rb") as f:
-        asf = firmware_cls(f, validate_crc=not args.ignore_input_crc)
+        asf = ASFirmware(f, validate_crc=not args.ignore_input_crc)
 
     patches = patch_edf_merge(asf, force=args.force, verbose=args.verbose)
 
