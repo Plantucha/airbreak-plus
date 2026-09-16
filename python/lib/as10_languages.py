@@ -6,7 +6,7 @@ import re
 import struct
 
 from .as10_firmware import ASFirmware
-from .language_tsv import export_tsv_entries, read_tsv
+from .language_tsv import export_tsv_entries, read_tsv, load_translations
 
 
 class AS10LanguageFirmware(ASFirmware):
@@ -130,25 +130,16 @@ def export_tsv(fw, language):
     return export_tsv_entries(language, {tid: fw.texts[tid, language] for tid in range(fw.text_count)})
 
 
-def build_languages(fw, sources, ignore_input_crc=False):
+def build_languages(fw, sources, ignore_input_crc=False, *, skip_english=True):
     bad = fw.invalid_crcs()
     if bad and not ignore_input_crc:
         raise ValueError('invalid input CRC: ' + ', '.join(bad))
 
     count = fw.text_count
-    translations = {0: {tid: fw.texts[tid, 0] for tid in range(count)}}
-    warnings = []
-    for source in sources:
-        language, entries = read_tsv(source, count)
-        if not 0 < language < fw.option_count:
-            raise ValueError(f'{source}: language must be within 1..{fw.option_count-1}; English comes from the image')
-        if language in translations:
-            raise ValueError(f'duplicate language {language}')
-        for tid in range(count):
-            if tid not in entries:
-                warnings.append(f'{Path(source).name}: text ID {tid} missing; using English')
-                entries[tid] = translations[0][tid]
-        translations[language] = entries
+    english = {tid: fw.texts[tid, 0] for tid in range(count)}
+    translations, warnings = load_translations(sources, english, skip_english=skip_english)
+    if any(not 0 <= lang < fw.option_count for lang in translations):
+        raise ValueError(f'language must be within 0..{fw.option_count-1}')
 
     languages = sorted(translations)
     mask = sum(1 << language for language in languages)

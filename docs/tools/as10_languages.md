@@ -36,7 +36,7 @@ Export a language from a firmware image to an editable TSV file, or replace
 the image's language set using TSV sources. Works offline on complete raw
 1 MiB images with bootloader layouts `SX577-0200` or `SX585-0200`.
 
-English always comes from the input image. Supply one source file for each
+English comes from the input image by default. Supply one source file for each
 other desired language. Languages omitted from the source list are removed;
 with no sources, the result contains English only.
 
@@ -119,12 +119,16 @@ otherwise the default becomes English.
 |--------|---------|---------|
 | `-o`, `--output FILE` | Write a separate complete firmware image | Required unless `--dry-run` |
 | `--dry-run` | Build and verify the result without writing an image | Off |
+| `--no-skip-english` | Use a supplied English TSV instead of ignoring it | Off |
 | `--overwrite` | Replace an existing output file | Off |
 | `--ignore-input-crc` | Allow invalid input block CRCs | Off |
 
-Missing source IDs use the input image's English text, with a warning for
-each missing ID. Explicitly empty records remain empty. Repeated languages
-and English source files are rejected.
+English sources are ignored by default; use `--no-skip-english` to load one.
+Missing English IDs retain the image text.
+
+Missing source IDs use the resulting English text, with a warning for each
+missing ID. Explicitly empty records remain empty. Duplicate languages,
+invalid records, or insufficient resource space fail the build.
 
 Japanese (`JA-13`, `JA-19`) and Chinese (`ZH-TW`, `ZH-CN`) cannot be included
 in the same image. The build rejects that combination.
@@ -163,7 +167,7 @@ string-table indexes. Record order does not matter; text spaces are preserved.
 |--------|---------|
 | `ID<TAB>text` | Translation for this ID |
 | `ID<TAB>` | Intentional empty string |
-| No record for an ID | Use English from the input image, with a warning |
+| No record for an ID | Use the resulting English text, with a warning; missing English IDs use the image |
 
 Text after decoding escapes must be valid UTF-8 and contain at most 255
 Unicode code points per string, not 255 bytes. Embedded NUL is not allowed.
@@ -220,7 +224,8 @@ as10_languages.py firmware.bin export EN -o reference.tsv
 ```
 
 For a new translation, change the header in the edited source to the target
-language. `build` always takes English from the input image, not from a TSV.
+language. `build` takes English from the input image unless an English TSV
+is supplied with `--no-skip-english`.
 
 ## See Also
 

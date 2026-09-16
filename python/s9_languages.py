@@ -18,9 +18,11 @@ def main(argv=None):
     export.add_argument('-o', '--output', type=Path, required=True)
     export.add_argument('--overwrite', action='store_true')
     build = sub.add_parser('build', help='Replace the language set; English is always retained')
-    build.add_argument('sources', nargs='*', type=Path, help='tsv translation files; no files builds English only')
+    build.add_argument('sources', nargs='*', type=Path, help='TSV translations; English sources are ignored unless --no-skip-english; no files builds English only')
     build.add_argument('-o', '--output', type=Path)
     build.add_argument('--dry-run', action='store_true')
+    build.add_argument('--no-skip-english', dest='skip_english', action='store_false',
+                       help='Use an English TSV source instead of ignoring it')
     build.add_argument('--overwrite', action='store_true')
     build.add_argument('--ignore-input-crc', action='store_true')
     build.add_argument('--allow-relocation', action='store_true',
@@ -50,7 +52,7 @@ def main(argv=None):
             return 0
         if args.output is None and not args.dry_run:
             raise ValueError('build requires --output or --dry-run')
-        data, warnings, report = build_languages(fw, sources, args.ignore_input_crc, args.allow_relocation)
+        data, warnings, report = build_languages(fw, sources, args.ignore_input_crc, args.allow_relocation, skip_english=args.skip_english)
         for warning in warnings:
             print('WARNING: '+warning, file=sys.stderr)
         print(f"Languages: {report['languages']}; LAN mask: 0x{report['mask']:X}; default: {report['default']}")

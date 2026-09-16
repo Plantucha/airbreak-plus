@@ -81,10 +81,12 @@ def _tsv_source(path):
     return language, records
 
 
-def read_tsv(path, count):
+def read_tsv(path, count, *, skip_english=False):
     language, records = _tsv_source(path)
     if language is None:
         raise ValueError(f'{path}: missing # language: LANGUAGE header')
+    if skip_english and language == 0:
+        return language, {}
     result = {}
     for lineno, line in records:
         try:
@@ -105,3 +107,26 @@ def export_tsv_entries(language, entries):
     return (f"# language: {label}\n" +
             "".join(f"{tid}\t{escape_text(raw)}\n" for tid, raw in entries.items())).encode("utf-8")
 
+
+def load_translations(sources, english, *, skip_english=True):
+    """Load sources before filling gaps so an English override is order-independent."""
+    count = len(english)
+    supplied = {}
+    for source in sources:
+        language, entries = read_tsv(source, count, skip_english=skip_english)
+        if language == 0 and skip_english:
+            continue
+        if language in supplied:
+            raise ValueError(f'duplicate language {language}')
+        supplied[language] = (source, entries)
+    translations = {0: dict(english)}
+    warnings = []
+    for language in sorted(supplied):
+        source, entries = supplied[language]
+        fallback = translations[0]
+        for tid in range(count):
+            if tid not in entries:
+                warnings.append(f'{Path(source).name}: text ID {tid} missing; using English')
+                entries[tid] = fallback[tid]
+        translations[language] = entries
+    return translations, warnings

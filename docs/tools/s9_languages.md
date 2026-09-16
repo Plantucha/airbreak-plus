@@ -40,7 +40,7 @@ SX474-0912, SX474-1201, SX474-1203, and SX474-1301.
 Language structures are selected by CDX; the tool does not require a matching
 bootloader BID.
 
-English (LAN ID `0`) always comes from the input image. Supply one source file
+English (LAN ID `0`) comes from the input image by default. Supply one source file
 for each other desired language. Languages omitted from the source list are
 removed. With no source files, the result contains English only.
 
@@ -132,13 +132,17 @@ otherwise select English.
 |--------|---------|---------|
 | `-o`, `--output FILE` | Write a separate firmware image | Required unless `--dry-run` |
 | `--dry-run` | Validate sources, pack resources, and read back the result without writing an image | Off |
+| `--no-skip-english` | Use a supplied English TSV instead of ignoring it | Off |
 | `--overwrite` | Replace an existing output file | Off |
 | `--ignore-input-crc` | Allow invalid input region CRCs | Off |
 | `--allow-relocation` | Permit moving the string-pointer table if retaining its address fails | Off |
 
-Missing source IDs use the input image's English text, with a warning for each
-file and ID. Repeated languages, an English source,
-invalid source records, or insufficient resource space fail the build.
+English sources are ignored by default; use `--no-skip-english` to load one.
+Missing English IDs retain the image text.
+
+Missing source IDs use the resulting English text, with a warning for each
+missing ID. Explicitly empty records remain empty. Duplicate languages,
+invalid records, or insufficient resource space fail the build.
 
 By default the string-pointer table keeps its address. The builder can grow
 it in place by repacking surrounding translation resources; the language count
@@ -187,7 +191,7 @@ language directives are errors. The language header is required.
 |--------|---------|
 | `ID<TAB>text` | Translation for this ID |
 | `ID<TAB>` | Intentional empty string |
-| No record for an ID | Use the input image's English text and print a warning |
+| No record for an ID | Use the resulting English text and print a warning; missing English IDs use the image |
 | `ID<TAB>@EN` | Literal text `@EN`; it is not a fallback marker |
 
 Escapes are `\\`, `\n`, `\r`, `\t`, and `\xNN` (one hexadecimal byte).

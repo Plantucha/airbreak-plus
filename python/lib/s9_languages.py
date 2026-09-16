@@ -3,7 +3,7 @@ from pathlib import Path
 import binascii
 import struct
 
-from .language_tsv import LANGUAGES, language_id, escape_text, unescape_text, read_tsv, export_tsv_entries
+from .language_tsv import LANGUAGES, language_id, escape_text, unescape_text, read_tsv, export_tsv_entries, load_translations
 from .s9_firmware import S9Firmware, Profile, PROFILES, FLASH_BASE, CCX_END, TEXT_LITERALS
 
 
@@ -114,26 +114,17 @@ def place_resources(start, end, table, variants, stride, indexes, pool):
     return writes, [addresses['variant',i] for i in range(len(variants)//stride)]
 
 
-def build_languages(fw, sources, ignore_input_crc=False, allow_relocation=False):
+def build_languages(fw, sources, ignore_input_crc=False, allow_relocation=False, *, skip_english=True):
     bad = fw.invalid_crcs()
     if bad and not ignore_input_crc:
         raise ValueError('invalid input CRC: '+', '.join(bad))
     start, end, old_used = resource_arena(fw)
     root, count, old_strings = fw.text_layout
     lan = fw.resolve('LAN')
-    translations = {0: {i: raw_text(fw, i, 0) for i in range(count)}}
-    warnings = []
-    for source in sources:
-        source = Path(source)
-        lang, entries = read_tsv(source, count)
-        if not 0 < lang < lan.option_count:
-            raise ValueError(f'{source}: language must be within 1..{lan.option_count-1}; English comes from the image')
-        if lang in translations: raise ValueError(f'duplicate language {lang}')
-        for tid in range(count):
-            if tid not in entries:
-                warnings.append(f'{Path(source).name}: text ID {tid} missing; using English')
-                entries[tid] = translations[0][tid]
-        translations[lang] = entries
+    english = {i: raw_text(fw, i, 0) for i in range(count)}
+    translations, warnings = load_translations(sources, english, skip_english=skip_english)
+    if any(not 0 <= lang < lan.option_count for lang in translations):
+        raise ValueError(f'language must be within 0..{lan.option_count-1}')
     languages = sorted(translations)
     # Each variant array starts on a 4-byte boundary, as in original images.
     stride = (len(languages)*2+3)&~3
