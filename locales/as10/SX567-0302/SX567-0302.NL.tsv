@@ -1,0 +1,367 @@
+# language: NL
+0	Home
+1	Instellingen
+2	Mijn opties
+3	Over
+4	Bevochtiger
+5	Maskerpas.
+6	Leerdoelen
+7	Slaaprapport
+8	Metingen
+9	Oxymeter
+10	Klin. menu afsluiten
+11	Therapie
+12	Modus
+13	Lengte
+14	Doel-pat.fr.
+15	Doel-Va
+16	Vt/kg
+17	Ingestelde druk
+18	Max druk
+19	Min druk
+20	IPAP
+21	Max IPAP
+22	EPAP
+23	Min EPAP
+24	Max EPAP
+25	PS
+26	Min PS
+27	Max PS
+28	Ademh.freq.
+29	Backup-freq
+30	Easy-Breathe
+31	Ti
+32	Ti Max
+33	Ti Min
+34	Stijgtijd
+35	Trigger
+36	Cycle
+37	Leerdoelen
+38	Comfort
+39	Aanlooptijd
+40	Start druk
+41	Start EPAP
+42	EPR
+43	EPR-duur
+44	EPR-niveau
+45	Reactie
+46	Climate Ctrl
+47	Slangtemp.
+48	Vochtigh.Niv.
+49	Drukverlichting
+50	SmartStart
+51	Accessoires
+52	Masker
+53	Slang
+54	Maskerpas.
+55	Maskerpas. stoppen
+56	AB-Filter
+57	Ext. bevochtiger
+58	Oxymeter weerg.
+59	Alarmen
+60	MV laag
+61	Hoge lekkage
+62	Niet-gev mskr
+63	SpO2 laag
+64	Apneu-alarm
+65	Vol/test alarm
+66	Opties
+67	Basisinstellingen
+68	Lekalarm
+69	Stop bevestigen
+70	Therapie-LED
+71	Vliegtuigmodus
+72	Herinneringen
+73	Configuratie
+74	Taal
+75	Datum
+76	Tijd
+77	Drukeenh.
+78	Temp.eenh.
+79	Eenh. lengte
+80	Fabrieksinst. her.
+81	Gegevens wissen
+82	Apparaat
+83	SW
+84	Draaiuren
+85	Bevochtiger
+86	CX-nummer
+87	Interne modem
+88	SN
+89	Provider
+90	Type
+91	Service
+92	Signaal
+93	OK
+94	Vorige
+95	Annuleren
+96	Masker
+97	Reservoir
+98	Slang
+99	Filter
+100	Leren…
+101	Berekenen…
+102	Accepteren
+103	Gebruik
+104	uren
+105	Gebeurt
+106	(AHI) p/u
+107	Gebeurt.
+108	Masker-
+109	afdichting
+110	Meer info
+111	Tot. uren gbrkt
+112	Periode
+113	Dagen gbrkt
+114	Dagen >4 u.
+115	Gem. gebrk
+116	Gbr. Uren
+117	Druk
+118	Inademingsdruk
+119	Uitademingsdruk
+120	Spont Trig
+121	Spont Cyc
+122	AHI
+123	Totale AI
+124	Centrale AI
+125	GEEN ALARMEN
+126	ALARM
+127	Herh.
+128	PS
+129	SpO2
+130	Pols
+131	Lekk.
+132	RR
+133	MV
+134	Vt
+135	D-MV
+136	Va
+137	D-Va
+138	I:E
+139	iVAPS LT
+140	Goed
+141	Bijstellen
+142	ml/kg IBW
+143	bpm
+144	°
+145	%
+146	mndn
+147	uur
+148	min
+149	s
+150	ms
+151	l/min
+152	l/s
+153	mg/l
+154	ml
+155	--
+156	dBm
+157	
+158	Wachten a.u.b.
+159	Gereed
+160	Weet u 't zeker?
+161	Herinnering
+162	Let op
+163	myAir
+164	Wachten a.u.b…
+165	Fout
+166	Alarm
+167	SD-kaart voorbereiden... Stroom niet uitsch. en kaart niet verwijderen
+168	Apparaat bijwerken... Stroom niet uitschakelen
+169	Instellingen bijwerken... Stroom niet uitsch. en SD-kaart niet verwijderen
+170	Fabrieks-instellingen herstellen
+171	Alle gegevens wissen
+172	Doelen berekenen
+173	ClimateLineAir aangesloten
+174	Instell. bijgew. Verwijder SD-kaart om door te gaan
+175	Instellingen bijgewerkt. Druk op OK om door te gaan
+176	Fabrieksinstel- lingen hersteld.
+177	Gegevens gewist.
+178	Doelen geleerd. Druk op OK om door te gaan
+179	Alle gegevens wissen?
+180	Fabrieks-instellingen herstellen?
+181	Leerdoelen annuleren?
+182	Therapie stoppen?
+183	Vliegtuigmodus is momenteel ingeschakeld. Wilt u hem uitschakelen?
+184	SD-kaart voor ander apparaat gedetecteerd. SD-kaart blijven gebruiken?
+185	Tijd om masker te vervangen. Neem contact op met zorgverlener
+186	Tijd om slang te vervangen. Neem contact op met zorgverlener
+187	Tijd om waterreservoir te vervangen. Neem contact op met zorgverlener
+188	Tijd om filter te vervangen. Neem contact op met zorgverlener
+189	Tijd om SD-kaart aan zorgverlener te retourneren
+190	Tijd voor onderhoud van uw apparaat. Neem contact op met zorgverlener
+191	Geen SD-kaart gedetecteerd. Druk op OK om door te gaan
+192	SD-kaart bijna vol. Neem contact op met zorgverlener voor nieuwe kaart
+193	SD-kaart is nu vol. Neem contact op met zorgverlener voor nieuwe kaart
+194	Voer uw oorspronkelijke SD-kaart in of druk op OK om door te gaan
+195	Verwijder SD-kaart om de therapie voort te zetten
+196	Alleen-lezen kaart. Verwijderen, ontgr. en SD-kaart nogmaals invoeren
+197	SD-kaartfout. Verwijder kaart en druk op Start om therapie te starten
+198	Instellingen niet toegepast. Verw. SD-kaart en neem contact op met zorgverlener
+199	SD-kaart invoeren of op OK drukken voor accept. ontbr. gegevensregistr. oxymetrie
+200	90W-voedings-eenheid aansluiten voor volledige Climate Control
+201	Fout met ClimateLineAir. Slang vervangen
+202	Fout met ver-warmingssysteem. Therapie wordt uitgevoerd zonder verwarming.
+203	Levensduur motor overschreden. Neem contact op met zorgverlener
+204	Beperkt alarm Stroomstoring. Neem contact op met zorgverlener
+205	Apparaat voorbereiden... Druk op OK en probeer opnieuw
+206	Datum en tijd kunnen niet  in het verleden worden ingesteld
+207	Voedingsconnector aan achterkant apparaat niet volledig ingestoken
+208	Controleer vinger-sensor of druk op OK voor doorgaan zonder oxymetrie
+209	Controleer oxy-meteraansluiting of druk op OK voor doorgaan zonder oxymetrie
+210	Doelen leren mislukt. Druk op OK en probeer opnieuw
+211	Fout met instell.geheugen. Neem contact op met zorgverlener
+212	Houd je slaapgezondheid bij op\nResMed.com/myAir
+213	Systeemfout. Raadpleeg gebruikers-handleiding:\nfout
+214	Hoge lekkage gedetecteerd. Kijk  waterreservoir of zijkap na.
+215	Luchtslang is verstopt. Controleer slang
+216	Hoge lekkage gedetecteerd. Sluit slang aan
+217	Lekkage gedetecteerd. Controleer uw systeeminst. en alle aansluitingen
+218	Lage SpO2 gedetecteerd
+219	Geen SpO2-geg. Is zuurstofsens. aan module/vinger bevestigd?
+220	Controleer oxy-meteraansluiting of druk op draai-/drukknop voor doorgaan zonder oxymetrie
+221	Lage MV gedetecteerd
+222	Niet-gev. masker gedetect. Gebruik gevent. masker of deblokkeer vent.openingen 
+223	Apneu gedetecteerd
+224	
+225	L
+226	Opwarmen
+227	Opwarmen stoppen
+228	
+229	
+230	Opwarmen…
+231	Gereed
+232	Afkoelen...
+233	
+234	
+235	
+236	SpO2 laag
+237	Hoge lekk.
+238	MV laag
+239	GeenSpO2
+240	Apneu
+241	Niet-gev.
+242	Geen oxy
+243	CPAP
+244	AutoSet
+245	APAP
+246	S
+247	ST
+248	T
+249	VAuto
+250	ASV
+251	ASVAuto
+252	iVAPS
+253	PAC
+254	AutoSet for Her
+255	Uit
+256	10
+257	Uit
+258	Aan
+259	Auto
+260	Aanloop
+261	Hele tijd
+262	Standaard
+263	Zacht
+264	Kussentjes
+265	Volgelaat
+266	Neus
+267	Kind
+268	SlimLine
+269	Standaard
+270	3 m
+271	Laag
+272	Gem.
+273	Hoog
+274	Plus
+275	Aan
+276	English
+277	Français
+278	Deutsch
+279	Italiano
+280	Español
+281	Español
+282	Português
+283	Português
+284	Nederlands
+285	Svenska
+286	Dansk
+287	Norsk
+288	Suomi
+289	ニホンゴ
+290	Русский
+291	Türkçe
+292	繁體中文
+293	简体中文
+294	Polski
+295	日本語
+296	Jan
+297	Feb
+298	Mrt
+299	Apr
+300	Mei
+301	Jun
+302	Jul
+303	Aug
+304	Sep
+305	Okt
+306	Nov
+307	Dec
+308	1 dag
+309	1 week
+310	1 maand
+311	3 maanden
+312	6 maanden
+313	1 jaar
+314	
+315	
+316	Ti Min
+317	Ti Max
+318	Timed
+319	Uit
+320	Aan
+321	Auto
+322	Handm.
+323	Erg laag
+324	Laag
+325	Gem.
+326	Hoog
+327	Erg hoog
+328	Nee
+329	Ja
+330	cmH2O
+331	hPa
+332	cm
+333	inches
+334	°C
+335	°F
+336	Min
+337	
+338	
+339	Hypopnea
+340	Central Apnea
+341	Obstructive Apnea
+342	Apnea
+343	Arousal
+344	No CSR Event
+345	CSR Start
+346	CSR End
+347	Motor fault
+348	High pressure fault
+349	High Temperature fault
+350	Sensor fault
+351	System error
+352	Calibration Reset to default
+353	Settings Reset to default
+354	Over voltage fault
+355	Alarm Unit fault
+356	Humidifier tub/endcap Open
+357	Tube Blocked
+358	Tube Disconnected
+359	High Leak
+360	Non Vented Mask
+361	Low Min Ventilation
+362	Apnoea Alarm
+363	Low SpO2
+364	SpO2 Disconnected
+365	Invalid SpO2 Data

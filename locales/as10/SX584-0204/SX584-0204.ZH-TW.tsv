@@ -1,0 +1,401 @@
+# language: ZH-TW
+# IDs 28, 327, 328, 365, 369, 379-398 retain text shared by all stock SX584-0204 locales.
+0	首頁
+1	設定
+2	我的選項
+3	關於
+4	濕化器
+5	面罩緊密度
+6	記憶目標
+7	睡眠報告
+8	監測
+9	血氧儀
+10	退出臨床指南功能表
+11	治療
+12	模式
+# 13: Pathology Defaults
+# 14: Pathology
+15	身高
+16	患者呼吸頻率目標
+17	目標通氣量
+18	Vt/kg
+# 19: Auto EPAP
+20	設定壓力
+21	最大壓力
+22	最小壓力
+23	吸氣壓(IPAP)
+24	最大吸氣壓
+25	吐氣壓(EPAP)
+26	最小吐氣壓
+27	最大吐氣壓
+28	iBR
+29	PS
+30	最小PS
+31	最大PS
+32	呼吸次數
+33	安全呼吸次數
+34	Easy-Breathe
+35	吸氣時間
+36	Ti Max
+37	Ti Min
+38	上升時間
+39	吸氣觸發
+40	吐氣觸發
+41	面罩
+42	記憶性目標 
+43	舒適
+44	响应
+45	增壓時間
+# 46: Max Ramp
+# 47: Ramp Down
+48	開始壓力
+49	起始吐氣壓力
+50	EPR
+51	EPR類型
+52	EPR 等級
+53	Climate Ctrl
+54	管路溫度
+55	濕度等級
+56	壓力釋放
+57	智慧型啟動
+58	附件
+59	管路
+60	進行面罩配戴測試
+61	細菌過濾器
+62	外接潮濕器
+63	查看血氧儀
+64	警報
+65	低MV警報
+66	大量漏氣
+67	無排氣孔面罩
+68	血氧濃度過低
+69	Apnea警報
+# 70: Set All Alarms Off
+71	警報音量/測試
+72	選項
+73	基本設定
+74	漏氣警報
+75	停止確認
+76	治療指示燈
+77	飛航模式
+78	提示
+79	配置
+80	語言
+81	日期
+82	時間
+# 83: Desat. Rule
+84	壓力單位
+85	溫度單位
+86	身高單位
+87	恢復預設值
+88	消除數據
+89	裝置
+90	SW
+91	運轉時數
+92	濕化器
+93	CX編號
+94	內置數據機
+95	序號
+96	供應商
+97	類型
+98	服務
+99	訊號
+100	確定
+101	停止面罩試戴
+102	返回
+103	取消
+104	面罩
+105	儲水盆
+106	管路
+107	過濾器
+108	正在學習……
+109	計算中......
+# 110: Stop Learning
+# 111: Targets Learnt
+112	接受
+113	使用時間
+114	小時
+115	事件(AHI)
+116	每小時
+117	事件
+118	面罩
+119	密封
+120	更多資訊
+121	使用總時數
+122	期間
+123	使用天數
+124	4小時以上天數
+125	平均時數
+126	使用時數
+127	壓力
+128	吸氣壓力
+129	吐氣壓力
+130	Spont Trig
+131	Spont Cyc
+132	AHI
+133	總AI
+134	中樞型AI
+135	警報
+# 136: Mute
+# 137: Unmute Alarms
+# 138: No Alarms
+139	週期
+140	PS
+141	SpO2
+142	Pulse
+143	Leak
+144	RR
+145	MV
+146	Vt
+147	TgMV
+148	Va
+149	目標Va
+150	I:E
+151	iVAPS LT
+152	良好
+153	調整
+154	ml/kg IBW
+155	呼吸頻率
+156	°
+157	%
+158	個月
+159	小時
+160	分鐘
+161	秒
+162	毫秒
+163	公升/分鐘
+164	(公升/秒)
+165	毫克/公升
+166	毫升
+167	--
+168	dBm
+169	
+170	請等候
+171	完成
+172	您確定嗎?
+173	提示
+174	注意
+175	myAir
+176	請等候
+177	錯誤
+178	警報
+179	正在準備SD卡，請勿關閉電源或移除SD卡
+180	正在更新裝置，請勿關閉電源
+181	正在更新設定，請勿關閉電源或移除SD卡
+182	恢復原廠預設值
+183	清除所有數據
+184	計算目標
+185	已連接ClimateLineAir
+186	已更新設定，移除SD卡後繼續
+187	已更新設定，按“確定”繼續
+188	原廠預設值恢復成功
+189	數據清除成功
+190	目標記憶成功，按“確定”繼續
+191	清除所有數據?
+192	恢復原廠預設值?
+193	取消記憶目標？
+194	要停止治療？
+# 195: Start Ramp Down?
+196	目前正在使用飛航模式，您要關閉這個模式嗎？
+197	偵測到另一個裝置的SD卡，您要繼續使用SD卡嗎？
+198	更換面罩時間到，請聯絡代理商
+199	更換管路時間到，請聯絡代理商
+200	更換儲水盆時間到，請聯絡代理商
+201	更換過濾器時間到，請聯絡代理商
+202	將SD卡歸還給代理商
+203	保養儀器設備時間到，請聯絡代理商
+204	未偵測到SD卡，按“確定”繼續
+205	SD卡將滿，請聯絡代理商，預定一張新卡
+206	SD卡現已滿，請聯絡代理商，預定一張新卡
+207	插入原裝SD卡或按“確定”繼續
+208	請移除SD卡繼續治療
+209	唯讀卡，請移除，開啟並重新插入SD卡
+210	SD卡錯誤，移除卡片並按“開始”，即可開始治療
+211	設定不適用，移除SD卡並聯絡代理商
+212	插入SD卡或按“確定”確認沒有血氧數據記錄
+213	連接90瓦電源，完整啓用智能溫控系統
+214	ClimateLineAir故障，請更換管路
+215	加熱系統故障，治療將在沒有加熱的情況下運行
+216	已超過馬達使用壽命，請聯繫代理商
+217	電源失效警報，請聯絡代理商
+218	數據處理中，請按“確定”，稍後再試
+219	日期和時間不能設定為過去
+220	設備背面的電源接頭沒有完全插入
+221	檢查手指感應器或按“確定”，接受無血氧計數據記錄
+222	檢查血氧計連接或按“確定”，接受無血氧計數據記錄
+223	目標記憶失敗，按“確定”再試一次
+224	設定記憶錯誤，請聯絡代理商
+# 225: Ti Min is set shorter than Rise Time
+226	瀏覽\nResMed.com/myAir\n追蹤您的睡眠健康
+227	系統故障，請參閲使用者指南中的錯誤項目
+228	偵測到大量漏氣，檢查儲水盒，儲水盒密封墊或側蓋。
+229	管路阻塞，請檢查管路
+230	偵測到大量漏氣，請連接管路
+231	偵測到漏氣，請檢查系統設定與所有連接點
+232	偵測到低SpO2
+233	無SpO2數據，檢查感測器是否安裝在模組/手指
+234	檢查血氧計連接或按“確定”，接受無血氧計數據記錄
+235	偵測到低MV
+236	偵測到無排氣孔面罩，使用有排氣面罩或除去排氣孔阻礙
+237	偵測到呼吸暫停
+238	
+239	L
+240	運行預熱
+241	停止預熱
+242	
+243	
+244	預熱中
+245	準備就緒
+246	冷卻中
+247	
+248	
+249	
+250	血氧濃度過低
+251	大量漏氣
+252	低MV
+253	無SpO2
+254	呼吸暫停
+255	無排氣孔
+256	無氧氣儀
+257	CPAP
+258	AutoSet
+259	APAP
+260	S
+261	ST
+262	T
+263	VAuto
+264	ASV
+265	ASVAuto
+266	iVAPS
+267	PAC
+268	AutoSet for Her
+# 269: Obstructive
+# 270: Restrictive
+# 271: Normal
+# 272: OHS
+273	關閉
+274	10
+275	關閉
+276	開啟
+277	自動
+278	僅使用延遲增壓
+279	全時
+280	標準
+281	软式
+282	鼻枕
+283	全面罩
+284	鼻罩
+285	兒童
+286	SlimLine
+287	標準
+288	3公尺
+289	低
+290	中等
+291	高
+292	額外設定
+293	開啟
+294	English
+295	Français
+296	Deutsch
+297	Italiano
+298	Español
+299	Español
+300	Português
+301	Português
+302	Nederlands
+303	Svenska
+304	Dansk
+305	Norsk
+306	Suomi
+307	ニホンゴ
+308	Русский
+309	Türkçe
+310	繁體中文
+311	简体中文
+312	Polski
+313	日本語
+314	Česky
+315	1月
+316	2月
+317	3月
+318	4月
+319	5月
+320	6月
+321	7月
+322	8月
+323	9月
+324	10月
+325	11月
+326	12月
+327	3%
+328	4%
+329	1天
+330	1週
+331	1個月
+332	3個月
+333	6個月
+334	1年
+335	
+336	
+337	Ti Min
+338	Ti Max
+339	Timed
+340	關閉
+341	開啟
+342	自動
+343	手動
+344	極低
+345	低
+346	中等
+347	高
+348	極高
+349	否
+350	是
+351	cmH2O
+352	hPa
+353	公厘
+354	英寸
+355	°C
+356	°F
+357	最小
+358	
+359	
+360	Hypopnea
+361	Central Apnea
+362	Obstructive Apnea
+363	Apnea
+364	Arousal
+365	SpO2 Desaturation
+366	No CSR Event
+367	CSR Start
+368	CSR End
+369	No Alarm
+370	Motor fault
+371	High pressure fault
+372	High Temperature fault
+373	Sensor fault
+374	System error
+375	Calibration Reset to default
+376	Settings Reset to default
+377	Over voltage fault
+378	Alarm Unit fault
+379	Hum tub/endcap Open activated
+380	Hum tub/endcap Open deactivated
+381	Tube Blocked activated
+382	Tube Blocked deactivated
+383	Tube Disconnected activated
+384	Tube Disconnected deactivated
+385	High Leak activated
+386	High Leak deactivated
+387	Non Vented Mask activated
+388	Non Vented Mask deactivated
+389	Low Min Ventilation activated
+390	Low Min Ventilation deactivated
+391	Apnoea Alarm activated
+392	Apnoea Alarm deactivated
+393	Low SpO2 activated
+394	Low SpO2 deactivated
+395	SpO2 Disconnected activated
+396	SpO2 Disconnected deactivated
+397	Invalid SpO2 Data activated
+398	Invalid SpO2 Data deactivated

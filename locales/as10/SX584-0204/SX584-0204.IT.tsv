@@ -1,0 +1,400 @@
+# language: IT
+0	Home
+1	Impostazioni
+2	Le mie opzioni
+3	Informazioni su
+4	Umidificatore
+5	Tenuta msc
+6	Rilevamento Tg
+7	Rep.  sonno
+8	Monitoraggi
+9	Ossimetro
+10	Esci dal menu clinico
+11	Terapia
+12	Modal.
+13	Patologia Defaults
+14	Patologia
+15	Altezza
+16	Tg freq paz
+17	Target Va
+18	Vt/kg
+19	EPAP auto
+20	Pressione imp.
+21	Pressione Max.
+22	Pressione Min.
+23	IPAP
+24	IPAP Max
+25	EPAP
+26	EPAP Min
+27	EPAP Max
+28	iBR
+29	PS
+30	PS Min.
+31	PS Max.
+32	Freq. Resp.
+33	Freq. Backup
+34	Easy-Breathe
+35	Ti
+36	Ti Max
+37	Ti Min
+38	Rise Time
+39	Trigger
+40	Ciclo
+41	Maschera
+42	Rilevamento Target
+43	Comfort
+44	Risposta
+45	T. rampa
+46	Rampa Max.
+47	Discesa Rampa
+48	Pressione iniz.
+49	EPAP iniziale
+50	AE
+51	Tipo AE
+52	Livello AE
+53	Climate Ctrl
+54	Temp. circuito
+55	Livello Umidità
+56	Aiuto espiratorio
+57	SmartStart
+58	Accessori
+59	Circuito
+60	Esegui ten masc
+61	Filtro AB
+62	Umidif. esterno
+63	Visual. ossim.
+64	Allarmi
+65	Basso VM
+66	Alte perdite
+67	Maschera NV
+68	Bassa SpO2
+69	Allar apnea
+70	Disattiva allarmi
+71	Test vol.allarme
+72	Opzioni
+73	Base
+74	Allarme perdite
+75	Conferma stop
+76	LED Terapia
+77	Modalità aereo
+78	Promemoria
+79	Configurazione
+80	Lingua
+81	Data
+82	Ora
+83	Soglia desat.
+84	Unità press.
+85	Unità temp.
+86	Unità altezza
+87	Ripristina default
+88	Cancella dati
+89	Apparecchio
+90	SW
+91	Ore acceso
+92	Umidificatore
+93	Numero CX
+94	Modem interno
+95	SN
+96	Gestore
+97	Tipo
+98	Manutenzione
+99	Segnale
+100	OK
+101	Stop test masc
+102	Indietro
+103	Annulla
+104	Maschera
+105	Camera
+106	Circuito
+107	Filtro
+108	Rilevamento…
+109	Calcolo...
+110	Stop rilevamento
+111	Target rilevati
+112	Accetta
+113	Uso
+114	ore
+115	Eventi (AHI)
+116	per ora
+117	Eventi
+118	Tenuta
+119	maschera
+120	Maggiori informazioni
+121	Ore totali uso
+122	Periodo
+123	Giorni uso
+124	Giorni 4+ ore
+125	Uso medio
+126	Ore uso
+127	Pressione
+128	Pressione Insp.
+129	Pressione Esp.
+130	Spont Trig
+131	Spont Cicli
+132	AHI
+133	AI totale
+134	AI centrale
+135	Allarme
+136	Disattiva suono
+137	Riattiva suono
+138	Nessun Allarme
+139	Ripet
+140	PS
+141	SpO2
+142	Polso
+143	Perdit.
+144	RR
+145	MV
+146	Vt
+147	VMTg
+148	Va
+149	VaTg
+150	I:E
+151	iVAPS LT
+152	Buona
+153	Sistema
+154	ml/kg IBW
+155	bpm
+156	°
+157	%
+158	mesi
+159	ore
+160	min.
+161	s
+162	ms
+163	l/min
+164	L/s
+165	mg/L
+166	ml
+167	--
+168	dBm
+169	
+170	Attendere prego
+171	Fine procedura
+172	Sei sicuro?
+173	Promemoria
+174	Attenzione
+175	myAir
+176	Attendere prego…
+177	Errore
+178	Allarme
+179	Preparazione scheda SD, non spegnere o rimuovere la scheda
+180	Aggiornamento apparecchio, non spegnere
+181	Aggiornamento impostazioni, non spegnere o rimuovere scheda SD
+182	Ripristino impostazioni di fabbrica in corso
+183	Cancellazione di tutti i dati in corso
+184	Calcolo target
+185	ClimateLineAir collegato
+186	Impostazioni aggiornate, rimuovere scheda SD per continuare
+187	Impostazioni aggiornate, premere OK per continuare
+188	Impost. di fabbrica ripristinate
+189	Dati cancellati
+190	Target rilevati, premere OK per continuare
+191	Vuoi cancellare tutti i dati?
+192	Vuoi ripristinare i default di fabbrica?
+193	Cancellare i target di rilevamento?
+194	Interrompi terapia?
+195	Avvia discesa rampa?
+196	Modalità aereo attiva. La si vuole disattivare?
+197	Scheda SD per un altro apparecchio rilevata. Continuare usando la scheda SD?
+198	È ora di sostituire la maschera, rivolgersi al fornitore di servizi
+199	È ora di sostituire il circuito, rivolgersi al fornitore di servizi
+200	È ora di sostituire la camera, rivolgersi al fornitore di servizi
+201	È ora di sostituire il filtro, rivolgersi al fornitore di servizi
+202	È ora di restituire la scheda SD al fornitore di servizi
+203	È ora di restituire l'apparecchio al fornitore di servizi per manutenzione
+204	Scheda SD non rilevata, premere OK per continuare
+205	Scheda SD quasi piena, ordinare una nuova scheda presso il fornitore di servizi
+206	Scheda SD piena, ordinare una nuova scheda presso il fornitore di servizi
+207	Inserire la scheda SD originale o premere OK per continuare
+208	Rimuovere la scheda SD per continuare la terapia
+209	Scheda in sola lettura. Togli, sblocca e rein- serisci scheda SD
+210	Errore scheda SD, rimuovere scheda e premere Avvio per avviare terapia
+211	Impostazioni non applicate. Rimuovere scheda SD e contattare fornitore di servizi
+212	Ins. scheda SD o premere OK per accettare non reg. dati ossimetria
+213	Collegare un alim. da 90 W per massimo rendimento Climate Control
+214	ClimateLineAir difettoso, sostituire il circuito
+215	Riscaldamento difettoso, la terapia sarà erogata senza riscaldamento
+216	Durata vita motore superata, rivolgersi al fornitore di servizi
+217	Allarme interruz. corrente limitato, rivolgersi al fornitore di servizi
+218	Preparazione apparecchio, premere OK e riprovare
+219	Non e possible impostare data ed ora nel passato
+220	Connettore di alimentazione sul retro non inserito fino in fondo
+221	Verifica sens oss o premi OK per continuare senza ossimetria
+222	Verifica connettore sens oss o premi OK per continuare senza ossimetria
+223	Target non rilevati, premi OK e riprova
+224	Errore memoria impostazioni, contatta il fornitore di servizi
+225	Ti Min più breve del Rise Time
+226	Soffri di disturbi del sonno? Scoprilo presso\nResMed.com/myAir
+227	Guasto di sistema,\nvedere guida per l'utente.\nErrore
+228	Alte perdite, verifica camera umidificatore, guarnizione o coperchio laterale
+229	Circuito ostruito, verificare il circuito
+230	Alte perdite rilevate, collegare il circuito
+231	Perdite rilevate, verificare configurazione e tutte le connessioni
+232	Bassa SpO2 rilevata
+233	Nessun dato SpO2, verificare conness. sensore a modulo/dito
+234	Verifica connettore sens oss o premi OK per continuare senza ossimetria
+235	Basso VM rilevato
+236	Maschera non-vented rilevata, usare masch. vented o liberare fori aerazione
+237	Apnea rilevata
+238	
+239	L
+240	Avvia riscald.
+241	Stop riscaldamento
+242	
+243	
+244	Riscaldamento...
+245	Pronto
+246	Raffreddamento...
+247	
+248	
+249	
+250	Bas SpO2
+251	Alte perdite
+252	Basso VM
+253	No SpO2
+254	Apnea
+255	Non-Vent
+256	No Ossim.
+257	CPAP
+258	AutoSet
+259	APAP
+260	S
+261	ST
+262	T
+263	VAuto
+264	ASV
+265	ASVAuto
+266	iVAPS
+267	APC
+268	AutoSet for Her
+269	Ostruttiva
+270	Restrittiva
+271	Normale
+272	OHS
+273	Off
+274	10
+275	Off
+276	On
+277	Auto
+278	Solo rampa
+279	Sempre
+280	Standard
+281	Graduale
+282	Cuscinetti
+283	Oro-nasale
+284	Nasale
+285	Pediatrica
+286	SlimLine
+287	Standard
+288	3m
+289	Basso
+290	Media
+291	Alto
+292	Avanzato
+293	On
+294	English
+295	Français
+296	Deutsch
+297	Italiano
+298	Español
+299	Español
+300	Português
+301	Português
+302	Nederlands
+303	Svenska
+304	Dansk
+305	Norsk
+306	Suomi
+307	ニホンゴ
+308	Русский
+309	Türkçe
+310	繁體中文
+311	简体中文
+312	Polski
+313	日本語
+314	Česky
+315	Gen
+316	Feb
+317	Mar
+318	Apr
+319	Mag
+320	Giu
+321	Lug
+322	Ago
+323	Set
+324	Ott
+325	Nov
+326	Dic
+327	3%
+328	4%
+329	1 giorno
+330	1 settimana
+331	1 mese
+332	3 mesi
+333	6 mesi
+334	1 anno
+335	
+336	
+337	Ti Min
+338	Ti Max
+339	Timed
+340	Off
+341	On
+342	Auto
+343	Manuale
+344	M. basso
+345	Basso
+346	Media
+347	Alto
+348	M. alto
+349	No
+350	Sì
+351	cmH2O
+352	hPa
+353	cm
+354	pollici
+355	°C
+356	°F
+357	Min
+358	
+359	
+360	Hypopnea
+361	Central Apnea
+362	Obstructive Apnea
+363	Apnea
+364	Arousal
+365	SpO2 Desaturation
+366	No CSR Event
+367	CSR Start
+368	CSR End
+369	No Alarm
+370	Motor fault
+371	High pressure fault
+372	High Temperature fault
+373	Sensor fault
+374	System error
+375	Calibration Reset to default
+376	Settings Reset to default
+377	Over voltage fault
+378	Alarm Unit fault
+379	Hum tub/endcap Open activated
+380	Hum tub/endcap Open deactivated
+381	Tube Blocked activated
+382	Tube Blocked deactivated
+383	Tube Disconnected activated
+384	Tube Disconnected deactivated
+385	High Leak activated
+386	High Leak deactivated
+387	Non Vented Mask activated
+388	Non Vented Mask deactivated
+389	Low Min Ventilation activated
+390	Low Min Ventilation deactivated
+391	Apnoea Alarm activated
+392	Apnoea Alarm deactivated
+393	Low SpO2 activated
+394	Low SpO2 deactivated
+395	SpO2 Disconnected activated
+396	SpO2 Disconnected deactivated
+397	Invalid SpO2 Data activated
+398	Invalid SpO2 Data deactivated

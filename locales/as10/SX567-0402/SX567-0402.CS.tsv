@@ -1,0 +1,366 @@
+# language: CS
+0	Domů
+1	Nastavení
+2	Moje možnosti
+3	Info
+4	Zvlhčovač
+5	Test masky
+6	Učení cíl. hodnot
+7	Zpr. o spánku
+8	Monitoring
+9	Oxymetr
+10	Opustit klin. nabídku
+11	Léčba
+12	Režim
+13	Výška
+14	Cílová frekv. pac.
+15	Cílová Va
+16	Vt/kg
+17	Nast. tlak
+18	Max. tlak
+19	Min. tlak
+20	IPAP
+21	Max. IPAP
+22	EPAP
+23	Min. EPAP
+24	Max. EPAP
+25	PS
+26	Min. PS
+27	Max. PS
+28	Dech frekvence
+29	Záložní frekvence
+30	Easy-Breathe
+31	Ti
+32	Ti Max
+33	Ti Min
+34	Doba vzestupu
+35	Spušť. nád.
+36	Cyklus
+37	Učení cílových hodnot
+38	Komfortní
+39	Náběh. doba
+40	Úvodní tlak
+41	Úvodní EPAP
+42	EPR
+43	Typ EPR
+44	Úroveň EPR
+45	Reakce
+46	Kontr. klim.
+47	Teplota trubice
+48	Úroveň vlhkosti
+49	Snížení tlaku
+50	SmartStart
+51	Příslušenství
+52	Maska
+53	Trubice
+54	Spustit test těsnosti
+55	Ukončit test masky
+56	AB filtr
+57	Ext. zvlhčovač
+58	Zobrazit oxymetr
+59	Alarmy
+60	Nízká MV
+61	Vysoký únik
+62	Nevent. maska
+63	Nízký SpO2
+64	Alarm apnoe
+65	Hlas./test alrm
+66	Možnosti
+67	Základní
+68	Upoz. na netěsn.
+69	Potvrdit zastavení
+70	LED indik. léčby
+71	Režim Letadlo
+72	Připomenutí
+73	Konfigurace
+74	Jazyk
+75	Datum
+76	Čas
+77	Tlak. jednotky
+78	Tepl. Jednotky
+79	Výškové jednotky
+80	Výrobní nastavení
+81	Smazat data
+82	Přístroj
+83	SW
+84	Hod. prov.
+85	Zvlhčovač
+86	Číslo CX
+87	Interní modem
+88	Výr. č.
+89	Poskytovatel
+90	Typ
+91	Servis
+92	Signál
+93	OK
+94	Zpět
+95	Zrušit
+96	Maska
+97	Nádr. na v.
+98	Trubice
+99	Filtr
+100	Probíhá učení…
+101	Probíhá výpoč…
+102	Přijmout
+103	Použití
+104	hodiny
+105	Události (AHI)
+106	za hodinu
+107	Události
+108	Maska
+109	Těsnění
+110	Více info
+111	Celk. h. v prov.
+112	Období
+113	Dní v provozu
+114	Dní > 4hod.
+115	Prům. použití
+116	H. v prov.
+117	Tlak
+118	Insp. tlak
+119	Exp. tlak
+120	Spont. vent.
+121	Spont. cykl.
+122	AHI
+123	Celkový AI
+124	Centrální AI
+125	Opak.
+126	PS
+127	SpO2
+128	Puls
+129	Únik
+130	Dech
+131	MV
+132	Vt
+133	TgMV
+134	Va
+135	TgVa
+136	I:E
+137	iVAPS LT
+138	Dobré
+139	Upravit
+140	ml/kg ITH
+141	za min
+142	°
+143	%
+144	měs.
+145	hod.
+146	min.
+147	s
+148	ms
+149	l/min
+150	l/s
+151	mg/l
+152	ml
+153	--
+154	dBm
+155	
+156	Čekejte
+157	Hotovo
+158	Jste si jisti?
+159	Upomínka
+160	Pozor!
+161	myAir
+162	Čekejte prosím...
+163	Chyba
+164	Alarm
+165	Příprava SD karty,\nneodpojujte napájení, nevyjímejte kartu
+166	Aktualizace přístroje, neodpojujte napájení
+167	Aktualizace nastavení, neodpoj. napájení, nevyjímejte SD kartu
+168	Obnovoa výrobního nastavení
+169	Mazání všech dat
+170	Výpočet cílových hodnot
+171	ClimateLineAir připojen
+172	Nastavení aktualizována, vyjměte kartu SD a pokračujte
+173	Nastavení aktualizována, pokračujte stiskem OK
+174	Tovární nastavení obnoveno
+175	Data vymazána
+176	Cílové hodnoty nastaveny, pokračujte stiskem OK
+177	Smazat všechna data?
+178	Obnovit výrobní nastavení?
+179	Zrušit učení cílových hodnot?
+180	Zastavit léčbu?
+181	Režim Letadlo je aktivní, chcete jej vypnout?
+182	Rozpoznána karta SD pro jiný přístroj, chcete pokračovat s ní?
+183	Je na čase vyměnit masku, kontaktujte poskytovatele péče
+184	Je na čase vyměnit trubici, kontaktujte poskytovatele péče
+185	Je na čase vyměnit nádržku na vodu, kontaktujte poskytovatele péče
+186	Je na čase vyměnit filtr, kontaktujte poskytovatele péče
+187	Je na čase vrátit SD kartu poskytovateli péče
+188	Je na čase provést servis přístroje, kontaktujte poskytovatele péče
+189	Nebyla rozpoznána žádná SD karta, pokračujte stiskem OK
+190	SD karta je téměř plná, kont. poskyt. péče a objednejte si novou kartu
+191	SD karta je nyní plná, kont. poskyt. péče a objednejte si novou kartu
+192	Vložte původní SD kartu nebo pokračujte stiskem OK
+193	Vyjměte SD kartu a pokračujte v léčbě
+194	Karta je pouze ke čtení, vyjměte SD kartu, odem. ji a znovu vložte
+195	Chyba SD karty, vyjměte kartu a stiskněte Start k zahájení léčby
+196	Nastavení nebyla použita, vyjměte SD kartu a kont. poskyt. péče
+197	Vložte SD kartu nebo stis. OK pro potvr., že neb. zazn. oxym. data
+198	Pro plné využití  Climate Control připojte nap. zdroj o výkonu 90 W
+199	Porucha systému ClimateLineAir, vyměňte trubici
+200	Porucha systému vyhřívání, léčba bude probíhat bez vyhřívání
+201	Byla překročena životnost motoru, kont. poskyt. péče
+202	Upozornění na selhání v důsledku omez. napájení, kont. poskyt. péče
+203	Příprava zařízení, stiskněte OK a zkuste to znovu
+204	Datum a čas nelze nastavit do minulosti
+205	Napájecí kabel na zadní straně přístroje není zcela zasunuta
+206	Zkon. prstový senzor nebo stisk. OK a pokr. bez oxymetrie
+207	Zkontrolujte připojení oxymetru nebo stiskněte OK a pokračujte bez oxymetrie
+208	Učení cílových hodnot selhalo, stiskněte OK a zkuste to znovu
+209	Chyba paměti nastavení, kont. poskyt. péče
+210	Stav svého spánku můžete sledovat na \nResMed.com/myAir
+211	Syst. porucha,\nnahlédněte do uživ. příručky,\nChyba
+212	Zjištěn vys. únik, zkont. nád. na vodu, její těs. nebo boč. kryt
+213	Trubice je zablokovaná, zkontrolujte trubici
+214	Zjištěn vysoký únik, připojte hadici
+215	Zjištěn únik, zkontrolujte nastavení systému a všechny přípojky
+216	Zjištěna nízká SpO2
+217	Žádná data o SpO2, zkontrolujte přip. oxym. senzoru k modulu/prstu
+218	Zkontrolujte připojení oxymetru nebo stiskněte OK a pokračujte bez oxymetrie
+219	Zjištěna nízká MV
+220	Zjištěna nev. maska, použijte vent. masku nebo uvolněte vent. otvory v masce
+221	Zjištěna apnoe
+222	
+223	L
+224	Spustit předehřev
+225	Zastavit předehřev
+226	
+227	
+228	Zahřívání
+229	Připraven
+230	Chlazení
+231	
+232	
+233	
+234	Nízká SpO2
+235	Vys. únik
+236	Nízká MV
+237	Bez SpO2
+238	Apnoe
+239	Bez ventil.
+240	Bez oxym.
+241	CPAP
+242	AutoSet
+243	APAP
+244	S
+245	ST
+246	T
+247	VAuto
+248	ASV
+249	ASVAuto
+250	iVAPS
+251	PAC
+252	AutoSet for Her
+253	Vyp
+254	10
+255	Vyp
+256	Zap
+257	Auto
+258	Pouze náběh
+259	Celou dobu
+260	Standardní
+261	Měkká
+262	Polštářky
+263	Celoobličejová
+264	Nosní
+265	Pediatrická
+266	SlimLine
+267	Standardní
+268	3m
+269	Nízké
+270	Střední
+271	Vysoké
+272	Plus
+273	Zap
+274	English
+275	Français
+276	Deutsch
+277	Italiano
+278	Español
+279	Español
+280	Português
+281	Português
+282	Nederlands
+283	Svenska
+284	Dansk
+285	Norsk
+286	Suomi
+287	ニホンゴ
+288	Русский
+289	Türkçe
+290	繁體中文
+291	简体中文
+292	Polski
+293	日本語
+294	Česky
+295	Led
+296	Úno
+297	Bře
+298	Dub
+299	Kvě
+300	Črv
+301	Črc
+302	Srp
+303	Zář
+304	Říj
+305	Lis
+306	Pro
+307	1 den
+308	1 týden
+309	1 měsíc
+310	3 měsíců
+311	6 měsíců
+312	1 rok
+313	
+314	
+315	Ti Min
+316	Ti Max
+317	Časov
+318	Vyp
+319	Zap
+320	Auto
+321	Manuálně
+322	Velmi nízká
+323	Nízká
+324	Střední
+325	Vysoká
+326	Velmi vys.
+327	Ne
+328	Ano
+329	cmH2O
+330	hPa
+331	cm
+332	palců
+333	°C
+334	°F
+335	min
+336	
+337	
+338	Hypopnea
+339	Central Apnea
+340	Obstructive Apnea
+341	Apnea
+342	Arousal
+343	No CSR Event
+344	CSR Start
+345	CSR End
+346	Motor fault
+347	High pressure fault
+348	High Temperature fault
+349	Sensor fault
+350	System error
+351	Calibration Reset to default
+352	Settings Reset to default
+353	Over voltage fault
+354	Alarm Unit fault
+355	Humidifier tub/endcap Open
+356	Tube Blocked
+357	Tube Disconnected
+358	High Leak
+359	Non Vented Mask
+360	Low Min Ventilation
+361	Apnoea Alarm
+362	Low SpO2
+363	SpO2 Disconnected
+364	Invalid SpO2 Data

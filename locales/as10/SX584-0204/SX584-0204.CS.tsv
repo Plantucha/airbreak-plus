@@ -1,0 +1,401 @@
+# language: CS
+# IDs 28, 327, 328, 365, 369, 379-398 retain text shared by all stock SX584-0204 locales.
+0	Domů
+1	Nastavení
+2	Moje možnosti
+3	Info
+4	Zvlhčovač
+5	Test masky
+6	Učení cíl. hodnot
+7	Zpr. o spánku
+8	Monitoring
+9	Oxymetr
+10	Opustit klin. nabídku
+11	Léčba
+12	Režim
+# 13: Pathology Defaults
+# 14: Pathology
+15	Výška
+16	Cílová frekv. pac.
+17	Cílová Va
+18	Vt/kg
+# 19: Auto EPAP
+20	Nast. tlak
+21	Max. tlak
+22	Min. tlak
+23	IPAP
+24	Max. IPAP
+25	EPAP
+26	Min. EPAP
+27	Max. EPAP
+28	iBR
+29	PS
+30	Min. PS
+31	Max. PS
+32	Dech frekvence
+33	Záložní frekvence
+34	Easy-Breathe
+35	Ti
+36	Ti Max
+37	Ti Min
+38	Doba vzestupu
+39	Spušť. nád.
+40	Cyklus
+41	Maska
+42	Učení cílových hodnot
+43	Komfortní
+44	Reakce
+45	Náběh. doba
+# 46: Max Ramp
+# 47: Ramp Down
+48	Úvodní tlak
+49	Úvodní EPAP
+50	EPR
+51	Typ EPR
+52	Úroveň EPR
+53	Kontr. klim.
+54	Teplota trubice
+55	Úroveň vlhkosti
+56	Snížení tlaku
+57	SmartStart
+58	Příslušenství
+59	Trubice
+60	Spustit test těsnosti
+61	AB filtr
+62	Ext. zvlhčovač
+63	Zobrazit oxymetr
+64	Alarmy
+65	Nízká MV
+66	Vysoký únik
+67	Nevent. maska
+68	Nízký SpO2
+69	Alarm apnoe
+# 70: Set All Alarms Off
+71	Hlas./test alrm
+72	Možnosti
+73	Základní
+74	Upoz. na netěsn.
+75	Potvrdit zastavení
+76	LED indik. léčby
+77	Režim Letadlo
+78	Připomenutí
+79	Konfigurace
+80	Jazyk
+81	Datum
+82	Čas
+# 83: Desat. Rule
+84	Tlak. jednotky
+85	Tepl. Jednotky
+86	Výškové jednotky
+87	Výrobní nastavení
+88	Smazat data
+89	Přístroj
+90	SW
+91	Hod. prov.
+92	Zvlhčovač
+93	Číslo CX
+94	Interní modem
+95	Výr. č.
+96	Poskytovatel
+97	Typ
+98	Servis
+99	Signál
+100	OK
+101	Ukončit test masky
+102	Zpět
+103	Zrušit
+104	Maska
+105	Nádr. na v.
+106	Trubice
+107	Filtr
+108	Probíhá učení…
+109	Probíhá výpoč…
+# 110: Stop Learning
+# 111: Targets Learnt
+112	Přijmout
+113	Použití
+114	hodiny
+115	Události (AHI)
+116	za hodinu
+117	Události
+118	Maska
+119	Těsnění
+120	Více info
+121	Celk. h. v prov.
+122	Období
+123	Dní v provozu
+124	Dní > 4hod.
+125	Prům. použití
+126	H. v prov.
+127	Tlak
+128	Insp. tlak
+129	Exp. tlak
+130	Spont. vent.
+131	Spont. cykl.
+132	AHI
+133	Celkový AI
+134	Centrální AI
+135	Alarm
+# 136: Mute
+# 137: Unmute Alarms
+# 138: No Alarms
+139	Opak.
+140	PS
+141	SpO2
+142	Puls
+143	Únik
+144	Dech
+145	MV
+146	Vt
+147	TgMV
+148	Va
+149	TgVa
+150	I:E
+151	iVAPS LT
+152	Dobré
+153	Upravit
+154	ml/kg ITH
+155	za min
+156	°
+157	%
+158	měs.
+159	hod.
+160	min.
+161	s
+162	ms
+163	l/min
+164	l/s
+165	mg/l
+166	ml
+167	--
+168	dBm
+169	
+170	Čekejte
+171	Hotovo
+172	Jste si jisti?
+173	Upomínka
+174	Pozor!
+175	myAir
+176	Čekejte prosím...
+177	Chyba
+178	Alarm
+179	Příprava SD karty,\nneodpojujte napájení, nevyjímejte kartu
+180	Aktualizace přístroje, neodpojujte napájení
+181	Aktualizace nastavení, neodpoj. napájení, nevyjímejte SD kartu
+182	Obnovoa výrobního nastavení
+183	Mazání všech dat
+184	Výpočet cílových hodnot
+185	ClimateLineAir připojen
+186	Nastavení aktualizována, vyjměte kartu SD a pokračujte
+187	Nastavení aktualizována, pokračujte stiskem OK
+188	Tovární nastavení obnoveno
+189	Data vymazána
+190	Cílové hodnoty nastaveny, pokračujte stiskem OK
+191	Smazat všechna data?
+192	Obnovit výrobní nastavení?
+193	Zrušit učení cílových hodnot?
+194	Zastavit léčbu?
+# 195: Start Ramp Down?
+196	Režim Letadlo je aktivní, chcete jej vypnout?
+197	Rozpoznána karta SD pro jiný přístroj, chcete pokračovat s ní?
+198	Je na čase vyměnit masku, kontaktujte poskytovatele péče
+199	Je na čase vyměnit trubici, kontaktujte poskytovatele péče
+200	Je na čase vyměnit nádržku na vodu, kontaktujte poskytovatele péče
+201	Je na čase vyměnit filtr, kontaktujte poskytovatele péče
+202	Je na čase vrátit SD kartu poskytovateli péče
+203	Je na čase provést servis přístroje, kontaktujte poskytovatele péče
+204	Nebyla rozpoznána žádná SD karta, pokračujte stiskem OK
+205	SD karta je téměř plná, kont. poskyt. péče a objednejte si novou kartu
+206	SD karta je nyní plná, kont. poskyt. péče a objednejte si novou kartu
+207	Vložte původní SD kartu nebo pokračujte stiskem OK
+208	Vyjměte SD kartu a pokračujte v léčbě
+209	Karta je pouze ke čtení, vyjměte SD kartu, odem. ji a znovu vložte
+210	Chyba SD karty, vyjměte kartu a stiskněte Start k zahájení léčby
+211	Nastavení nebyla použita, vyjměte SD kartu a kont. poskyt. péče
+212	Vložte SD kartu nebo stis. OK pro potvr., že neb. zazn. oxym. data
+213	Pro plné využití  Climate Control připojte nap. zdroj o výkonu 90 W
+214	Porucha systému ClimateLineAir, vyměňte trubici
+215	Porucha systému vyhřívání, léčba bude probíhat bez vyhřívání
+216	Byla překročena životnost motoru, kont. poskyt. péče
+217	Upozornění na selhání v důsledku omez. napájení, kont. poskyt. péče
+218	Příprava zařízení, stiskněte OK a zkuste to znovu
+219	Datum a čas nelze nastavit do minulosti
+220	Napájecí kabel na zadní straně přístroje není zcela zasunuta
+221	Zkon. prstový senzor nebo stisk. OK a pokr. bez oxymetrie
+222	Zkontrolujte připojení oxymetru nebo stiskněte OK a pokračujte bez oxymetrie
+223	Učení cílových hodnot selhalo, stiskněte OK a zkuste to znovu
+224	Chyba paměti nastavení, kont. poskyt. péče
+# 225: Ti Min is set shorter than Rise Time
+226	Stav svého spánku můžete sledovat na \nResMed.com/myAir
+227	Syst. porucha,\nnahlédněte do uživ. příručky,\nChyba
+228	Zjištěn vys. únik, zkont. nád. na vodu, její těs. nebo boč. kryt
+229	Trubice je zablokovaná, zkontrolujte trubici
+230	Zjištěn vysoký únik, připojte hadici
+231	Zjištěn únik, zkontrolujte nastavení systému a všechny přípojky
+232	Zjištěna nízká SpO2
+233	Žádná data o SpO2, zkontrolujte přip. oxym. senzoru k modulu/prstu
+234	Zkontrolujte připojení oxymetru nebo stiskněte OK a pokračujte bez oxymetrie
+235	Zjištěna nízká MV
+236	Zjištěna nev. maska, použijte vent. masku nebo uvolněte vent. otvory v masce
+237	Zjištěna apnoe
+238	
+239	L
+240	Spustit předehřev
+241	Zastavit předehřev
+242	
+243	
+244	Zahřívání
+245	Připraven
+246	Chlazení
+247	
+248	
+249	
+250	Nízká SpO2
+251	Vys. únik
+252	Nízká MV
+253	Bez SpO2
+254	Apnoe
+255	Bez ventil.
+256	Bez oxym.
+257	CPAP
+258	AutoSet
+259	APAP
+260	S
+261	ST
+262	T
+263	VAuto
+264	ASV
+265	ASVAuto
+266	iVAPS
+267	PAC
+268	AutoSet for Her
+# 269: Obstructive
+# 270: Restrictive
+# 271: Normal
+# 272: OHS
+273	Vyp
+274	10
+275	Vyp
+276	Zap
+277	Auto
+278	Pouze náběh
+279	Celou dobu
+280	Standardní
+281	Měkká
+282	Polštářky
+283	Celoobličejová
+284	Nosní
+285	Pediatrická
+286	SlimLine
+287	Standardní
+288	3m
+289	Nízké
+290	Střední
+291	Vysoké
+292	Plus
+293	Zap
+294	English
+295	Français
+296	Deutsch
+297	Italiano
+298	Español
+299	Español
+300	Português
+301	Português
+302	Nederlands
+303	Svenska
+304	Dansk
+305	Norsk
+306	Suomi
+307	ニホンゴ
+308	Русский
+309	Türkçe
+310	繁體中文
+311	简体中文
+312	Polski
+313	日本語
+314	Česky
+315	Led
+316	Úno
+317	Bře
+318	Dub
+319	Kvě
+320	Črv
+321	Črc
+322	Srp
+323	Zář
+324	Říj
+325	Lis
+326	Pro
+327	3%
+328	4%
+329	1 den
+330	1 týden
+331	1 měsíc
+332	3 měsíců
+333	6 měsíců
+334	1 rok
+335	
+336	
+337	Ti Min
+338	Ti Max
+339	Časov
+340	Vyp
+341	Zap
+342	Auto
+343	Manuálně
+344	Velmi nízká
+345	Nízká
+346	Střední
+347	Vysoká
+348	Velmi vys.
+349	Ne
+350	Ano
+351	cmH2O
+352	hPa
+353	cm
+354	palců
+355	°C
+356	°F
+357	min
+358	
+359	
+360	Hypopnea
+361	Central Apnea
+362	Obstructive Apnea
+363	Apnea
+364	Arousal
+365	SpO2 Desaturation
+366	No CSR Event
+367	CSR Start
+368	CSR End
+369	No Alarm
+370	Motor fault
+371	High pressure fault
+372	High Temperature fault
+373	Sensor fault
+374	System error
+375	Calibration Reset to default
+376	Settings Reset to default
+377	Over voltage fault
+378	Alarm Unit fault
+379	Hum tub/endcap Open activated
+380	Hum tub/endcap Open deactivated
+381	Tube Blocked activated
+382	Tube Blocked deactivated
+383	Tube Disconnected activated
+384	Tube Disconnected deactivated
+385	High Leak activated
+386	High Leak deactivated
+387	Non Vented Mask activated
+388	Non Vented Mask deactivated
+389	Low Min Ventilation activated
+390	Low Min Ventilation deactivated
+391	Apnoea Alarm activated
+392	Apnoea Alarm deactivated
+393	Low SpO2 activated
+394	Low SpO2 deactivated
+395	SpO2 Disconnected activated
+396	SpO2 Disconnected deactivated
+397	Invalid SpO2 Data activated
+398	Invalid SpO2 Data deactivated

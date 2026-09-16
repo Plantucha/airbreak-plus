@@ -1,0 +1,366 @@
+# language: SV
+0	Hem
+1	Inställningar
+2	Mina alternativ
+3	Om
+4	Befuktare
+5	Makstillpass
+6	Målinlärning
+7	Sömnrapport
+8	Övervakning
+9	Oximeter
+10	Avsluta klinisk meny
+11	Behandling
+12	Funktion
+13	Längd
+14	Mål-patfrek.
+15	Mål-vent
+16	Vt/kg
+17	Inställt tryck
+18	Max tryck
+19	Min tryck
+20	IPAP
+21	Max IPAP
+22	EPAP
+23	Min EPAP
+24	Max EPAP
+25	PS
+26	Min PS
+27	Max PS
+28	And.frek
+29	Backup frek.
+30	Easy-Breathe
+31	Ti
+32	Ti Max
+33	Ti Min
+34	Stigtid
+35	Trigger
+36	Cykel
+37	Målinlärning
+38	Komfort
+39	Ramptid
+40	Starttryck
+41	Start EPAP
+42	EPR
+43	EPR-typ
+44	EPR-nivå
+45	Respons
+46	Climate Ctrl
+47	Slangtemp.
+48	Befuktningsnivå
+49	Trycklättnad
+50	SmartStart
+51	Tillbehör
+52	Mask
+53	Slang
+54	Kör masktillpass.
+55	Avbryt masktillpass.
+56	AB filter
+57	Extern befuktare
+58	Visa oximeter
+59	Alarm
+60	Låg MV
+61	Högt läckage
+62	Ovent. Mask
+63	Låg SpO2
+64	Apnéalarm
+65	Alarm Vol/Test
+66	Alternativ
+67	Grundinst.
+68	Läckagevarning
+69	Bekräfta stopp
+70	Behandlings-LED
+71	Flygplansläge
+72	Påminnelser
+73	Konfigurering
+74	Språk
+75	Datum
+76	Tid
+77	Tryck-enheter
+78	Temp-enheter
+79	Längdenheter
+80	Återställ strd.värd.
+81	Radera data
+82	Apparat
+83	SW
+84	Körtim
+85	Befuktare
+86	CX-nr.
+87	Internt modem
+88	SN
+89	Operatör
+90	Typ
+91	Service
+92	Signal
+93	OK
+94	Bakåt
+95	Avbryt
+96	Mask
+97	Vattenbeh
+98	Slang
+99	Filter
+100	Inlärning…
+101	Beräknar…
+102	Acceptera
+103	Användn.
+104	tim
+105	Händ. (AHI)
+106	per timme
+107	Händelser
+108	Mask
+109	Förslutning
+110	Mer info
+111	Tot. använ.tim
+112	Period
+113	Dag använ
+114	Dagar 4 tim+
+115	Snitt använd.
+116	Anv. Tim
+117	Tryck
+118	Inandningstryck
+119	Utandningstryck
+120	Spont Trig
+121	Spont Cyk
+122	AHI
+123	Totalt AI
+124	Centralt AI
+125	Återk.
+126	PS
+127	SpO2
+128	Puls
+129	Läcka
+130	AF
+131	MV
+132	Vt
+133	MåMV
+134	Vent
+135	MålV.
+136	I:E
+137	iVAPS LT
+138	Bra
+139	Justera
+140	ml/kg IBW
+141	bpm
+142	°
+143	%
+144	mån
+145	tim
+146	min.
+147	sek
+148	msek
+149	l/min
+150	l/sek
+151	mg/l
+152	ml
+153	--
+154	dBm
+155	
+156	Vänta
+157	Slutförd
+158	Är du säker?
+159	Påminnelse
+160	Se upp
+161	myAir
+162	Vänta…
+163	Fel
+164	Alarm
+165	Förbereder SD-kort, stäng inte av strömförsörjningen eller ta bort SD-kortet 
+166	Uppdaterar apparat, stäng inte av strömförsörjning 
+167	Uppdaterar inställningar, stäng inte av ström-försörjning eller ta bort SD-kort
+168	Återställer fabriks- inställningar
+169	Raderar alla data
+170	Beräknar mål
+171	ClimateLineAir inkopplad
+172	Inställningar upp-daterade, ta bort SD-kort för att fortsätta
+173	Inställningar uppdaterade, tryck på OK för att fortsätta
+174	Fabriks- inställningar återställda
+175	Data har raderats
+176	Mål inlärda, tryck OK för att fortsätta
+177	Radera alla data?
+178	Återställ fabriks- inställningar?
+179	Avbryt målinlärning?
+180	Avbryt behandling?
+181	Flygplansfunktion aktiverad, vill du stänga av den?
+182	SD-kort för annan apparat detekterat, fortsätta använda SD-kort
+183	Dags för byte av mask, kontakta vårdgivare
+184	Dags för byte av slang, kontakta vårdgivare
+185	Dags för byte av vattenbehållare, kontakta vårdgivare
+186	Dags för byte av filter, kontakta vårdgivare
+187	Dags att returnera SD-kort till vårdgivare
+188	Dags för service av din apparat, kontakta vårdgivare
+189	Inget SD-kort detek-terat, tryck OK för att fortsätta
+190	SD-kort nästan fullt, kontakta vård-leverantör för nytt kort
+191	SD-kort fullt, kontakta vårdgivare för nytt kort
+192	Sätt in ursprungligt SD-kort eller tryck på OK för att fort-sätta
+193	Ta bort SD-kort för att fortsätta behandling
+194	Skrivskyddat kort, ta bort, lås upp och sätt tillbaka SD-kort
+195	SD-kortfel, ta bort kortet och tryck på start för att påbörja behandl.
+196	Inställningar inte tillämpade, ta bort SD-kort och kontakta vårdgivare
+197	Sätt in SD-kort eller tryck på OK för att godkänna att oximetridata inte loggas
+198	Koppla in 90 W strömförsörjning för att uppleva fullständig Climate Control
+199	ClimateLineAir fel, byt ut slang
+200	Värmesystemfel, behandling tillförs utan uppvärmning
+201	Motorns livslängd överskriden, kontaka vårdgivare
+202	Förkortat alarm för strömavbrott, kontakta vårdgivare
+203	Förbereder apparat, tryck på OK och försök igen
+204	Datum och tid kan inte vara i det förflutna
+205	Strömkontakten på baksidan av apparaten är inte helt intryckt
+206	Kontrollera finger-sensor eller tryck på OK för att fortsätta utan oximetri
+207	Kontrollera oximeter-koppling eller tryck på OK för att fortsätta utan oximetri
+208	Målinlärning miss-lyckades, tryck på OK och försök igen
+209	Fel på inställningsminne, kontakta vårdgivare
+210	Övervaka din sömnhälsa på ResMed.com/myAir
+211	Systemfel, se bruksanvisning,\nFel
+212	Högt läckage detekterat; kolla vattenbehållare, beh. tätning eller sidolock
+213	Slang blockerad, kontrollera slang
+214	Hög läcka detekterad, koppla in slang
+215	Läcka detekterad, kontrollera systeminstallation och alla kopplingar
+216	Låg SpO2 detekterad
+217	Inga SpO2 data, kontrollera oxi-sensor anslutning till modul/finger
+218	Kontrollera oximeter-koppling eller tryck på OK för att fortsätta utan oximetri
+219	Låg MV detekterad
+220	Ovent. mask detekterad, använd vent. mask eller öppna maskventilerna
+221	Apné detekterad
+222	
+223	L
+224	Kör uppvärm.
+225	Avbryt uppvärmning
+226	
+227	
+228	Värmer upp
+229	Klar
+230	Kyler ned
+231	
+232	
+233	
+234	Låg SpO2
+235	Hög läcka
+236	Låg MV
+237	Noll SpO2
+238	Apné
+239	Ovent.
+240	Ingen oxi
+241	CPAP
+242	AutoSet
+243	APAP
+244	S
+245	ST
+246	T
+247	VAuto
+248	ASV
+249	ASVAuto
+250	iVAPS
+251	PAC
+252	AutoSet FH
+253	Av
+254	10
+255	Av
+256	På
+257	Auto
+258	Endast ramp
+259	Heltid
+260	Standard
+261	Mjuk
+262	Näskuddar
+263	Helmask
+264	Näsmask
+265	Pediatrisk
+266	SlimLine
+267	Standard
+268	3 m
+269	Låg
+270	Med
+271	Hög
+272	Plus
+273	På
+274	English
+275	Français
+276	Deutsch
+277	Italiano
+278	Español
+279	Español
+280	Português
+281	Português
+282	Nederlands
+283	Svenska
+284	Dansk
+285	Norsk
+286	Suomi
+287	ニホンゴ
+288	Русский
+289	Türkçe
+290	繁體中文
+291	简体中文
+292	Polski
+293	日本語
+294	Česky
+295	Jan
+296	Feb
+297	Mar
+298	Apr
+299	Maj
+300	Jun
+301	Jul
+302	Aug
+303	Sep
+304	Okt
+305	Nov
+306	Dec
+307	1 dag
+308	1 vecka
+309	1 månad
+310	3 månader
+311	6 månader
+312	1 år
+313	
+314	
+315	Ti Min
+316	Ti Max
+317	Tidsin.
+318	Av
+319	På
+320	Auto
+321	Manuell
+322	Mkt låg
+323	Låg
+324	Med
+325	Hög
+326	Mkt hög
+327	Nej
+328	Ja
+329	cmH2O
+330	hPa
+331	cm
+332	tum
+333	°C
+334	°F
+335	Min
+336	
+337	
+338	Hypopnea
+339	Central Apnea
+340	Obstructive Apnea
+341	Apnea
+342	Arousal
+343	No CSR Event
+344	CSR Start
+345	CSR End
+346	Motor fault
+347	High pressure fault
+348	High Temperature fault
+349	Sensor fault
+350	System error
+351	Calibration Reset to default
+352	Settings Reset to default
+353	Over voltage fault
+354	Alarm Unit fault
+355	Humidifier tub/endcap Open
+356	Tube Blocked
+357	Tube Disconnected
+358	High Leak
+359	Non Vented Mask
+360	Low Min Ventilation
+361	Apnoea Alarm
+362	Low SpO2
+363	SpO2 Disconnected
+364	Invalid SpO2 Data

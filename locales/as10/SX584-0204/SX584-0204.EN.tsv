@@ -1,0 +1,400 @@
+# language: EN
+0	Home
+1	Settings
+2	My Options
+3	About
+4	Humidifier
+5	Mask Fit
+6	Learn Targets
+7	Sleep Report
+8	Monitoring
+9	Oximeter
+10	Exit Clinical Menu
+11	Therapy
+12	Mode
+13	Pathology Defaults
+14	Pathology
+15	Height
+16	Target Pt Rate
+17	Target Va
+18	Vt/kg
+19	Auto EPAP
+20	Set Pressure
+21	Max Pressure
+22	Min Pressure
+23	IPAP
+24	Max IPAP
+25	EPAP
+26	Min EPAP
+27	Max EPAP
+28	iBR
+29	PS
+30	Min PS
+31	Max PS
+32	Resp. Rate
+33	Backup Rate
+34	Easy-Breathe
+35	Ti
+36	Ti Max
+37	Ti Min
+38	Rise Time
+39	Trigger
+40	Cycle
+41	Mask
+42	Learn Targets
+43	Comfort
+44	Response
+45	Ramp Time
+46	Max Ramp
+47	Ramp Down
+48	Start Pressure
+49	Start EPAP
+50	EPR
+51	EPR Type
+52	EPR Level
+53	Climate Ctrl
+54	Tube Temp.
+55	Humidity Level
+56	Pressure Relief
+57	SmartStart
+58	Accessories
+59	Tube
+60	Run Mask Fit
+61	AB Filter
+62	Ext. Humidifier
+63	View Oximeter
+64	Alarms
+65	Low MV
+66	High Leak
+67	Non-Vent Mask
+68	Low SpO2
+69	Apnea Alarm
+70	Set All Alarms Off
+71	Alarm Vol/Test
+72	Options
+73	Essentials
+74	Leak Alert
+75	Confirm Stop
+76	Therapy LED
+77	Airplane Mode
+78	Reminders
+79	Configuration
+80	Language
+81	Date
+82	Time
+83	Desat. Rule
+84	Press. Units
+85	Temp. Units
+86	Height Units
+87	Restore Defaults
+88	Erase Data
+89	Device
+90	SW
+91	Run Hrs
+92	Humidifier
+93	CX Number
+94	Internal Modem
+95	SN
+96	Provider
+97	Type
+98	Service
+99	Signal
+100	OK
+101	Stop Mask Fit
+102	Back
+103	Cancel
+104	Mask
+105	Water Tub
+106	Tube
+107	Filter
+108	Learning…
+109	Calculating…
+110	Stop Learning
+111	Targets Learnt
+112	Accept
+113	Usage
+114	hours
+115	Events (AHI)
+116	per hour
+117	Events
+118	Mask
+119	Seal
+120	More Info
+121	Total Used Hrs
+122	Period
+123	Days Used
+124	Days 4hrs+
+125	Avg. Usage
+126	Used Hrs
+127	Pressure
+128	Insp. Pressure
+129	Exp. Pressure
+130	Spont Trig
+131	Spont Cyc
+132	AHI
+133	Total AI
+134	Central AI
+135	Alarm
+136	Mute
+137	Unmute Alarms
+138	No Alarms
+139	Recur
+140	PS
+141	SpO2
+142	Pulse
+143	Leak
+144	RR
+145	MV
+146	Vt
+147	TgMV
+148	Va
+149	TgVa
+150	I:E
+151	iVAPS LT
+152	Good
+153	Adjust
+154	ml/kg IBW
+155	bpm
+156	°
+157	%
+158	mths
+159	hrs
+160	min.
+161	s
+162	ms
+163	L/min
+164	L/s
+165	mg/L
+166	ml
+167	--
+168	dBm
+169	
+170	Please Wait
+171	Complete
+172	Are you sure?
+173	Reminder
+174	Attention
+175	myAir
+176	Please Wait…
+177	Error
+178	Alarm
+179	Preparing SD card,\ndo not remove power or your card
+180	Updating device, do not remove power
+181	Updating settings, do not remove power or your SD card
+182	Restoring factory defaults
+183	Erasing all data
+184	Calculating targets
+185	ClimateLineAir connected
+186	Settings updated, remove SD card to continue
+187	Settings updated, press OK to continue
+188	Factory defaults restored
+189	Data erased
+190	Targets learned, press OK to continue
+191	Erase all data?
+192	Restore factory defaults?
+193	Cancel Learn Targets?
+194	Stop therapy?
+195	Start Ramp Down?
+196	Airplane Mode is currently On, do you wish to turn it Off?
+197	SD card for another device detected, continue using SD card?
+198	It's time to replace your mask, contact care provider
+199	It's time to replace your tubing, contact care provider
+200	It's time to replace your water tub, contact care provider
+201	It's time to replace your filter, contact care provider
+202	It's time to return your SD Card to your care provider
+203	It's time to service your device, contact care provider
+204	No SD card detected, press OK to continue
+205	SD card is nearly full, contact care provider to order new card
+206	SD card is now full, contact care provider to order new card
+207	Insert your original SD card or press OK to continue
+208	Remove SD card to continue therapy
+209	Read only card, please remove, unlock and re-insert SD card
+210	SD card error, remove your card and press Start to begin therapy
+211	Settings not applied, remove SD card and contact care provider
+212	Insert SD card or press OK to accept no oximetry data logging
+213	Connect a 90W Power Supply Unit to experience full Climate Control
+214	ClimateLineAir fault, replace your tubing
+215	Heating system fault, therapy will run without heating
+216	Motor life exceeded, contact care provider
+217	Limited Power Fail Alarm,  contact care provider
+218	Preparing device, press OK and try again
+219	Date and time can not be set in the past
+220	Power connector at rear of device not fully inserted
+221	Check your finger sensor or press OK to continue without oximetry
+222	Check oximeter connection or press OK to continue without oximetry
+223	Learn Targets failed, press OK and try again
+224	Settings memory error, contact care provider
+225	Ti Min is set shorter than Rise Time
+226	Track your sleep health at\nResMed.com/myAir
+227	System fault,\nrefer to user guide,\nError
+228	High leak detected, check your water tub, tub seal or side cover
+229	Tubing blocked, check your tubing
+230	High leak detected, connect your tubing
+231	Leak detected, check your system setup and all connections
+232	Low SpO2 detected
+233	No SpO2 data, check your oxi sensor attachment to module/finger
+234	Check oximeter connection or press OK to continue without oximetry
+235	Low MV detected
+236	Non-vented mask detected, use vented mask or unblock your mask vents
+237	Apnea detected
+238	
+239	L
+240	Run Warmup
+241	Stop Warmup
+242	
+243	
+244	Warming
+245	Ready
+246	Cooling
+247	
+248	
+249	
+250	Low SpO2
+251	High Leak
+252	Low MV
+253	No SpO2
+254	Apnea
+255	Non-Vent
+256	No Oxi
+257	CPAP
+258	AutoSet
+259	APAP
+260	S
+261	ST
+262	T
+263	VAuto
+264	ASV
+265	ASVAuto
+266	iVAPS
+267	PAC
+268	AutoSet for Her
+269	Obstructive
+270	Restrictive
+271	Normal
+272	OHS
+273	Off
+274	10
+275	Off
+276	On
+277	Auto
+278	Ramp Only
+279	Full Time
+280	Standard
+281	Soft
+282	Pillows
+283	Full Face
+284	Nasal
+285	Pediatric
+286	SlimLine
+287	Standard
+288	3m
+289	Low
+290	Med
+291	High
+292	Plus
+293	On
+294	English
+295	Français
+296	Deutsch
+297	Italiano
+298	Español
+299	Español
+300	Português
+301	Português
+302	Nederlands
+303	Svenska
+304	Dansk
+305	Norsk
+306	Suomi
+307	ニホンゴ
+308	Русский
+309	Türkçe
+310	繁體中文
+311	简体中文
+312	Polski
+313	日本語
+314	Česky
+315	Jan
+316	Feb
+317	Mar
+318	Apr
+319	May
+320	Jun
+321	Jul
+322	Aug
+323	Sep
+324	Oct
+325	Nov
+326	Dec
+327	3%
+328	4%
+329	1 Day
+330	1 Week
+331	1 Month
+332	3 Months
+333	6 Months
+334	1 Year
+335	
+336	
+337	Ti Min
+338	Ti Max
+339	Timed
+340	Off
+341	On
+342	Auto
+343	Manual
+344	Very Low
+345	Low
+346	Med
+347	High
+348	Very High
+349	No
+350	Yes
+351	cmH2O
+352	hPa
+353	cm
+354	inches
+355	°C
+356	°F
+357	Min
+358	
+359	
+360	Hypopnea
+361	Central Apnea
+362	Obstructive Apnea
+363	Apnea
+364	Arousal
+365	SpO2 Desaturation
+366	No CSR Event
+367	CSR Start
+368	CSR End
+369	No Alarm
+370	Motor fault
+371	High pressure fault
+372	High Temperature fault
+373	Sensor fault
+374	System error
+375	Calibration Reset to default
+376	Settings Reset to default
+377	Over voltage fault
+378	Alarm Unit fault
+379	Hum tub/endcap Open activated
+380	Hum tub/endcap Open deactivated
+381	Tube Blocked activated
+382	Tube Blocked deactivated
+383	Tube Disconnected activated
+384	Tube Disconnected deactivated
+385	High Leak activated
+386	High Leak deactivated
+387	Non Vented Mask activated
+388	Non Vented Mask deactivated
+389	Low Min Ventilation activated
+390	Low Min Ventilation deactivated
+391	Apnoea Alarm activated
+392	Apnoea Alarm deactivated
+393	Low SpO2 activated
+394	Low SpO2 deactivated
+395	SpO2 Disconnected activated
+396	SpO2 Disconnected deactivated
+397	Invalid SpO2 Data activated
+398	Invalid SpO2 Data deactivated

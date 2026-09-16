@@ -1,0 +1,366 @@
+# language: ES-4
+0	Inicio
+1	Parámetros
+2	Mis opciones
+3	Acerca de
+4	Humidificador
+5	Ajus masc
+6	Recon Objetivs
+7	Infor. Sueño
+8	Monitor
+9	Oxímetro
+10	Salir del menú clínico
+11	Tratamiento
+12	Modo
+13	Altura
+14	Frec objetiv pac
+15	Va objetivo
+16	Vc/kg
+17	Presión est
+18	Presión máx
+19	Presión mín
+20	IPAP
+21	IPAP Máx
+22	EPAP
+23	EPAP Mín
+24	EPAP máx
+25	PS
+26	PS Mín
+27	PS Máx
+28	Frec respiratoria
+29	Frec de respaldo
+30	Easy-Breathe
+31	Ti
+32	Ti Máx
+33	Ti Mín
+34	Tiemp Sub.
+35	Activación
+36	Ciclado
+37	Reconocer objetiv
+38	Confort
+39	T. rampa
+40	Presión inicial
+41	EPAP inicial
+42	APE
+43	Tipo APE
+44	Nivel APE
+45	Respuesta
+46	Climate Ctrl
+47	Temperat tubo
+48	Nivel Humedad
+49	Alivio de presión
+50	SmartStart
+51	Accesorios
+52	Masc
+53	Tubo
+54	Ejec. ajuste masc.
+55	Deten ajuste masc
+56	Filtro AB
+57	Humidificad ext
+58	Ver oxímetro
+59	Alarmas
+60	VM bajo
+61	Fuga grave
+62	Msc sin ven
+63	SpO2 baja
+64	Alarm apne
+65	Vol/Test alarma
+66	Opciones
+67	Func básicas
+68	Alerta fuga
+69	Confir detención
+70	Luz indic tratam
+71	Modo avión
+72	Recordatorios
+73	Configuración
+74	Idioma
+75	Fecha
+76	Hora
+77	Uds. presión
+78	Uds. temp
+79	Uds. de altura
+80	Rest. val. predet.
+81	Borrar datos
+82	Equipo
+83	VS
+84	H func
+85	Humidificador
+86	Número CX
+87	Módem interno
+88	NS
+89	Proveed
+90	Tipo
+91	Servicio
+92	Señal
+93	Aceptar
+94	Atrás
+95	Cancelar
+96	Mascarilla
+97	Cub agua
+98	Tubo
+99	Filtro
+100	Reconociendo…
+101	Calculando…
+102	Aceptar
+103	Horas
+104	de uso
+105	Evts. (IAH)
+106	por hora
+107	Eventos
+108	Ajuste de
+109	mascarilla
+110	Más información
+111	Total h usado
+112	Período
+113	Días usado
+114	Días + de 4 h
+115	Uso prom
+116	H usado
+117	Presión
+118	Presión insp.
+119	Presión esp.
+120	espon. insp.
+121	espon. esp.
+122	IAH
+123	IA total
+124	IA central
+125	Repet
+126	PS
+127	SpO2
+128	Pulso
+129	Fuga
+130	FR
+131	VM
+132	Vc
+133	VOb
+134	Va
+135	VaO
+136	I:E
+137	iVAPS LT
+138	Bueno
+139	Ajustar
+140	ml/kg PCI
+141	rpm
+142	°
+143	%
+144	mes.
+145	h
+146	min
+147	s
+148	ms
+149	l/min
+150	l/s
+151	mg/l
+152	ml
+153	--
+154	dBm
+155	
+156	Espere
+157	Finalizado
+158	¿Está seguro?
+159	Recordatorio
+160	Atención
+161	myAir
+162	Espere…
+163	Error
+164	Alarma
+165	Preparando tarjeta SD: no desconecte la alimentación ni la tarjeta
+166	Actualizando equipo: no desconecte la alimentación
+167	Actualizando configuración: no desconecte la alimentación ni la tarjeta SD
+168	Restableciendo valores de fábrica
+169	Borrando todos los datos
+170	Calculando objetivos
+171	ClimateLineAir conectado
+172	Configuración actualizada: retire tarjeta SD para continuar
+173	Configuración actualizada: pulse Aceptar para continuar
+174	Valores de fábrica restablecidos
+175	Datos borrados
+176	Objetivos reconocidos: pulse Aceptar para continuar
+177	¿Borrar todos los datos?
+178	¿Restablecer valores de fábrica?
+179	¿Anular reconocimiento de objetivos?
+180	¿Detener tratamiento?
+181	El modo avión está activado: ¿quiere desactivarlo?
+182	Se ha detectado la tarjeta SD de otro equipo: ¿seguir usando la tarjeta SD?
+183	Es hora de cambiar masc, contacte con prov de atención médica
+184	Es hora de cambiar tubo, contacte con prov de atención médica
+185	Es hora de cambiar cub de agua, contacte con prov de atención médica
+186	Es hora de cambiar filtro, contacte con prov de atención médica
+187	Es hora de devolver tarjeta SD a proveedor de atención médica
+188	Es hora de hacer mantenim del equipo, contacte con prov de atención médica
+189	No se detecta tarjeta SD, pulse Aceptar para continuar
+190	Tarjeta SD casi llena, contacte con prov atención médica para pedir una nueva
+191	Tarjeta SD llena, contacte con prov atención médica para pedir una nueva
+192	Introduzca tarjeta SD original o pulse Aceptar para continuar
+193	Retire tarjeta SD para continuar tratamiento
+194	Tarj de sólo lectura, retírela, desbloquee y vuelva a introd SD
+195	Error tarjeta SD, retírela y pulse Inicio para iniciar tratamiento
+196	No se ha aplicado la config, retire tarj SD y contacte con proveedor de atención médica
+197	Introduzca tarjeta SD o pulse Aceptar para aceptar no registrar datos oxímetro
+198	Conecte fuente de aliment de 90 W para aprovechar Climate Control al máximo
+199	Fallo en ClimateLineAir: cambie el tubo
+200	Fallo en sistema calefactor: el tratamiento se aplicará sin calentamiento
+201	Vida útil del motor sobrepasada: contacte prov de atención médica
+202	Alarma de fallo alimentac limitada: contacte con prov de atención médica
+203	Preparando equipo: pulse Aceptar e inténtelo de nuevo
+204	La fecha y la hora no pueden haber pasado
+205	Conector eléctr. de la parte posterior del dispositivo no introducido del todo
+206	Revise sensor digital o pulse Aceptar para continuar sin oximetría
+207	Revise conexión de oxímetro o pulse Aceptar para continuar sin oximetría
+208	Error al reconocer objetivos: pulse Aceptar e inténtelo de nuevo
+209	Error memoria config: contacte con prov de atención médica
+210	Monitorice la calidad de su sueño en\nResMed.com/myAir
+211	Error de sistema, consulte manual del usuario,     Error
+212	Fuga elevada detectada: conecte cubeta de agua, su sellado, o tapa lateral
+213	Tubo obstruido: revíselo
+214	Fuga elevada detectada: conecte el tubo
+215	Fuga detectada: revise instalación del sistema y todas las conexiones
+216	SpO2 baja detectada
+217	Sin datos de SpO2: revise ajuste/conexión del sensor
+218	Revise conexión de oxímetro o pulse Aceptar para continuar sin oximetría
+219	VM baja detectada
+220	Mascarilla sin ventil detectada, use masc con ventil o limpie orificios
+221	Apnea detectada
+222	
+223	L
+224	Ejec. Calentam.
+225	Detener calentam
+226	
+227	
+228	Calentando
+229	Listo
+230	Enfriando
+231	
+232	
+233	
+234	SpO2 baja
+235	Fuga grave
+236	VM bajo
+237	Sin SpO2
+238	Apnea
+239	Sin ventil
+240	Sin oxím
+241	CPAP
+242	AutoSet
+243	APAP
+244	S
+245	ST
+246	T
+247	VAuto
+248	ASV
+249	ASVAuto
+250	iVAPS
+251	PAC
+252	AutoSet for Her
+253	Apag
+254	10
+255	Apag
+256	Ence
+257	Auto
+258	Solo rampa
+259	Siempre
+260	Estándar
+261	Suave
+262	Almohadillas
+263	Facial
+264	Nasal
+265	Infantil
+266	SlimLine
+267	Estándar
+268	3 m
+269	Baja
+270	Med
+271	Alta
+272	Extra
+273	Activas
+274	English
+275	Français
+276	Deutsch
+277	Italiano
+278	Español
+279	Español
+280	Português
+281	Português
+282	Nederlands
+283	Svenska
+284	Dansk
+285	Norsk
+286	Suomi
+287	ニホンゴ
+288	Русский
+289	Türkçe
+290	繁體中文
+291	简体中文
+292	Polski
+293	日本語
+294	Česky
+295	Ene
+296	Feb
+297	Mar
+298	Abr
+299	May
+300	Jun
+301	Jul
+302	Ago
+303	Sep
+304	Oct
+305	Nov
+306	Dic
+307	1 día
+308	1 sem
+309	1 mes
+310	3 meses
+311	6 meses
+312	1 año
+313	
+314	
+315	Ti Mín
+316	Ti Máx
+317	Prgmd
+318	Apag
+319	Ence
+320	Auto
+321	Manual
+322	Muy baja
+323	Baja
+324	Med
+325	Alta
+326	Muy alta
+327	No
+328	Sí
+329	cmH2O
+330	hPa
+331	cm
+332	pulgad
+333	°C
+334	°F
+335	Min
+336	
+337	
+338	Hypopnea
+339	Central Apnea
+340	Obstructive Apnea
+341	Apnea
+342	Arousal
+343	No CSR Event
+344	CSR Start
+345	CSR End
+346	Motor fault
+347	High pressure fault
+348	High Temperature fault
+349	Sensor fault
+350	System error
+351	Calibration Reset to default
+352	Settings Reset to default
+353	Over voltage fault
+354	Alarm Unit fault
+355	Humidifier tub/endcap Open
+356	Tube Blocked
+357	Tube Disconnected
+358	High Leak
+359	Non Vented Mask
+360	Low Min Ventilation
+361	Apnoea Alarm
+362	Low SpO2
+363	SpO2 Disconnected
+364	Invalid SpO2 Data

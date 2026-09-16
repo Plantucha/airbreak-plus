@@ -1,0 +1,367 @@
+# language: TR
+0	Anasayfa
+1	Ayarlar
+2	Seçeneklerim
+3	Hakkında
+4	Nemlendirici
+5	Maske Oturumu
+6	Hedef Öğren
+7	Uyku Raporu
+8	İzleme
+9	Oksimetre
+10	Klinik Menüden Çıkış
+11	Tedavi
+12	Mod
+13	Boy
+14	Hedef Slnm Hızı
+15	Hedef Va
+16	Vt/kg
+17	Basıncı Ayarla
+18	Azami  Basınç
+19	Min Basınç
+20	IPAP
+21	Azami IPAP
+22	EPAP
+23	Min EPAP
+24	Maks EPAP
+25	BD
+26	Min BD
+27	Azami BD
+28	Solunum Hızı
+29	Destek Slnm Hızı
+30	Easy-Breathe
+31	Ti
+32	Max Ti
+33	Min Ti
+34	Yükslm Süre
+35	Tetik
+36	Döngü
+37	Hedef Öğren
+38	Konfor
+39	Rampa Zmn
+40	Basıncı Başlat
+41	EPAP Başlat
+42	EPR
+43	EPR Tip
+44	EPR Düzeyi
+45	Tepki
+46	Climate Ctrl
+47	Hortum Sıcaklığı
+48	Nemlilik Düzeyi
+49	Basınç Tahliye
+50	SmartStart
+51	Aksesuarlar
+52	Maske
+53	Hortum
+54	Maske Uyum Bşlt
+55	Maske Testini Durdr
+56	AB Filtresi
+57	Har. Nemlndirici
+58	Oksimet. Görntle
+59	Alarmlar
+60	Düşük MV
+61	Yüksek Kaçak
+62	Non-Vent Maske
+63	Düşük SpO2
+64	Apne Alarmı
+65	Alarm Vol/Test
+66	Seçenekler
+67	Temel
+68	Sızıntı Uyarısı
+69	Durdurma Ony
+70	Tedavi LED'i
+71	Uçak Modu
+72	Hatirlatmalar
+73	Konfigürasyon
+74	Dil
+75	Tarih
+76	Zaman
+77	Basınç Birimi
+78	Sıcaklık Birimi
+79	Yüksek. Brmlr
+80	Varsayılana Dön
+81	Verileri Sil
+82	Cihaz
+83	Yazlm
+84	Topl. Saat
+85	Nemlendirici
+86	CX Numarası
+87	Dahili Modem
+88	SN
+89	Sağlayıcı
+90	Tip
+91	Servis
+92	Sinyal
+93	Tamam
+94	Geri
+95	İptal
+96	Maske
+97	Su Hazne
+98	Hortum
+99	Filtre
+100	Öğreniyor…
+101	Hesaplanıyor…
+102	Kabul
+103	Kullanım
+104	saat
+105	Olaylar (AHI)
+106	saatte
+107	Olaylar
+108	Maske
+109	Mühür 
+110	Detaylı Bilgi
+111	Top Kul Süresi
+112	Süre
+113	Kullanln Gün
+114	4sa+ Gün
+115	Ort. Kullan.
+116	Kul. Saat
+117	Basınç
+118	İnsp. Basınç
+119	Eksp. Basınç
+120	Doğal Tetik
+121	Doğal Dev
+122	AHI
+123	Toplam AI
+124	Merkezi AI
+# 125: NO ALARMS
+126	ALARM
+127	Tekrarla
+128	BD
+129	SpO2
+130	Nabız
+131	Sızıntı
+132	RR
+133	MV
+134	Vt
+135	HdMV
+136	Va
+137	HdVa
+138	I:E
+139	iVAPS LT
+140	İyi
+141	Ayarla
+142	ml/kg IBW
+143	bpm
+144	°
+145	%
+146	ay
+147	saat
+148	dk.
+149	sn
+150	ms
+151	L/dk
+152	L/s
+153	mg/L
+154	ml
+155	--
+156	dBm
+157	
+158	Lütfen Bekleyiniz
+159	Tamamlandı
+160	Emin misiniz?
+161	Hatırlatma
+162	Dikkat
+163	myAir
+164	Lütfen Bekleyiniz…
+165	Hata
+166	Alarm
+167	SD kart hazırlanıyor, fişi çekmeyin veya kartınızı çıkarmayın
+168	Cihaz güncelleniyor, fişi çekmeyin
+169	Ayarlar güncelleniyor, fişi çekmeyin veya SD kartınızı çıkarmayın
+170	Fabrika ayarlarına dönülüyor
+171	Tüm veriler siliniyor
+172	Hedefler hesaplanıyor
+173	ClimateLineAir bağlı
+174	Ayarlar güncellendi, devam etmek için SD kartınızı çıkarın
+175	Ayarlar güncellendi, devam etmek için Tamam'a basın
+176	Fabrika ayarlarına dönüldü
+177	Veriler silindi 
+178	Hedefler öğrenildi, devam etmek için Tamam'a basın
+179	Tüm veriler silinsin mi?
+180	Fabrika ayarlarına dönülsün mü?
+181	Hedef öğrenme iptal edilsin mi?
+182	Tedavi Durdurulsun mu?
+183	Uçak Modu Açık, kapatmak istiyor musunuz?
+184	Başka bir cihaz için SD kartı algılandı, SD kart kullanmaya devam edilsin mi?
+185	Maskenizi değiştirme zamanı, bakım hizmeti sağlayıcınıza başvurun
+186	Hortumunuzu değiştirme zamanı, bakım hizmeti sağlayıcınıza başvurun
+187	Su haznenizi değiştirme zamanı, bakım hizmeti sağlayıcınıza başvurun
+188	Filtrenizi değiştirme zamanı, bakım hizmeti sağlayıcınıza başvurun
+189	SD Kartınızı bakım hizmeti sağlayıcınıza geri vermeniz gerekiyor
+190	Cihazınızın servis zamanı geldi, bakım hizmeti sağlayıcınıza başvurun
+191	SD kart algılanmadı, devam etmek için Tamam'a basın
+192	SD kart dolmak üzere, yeni kart siparişi için hizmet sağlayıcınıza başvurun
+193	SD kart dolu, yeni kart siparişi için bakım hizmeti sağlayıcınıza başvurun
+194	Orijinal SD kartınızı takın veya devam etmek için Tamam'a basın
+195	Tedaviye devam etmek için SD kartı çıkarın
+196	Salt okunur kart, lütfen çıkarın, kilidini açın ve SD kartını tekrar takın
+197	SD kart hatası, kartı çıkarın ve tedaviyi başlatmak için Başlat'a basın
+198	Ayarlar uygulanmadı, SD kartı çıkarın ve hizmet sağlayıcınıza başvurun
+199	SD kartı takın veya oksimetresiz veri kaydını kabul etmek için Tamam'a basın
+200	Tam İklim Kontrolü için 90W güç kaynağı bağlayın 
+201	ClimateLineAir arızası, hortumunuzu değiştirin
+202	Isıtma sistemi arızası, tedavi ısıtma olmadan devam edecektir
+203	Motor ömrü aşıldı, bakım hizmeti sağlayıcınıza başvurun
+204	Sınırlı Elektrik Kesintisi Alarmı, bakım hizmeti sağlayıcınıza başvurun
+205	Cihaz hazırlanıyor, Tamam'a basın ve tekrar deneyin
+206	Tarih ve saat geçmiş bir zamana ayarlanamaz
+207	Cihazın arkasındaki güç konektörü tam olarak yerleştirilmemiş
+208	Parmak sensörünü kontrol edin veya oksimetresiz devam etmek için Tamam'a basın
+209	Oksimetre bağlantısını kontrol edin veya oksmtrsz devam etmek için Tamam'a basın
+210	Hedef Öğrenme başarısız, Tamam'a basarak tekrar deneyin
+211	Ayar bellek hatası, bakım hizmeti sağlayıcınıza danışın
+212	Uyku sağlığınızı buradan takip edin:\nResMed.com/myAir
+213	Sistem arızası, kullanım kılavuzuna bakın,              Hata
+214	Yüksek kaçak algılandı, su haznesi, hazne contası veya yan kapağı kontrol edin
+215	Hortum tıkalı, hortumunuzu kontrol edin
+216	Yüksek kaçak algılandı, hortumunuzu bağlayın
+217	Kaçak algılandı, sistem kurulumunuzu ve tüm bağlantıları kontrol edin
+218	Düşük SpO2 algılandı
+219	SpO2 verisi yok, oksi sensör modül/parmak bağlantınızı kontrol edin
+220	Oksimetre bağlantısını kontrol edin veya oksmtrsz devam etmek için Tamam'a basın
+221	Düşük MV algılandı
+222	Non-Vent Maske algılandı, açık maske kullanın veya maske çıkışlarını açın
+223	Apne algılandı
+224	
+225	L
+226	Isıtmayı Çalıştır
+227	Isıtmayı Durdur
+228	
+229	
+230	Isınma
+231	Hazır
+232	Soğuma
+233	
+234	
+235	
+236	Dşk SpO2
+237	Yük. Kaçak
+238	Düşük MV
+239	SpO2 Yok
+240	Apne
+241	Non-Vent
+242	Oksmt Yok
+243	CPAP
+244	AutoSet
+245	APAP
+246	S
+247	ST
+248	T
+249	VAuto
+250	ASV
+251	ASVAuto
+252	iVAPS
+253	PAC
+254	AutoSet for Her
+255	Kplı
+256	10
+257	Kplı
+258	Açık
+259	Auto
+260	Sadece Ramp
+261	Tam Zamanlı
+262	Standart
+263	Yumuşak
+264	Yastıklar
+265	Tam Yüz
+266	Burun
+267	Pediatrik
+268	SlimLine
+269	Standart
+270	3m
+271	Düşük
+272	Orta
+273	Yüksek
+274	Artı
+275	Açık
+276	English
+277	Français
+278	Deutsch
+279	Italiano
+280	Español
+281	Español
+282	Português
+283	Português
+284	Nederlands
+285	Svenska
+286	Dansk
+287	Norsk
+288	Suomi
+289	ニホンゴ
+290	Русский
+291	Türkçe
+292	繁體中文
+293	简体中文
+294	Polski
+295	日本語
+296	Oca
+297	Şub
+298	Mar
+299	Nis
+300	May
+301	Haz
+302	Tem
+303	Ağu
+304	Eyl
+305	Eki
+306	Kas
+307	Ara
+308	1 Gün
+309	1 Hafta
+310	1 Ay
+311	3 Ay
+312	6 Ay
+313	1 Yıl
+314	
+315	
+316	Min Ti
+317	Max Ti
+318	Timed
+319	Kplı
+320	Açık
+321	Auto
+322	Manuel
+323	Çok Düşük
+324	Düşük
+325	Orta
+326	Yüksek
+327	Çok Yüksek
+328	Hayır
+329	Evet
+330	cmH2O
+331	hPa
+332	cm
+333	inç
+334	°C
+335	°F
+336	Min
+337	
+338	
+339	Hypopnea
+340	Central Apnea
+341	Obstructive Apnea
+342	Apnea
+343	Arousal
+344	No CSR Event
+345	CSR Start
+346	CSR End
+347	Motor fault
+348	High pressure fault
+349	High Temperature fault
+350	Sensor fault
+351	System error
+352	Calibration Reset to default
+353	Settings Reset to default
+354	Over voltage fault
+355	Alarm Unit fault
+356	Humidifier tub/endcap Open
+357	Tube Blocked
+358	Tube Disconnected
+359	High Leak
+360	Non Vented Mask
+361	Low Min Ventilation
+362	Apnoea Alarm
+363	Low SpO2
+364	SpO2 Disconnected
+365	Invalid SpO2 Data

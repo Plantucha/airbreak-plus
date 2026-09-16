@@ -1,0 +1,366 @@
+# language: FI
+0	Koti
+1	Asetukset
+2	Omat valinnat
+3	Tietoja
+4	Kostutin
+5	Maskin sopiv
+6	Tav. Testaus
+7	Uniraportti
+8	Valvonta
+9	Oksimetri
+10	Pois kliin. valikosta
+11	Hoito
+12	Toim.
+13	Pituus
+14	Tavoitetaajuus
+15	Tavoite-Va
+16	Vt/kg
+17	Asetuspaine
+18	Max paine
+19	Min paine
+20	IPAP
+21	Max IPAP
+22	EPAP
+23	Min EPAP
+24	Max EPAP
+25	PS
+26	Min PS
+27	Max PS
+28	Hengitystaajuus
+29	Taustataajuus
+30	Easy-Breathe
+31	Ti
+32	Ti Max
+33	Ti Min
+34	Nousuaika
+35	Trigger
+36	Cycle
+37	Tavoitt. Testaus
+38	Mukavuus
+39	Viiveaika
+40	Alkupaine
+41	Alku-EPAP
+42	EPR
+43	EPR-tyyppi
+44	EPR-taso
+45	Vaste
+46	Climate Ctrl
+47	Letkun lämpötila
+48	Kosteustaso
+49	EPR
+50	SmartStart
+51	Lisävarusteet
+52	Maski
+53	Letku
+54	Maskin sovitus
+55	Lopeta maskin sov.
+56	AB-suodatin
+57	Ulk. kostutin
+58	Näytä oksimetri
+59	Hälytykset
+60	Matala MV
+61	Suuri vuoto
+62	NV maski
+63	Mat. SpO2
+64	Apneahäl.
+65	Häl. vol./testi
+66	Lisätoiminnot
+67	Essentials
+68	Vuotohälytys
+69	Vahv. lopetus
+70	Hoidon LED
+71	Lentokonetila
+72	Muistutukset
+73	Määritykset
+74	Kieli
+75	Pvm
+76	Kello
+77	Paineyksikkö
+78	Lämpötilayks
+79	Pituusyksikkö
+80	Tehdasasetukset
+81	Poista tiedot
+82	Laite
+83	SW
+84	Käyntiaika
+85	Kostutin
+86	Konfig. nro
+87	Sis. modeemi
+88	SN
+89	Palv.t.
+90	Tyyppi
+91	Huolto
+92	Signaali
+93	OK
+94	Takaisin
+95	Peruuta
+96	Maski
+97	Vesisäiliö
+98	Letku
+99	Suodatin
+100	Testataan...
+101	Lasketaan...
+102	Hyväksy
+103	Käyttö
+104	tunnit
+105	Tapaht (AHI)
+106	tunnissa
+107	Tapahtumia
+108	Maskin
+109	tiiviys
+110	Lisätietoja
+111	Käyttötunnit
+112	Jakso
+113	Käyttöpäivät
+114	Päivät 4 h+
+115	Keskim. käyttö
+116	Käyttötunnit
+117	Paine
+118	Sis.heng.paine
+119	Ulosheng.paine
+120	Spont Trig
+121	Spont Cyc
+122	AHI
+123	Kok AI
+124	Sentr.AI
+125	Toist
+126	PS
+127	SpO2
+128	Syke
+129	Vuoto
+130	RR
+131	MV
+132	Vt
+133	TgMV
+134	Va
+135	TgVa
+136	I:E
+137	iVAPS LT
+138	Hyvä
+139	Säädä
+140	ml/kg IBW
+141	bpm
+142	°
+143	%
+144	kk
+145	h
+146	min.
+147	s
+148	ms
+149	l/min
+150	l/sek
+151	mg/l
+152	ml
+153	--
+154	dBm
+155	
+156	Odota
+157	Valmis
+158	Oletko varma?
+159	Muistutus
+160	Huomio
+161	myAir
+162	Odota…
+163	Virhe
+164	Hälytys
+165	SD-korttia valmistellaan. Älä katkaise virtaa tai poista korttia
+166	Laitetta päivitetään. Älä katkaise virtaa
+167	Asetuksia päivitetään. Älä katkaise virtaa tai poista SD-korttia
+168	Tehdasasetuksia palautetaan
+169	Tiedot poistetaan
+170	Tavoitt. lasketaan
+171	ClimateLineAir liitetty
+172	Asetukset päivitetty. Poista kortti jatkaaksesi
+173	Asetukset päivitetty. Paina OK jatkaaksesi
+174	Tehdasasetukset palautettu
+175	Tiedot poistettu
+176	Tavoitteet opetettu. Paina OK jatkaaksesi
+177	Poistetaanko tiedot?
+178	Palautetaanko tehdasasetukset?
+179	Peruutetaanko tav. testaus?
+180	Lopetetaanko hoito?
+181	Lentokonetila Päällä. Haluatko sen Pois päältä?
+182	On tunnistettu toisen laitteen SD-kortti. Jatketaanko SD-korttia käyttäen?
+183	On aika vaihtaa maski. Ota yhteys hoidosta vastaavaan
+184	On aika vaihtaa letku. Ota yhteys hoidosta vastaavaan
+185	On aika vaihtaa vesisäiliö. Ota yhteys hoidosta vastaavaan
+186	On aika vaihtaa suodatin. Ota yhteys hoidosta vastaavaan
+187	On aika palauttaa SD-kortti hoidosta vastaavalle
+188	On aika huoltaa laite. Ota yhteys hoidosta vastaavaan
+189	SD-korttia ei voitu tunnistaa. Paina OK jatkaaksesi
+190	SD-kortti melkein täynnä. Tilaa uusi kortti hoidosta vastaavalta
+191	SD-kortti on nyt täynnä. Tilaa uusi kortti hoidosta vastaavalta
+192	Laita paikalleen alkuper. SD-kortti tai paina OK jatkaaksesi
+193	Poista SD-kortti jatkaaksesi hoitoa
+194	Vain-luku-kortti. Ota se pois, avaa lukitus ja laita takaisin SD-kortti
+195	SD-korttivirhe. Poista kortti ja paina Käynnistys aloittaaks. hoidon
+196	Asetuksia ei otettu käyttöön. Poista SD-kortti ja ota yhteys hoidosta vastaavaan
+197	Laita SD-kortti tai paina OK ja hyv., ettei oksim.tietoja rekisteröidä
+198	Liitä 90 W:n virtalähde käyttääksesi täyttä Climate Controlia
+199	ClimateLineAir-vika. Vaihda letku
+200	Lämmitysjärjest. vika. Hoito toimii ilman lämmitystä
+201	Moottorin käyttöikä ylitetty. Ota yhteys hoidosta vastaavaan
+202	Virran katkeamisen puutteellinen hälytys. Ota yhteys hoitovastaavaan
+203	Laitetta valmistellaan. Paina OK ja yritä uudestaan
+204	Päiväystä ja aikaa ei voi asettaa menneisyyteen
+205	Virtajohdon liitintä ei ole liitetty kunnolla laitteen takana olevaan liitäntään
+206	Tarkista sormianturi tai paina OK ja jatka ilman oksimetriä
+207	Tarkista oksimetrin liitäntä tai paina OK ja jatka ilman oksimetriä
+208	Tavoitt. opetus epäonnistui. Paina OK ja yritä uudestaan
+209	Asetusmuistin virhe. Ota yhteys hoidosta vastaavaan
+210	Tarkastele, onko unesi terveellistä, osoitteessa\nResMed.com/myAir
+211	Järjestelmävika. Katso käyttöohjetta. Virhe
+212	Suuri vuoto tunnistettu. Katso vesisäiliö, säiliön tiiviste tai sivukansi
+213	Letku tukossa. Tarkista letku
+214	Suuri vuoto tunnistettu. Liitä letku
+215	Vuoto tunnistettu. Tarkista laitekokoonpano ja kaikki liitännät
+216	Matala SpO2 tunnistettu
+217	Ei SpO2-tietoja. Tarkista oksim. anturin liitäntä moduuliin/sormeen
+218	Tarkista oksimetrin liitäntä tai paina OK ja jatka ilman oksimetriä
+219	Matala MV tunnistettu
+220	Ilma-aukoton maski tunnistettu. Käytä ilma-aukoll. maskia tai avaa ilma-aukot
+221	Apnea tunnistettu
+222	
+223	L
+224	Aloita lämmitys
+225	Lopeta lämmitys
+226	
+227	
+228	Lämmitys
+229	Valmis
+230	Jäähdytys
+231	
+232	
+233	
+234	Mat. SpO2
+235	Iso vuoto
+236	Matala MV
+237	Ei SpO2
+238	Apnea
+239	Non-Vent
+240	Ei oksim.
+241	CPAP
+242	AutoSet
+243	APAP
+244	S
+245	ST
+246	T
+247	VAuto
+248	ASV
+249	ASVAuto
+250	iVAPS
+251	PAC
+252	AutoSet for Her
+253	Pois
+254	10
+255	Pois
+256	Päällä
+257	Auto
+258	Vain viive
+259	Koko ajan
+260	Normaali
+261	Pehmeä
+262	Sierain
+263	Kokokasvo
+264	Nenä
+265	Lasten
+266	SlimLine
+267	Standard
+268	3 m
+269	Matala
+270	Keskim
+271	Korkea
+272	Pois
+273	Päällä
+274	English
+275	Français
+276	Deutsch
+277	Italiano
+278	Español
+279	Español
+280	Português
+281	Português
+282	Nederlands
+283	Svenska
+284	Dansk
+285	Norsk
+286	Suomi
+287	ニホンゴ
+288	Русский
+289	Türkçe
+290	繁體中文
+291	简体中文
+292	Polski
+293	日本語
+294	Česky
+295	Tam
+296	Hel
+297	Maa
+298	Huh
+299	Tou
+300	Kes
+301	Hei
+302	Elo
+303	Syy
+304	Lok
+305	Mar
+306	Jou
+307	1 päivä
+308	1 viikko
+309	1 kk
+310	3 kk
+311	6 kk
+312	1 vuosi
+313	
+314	
+315	Ti Min
+316	Ti Max
+317	Ajast.
+318	Pois
+319	Päällä
+320	Auto
+321	Manual
+322	Hyvin matala
+323	Matala
+324	Keskim
+325	Korkea
+326	Hyvin korkea
+327	Ei
+328	Kyllä
+329	cmH2O
+330	hPa
+331	cm
+332	tuuma
+333	°C
+334	°F
+335	Min
+336	
+337	
+338	Hypopnea
+339	Central Apnea
+340	Obstructive Apnea
+341	Apnea
+342	Arousal
+343	No CSR Event
+344	CSR Start
+345	CSR End
+346	Motor fault
+347	High pressure fault
+348	High Temperature fault
+349	Sensor fault
+350	System error
+351	Calibration Reset to default
+352	Settings Reset to default
+353	Over voltage fault
+354	Alarm Unit fault
+355	Humidifier tub/endcap Open
+356	Tube Blocked
+357	Tube Disconnected
+358	High Leak
+359	Non Vented Mask
+360	Low Min Ventilation
+361	Apnoea Alarm
+362	Low SpO2
+363	SpO2 Disconnected
+364	Invalid SpO2 Data

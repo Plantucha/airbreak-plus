@@ -1,0 +1,401 @@
+# language: NO
+# IDs 28, 327, 328, 365, 369, 379-398 retain text shared by all stock SX584-0204 locales.
+0	Hjem
+1	Innstillinger
+2	Mine alternativer
+3	Om
+4	Fukter
+5	Masketilp
+6	Målopplæring
+7	Søvnrapport
+8	Overvåking
+9	Oksymeter
+10	Avslutt klinisk meny
+11	Behandling
+12	Modus
+# 13: Pathology Defaults
+# 14: Pathology
+15	Høyde
+16	Pasfrekvens-mål
+17	Va-mål
+18	Vt/kg
+# 19: Auto EPAP
+20	Innst. trykk
+21	Maks trykk
+22	Min trykk
+23	IPAP
+24	Mks IPAP
+25	EPAP
+26	Min. EPAP
+27	Max EPAP
+28	iBR
+29	PS
+30	Min PS
+31	Max PS
+32	Resp.frekvens
+33	Backup-frekvens
+34	Easy-Breathe
+35	Ti
+36	Ti max
+37	Ti min
+38	Stigetid
+39	Trigger
+40	Syklus
+41	Maske
+42	Målopplæring
+43	Komfort
+44	Respons
+45	Rampetid
+46	Max rampe
+# 47: Ramp Down
+48	Starttrykk
+49	Start EPAP
+50	EPR
+51	EPR-type
+52	EPR-nivå
+53	Climate Ctrl
+54	Slangetemp.
+55	Fuktighetsnivå
+56	Trykkavlastning
+57	SmartStart
+58	Tilbehør
+59	Slange
+60	Kjør masketilpas
+61	AB-filter
+62	Ekst. fukter
+63	Vis oksymeter
+64	Alarmer
+65	Lav MV
+66	Høy lekkasje
+67	Ik-vent. Maske
+68	Lav SpO2
+69	Apnéalarm
+# 70: Set All Alarms Off
+71	Alarm Vol/Test
+72	Alternativer
+73	Tilgang
+74	Lekk.varsel
+75	Bekreft stopp
+76	Behandl.LED
+77	Flymodus
+78	Påminnelser
+79	Konfigurasjon
+80	Språk
+81	Dato
+82	Tid
+# 83: Desat. Rule
+84	Trykkenheter
+85	Temp.enheter
+86	Høydeenheter
+87	Gjenoppr. std.
+88	Slett data
+89	Apparat
+90	PGV
+91	Driftstimer
+92	Fukter
+93	CX-nummer
+94	Internt modem
+95	S.nr.
+96	Leveran.
+97	Type
+98	Service
+99	Signal
+100	OK
+101	Stans masketilpasn.
+102	Tilbake
+103	Avbryt
+104	Maske
+105	Vannbeh.
+106	Slange
+107	Filter
+108	Lærer…
+109	Beregner…
+# 110: Stop Learning
+# 111: Targets Learnt
+112	Godta
+113	Bruks-
+114	timer
+115	Hend. (AHI)
+116	per time
+117	Hendelser
+118	Masketilpasning
+119	0
+120	Mer info
+121	Tot timer brukt
+122	Periode
+123	Dager brukt
+124	Dager 4 t+
+125	Gj.sn. bruk
+126	Timer brukt
+127	Trykk
+128	Inspir.trykk
+129	Ekspir.trykk
+130	spont. Trig.
+131	spont. Cyc.
+132	AHI
+133	Samlet AI
+134	Sentral AI
+135	Alarm
+# 136: Mute
+# 137: Unmute Alarms
+# 138: No Alarms
+139	Gjenta
+140	PS
+141	SpO2
+142	Puls
+143	Lekk.
+144	RR
+145	MV
+146	Vt
+147	MåMV
+148	Va
+149	MålV
+150	I:E
+151	iVAPS LT
+152	God
+153	Juster
+154	ml/kg IBW
+155	bpm
+156	°
+157	%
+158	mnd
+159	t
+160	min.
+161	s
+162	ms
+163	l/min
+164	l/s
+165	mg/l
+166	ml
+167	--
+168	dBm
+169	
+170	Vent litt
+171	Fullstendig
+172	Er du sikker?
+173	Påminnelse
+174	NB!
+175	myAir
+176	Vent litt…
+177	Feil
+178	Alarm
+179	SD-kort klargjøres. Verken strømmen eller kortet må kobles fra.
+180	Apparatet oppdateres. Du må ikke slå av strømmen.
+181	Innstillinger oppdateres. Verken strømmen eller SD-kortet må kobles fra.
+182	Gjenoppretter fabrikkstandarder
+183	Sletter alle data
+184	Beregner mål
+185	ClimateLineAir tilkoblet
+186	Innstillinger oppdatert. Ta ut SD-kortet for å fortsette.
+187	Innstillinger oppdatert. Trykk på OK for å fortsette.
+188	Standardverdier fra fabrikken gjenopprettet
+189	Data slettet
+190	Mål innlært. Trykk på OK for å fortsette.
+191	Vil du slette alle data?
+192	Vil du gjenopprette fabrikkstandarder?
+193	Avbryte målinnlæring?
+194	Stoppe behandlingen?
+# 195: Start Ramp Down?
+196	Flymodus er nå på. Vil du slå den av?
+197	SD-kort for et annet apparat påvist. Vil du fortsette å bruke SD-kortet?
+198	Det er tid for å skifte masken. Kontakt behandler.
+199	Det er tid for å skifte slangen. Kontakt behandler.
+200	Det er tid for å skifte vannbeholderen. Kontakt behandler.
+201	Det er tid for å skifte filteret. Kontakt behandler.
+202	Det er tid for å returnere SD-kortet til behandler
+203	Det er tid for service på apparatet. Kontakt behandler.
+204	Intet SD-kort påvist. Trykk på OK for å fortsette.
+205	SD-kort er nesten fullt. Kontakt behandler for å bestille nytt kort.
+206	SD-kortet er nå fullt. Kontakt behandler for å bestille nytt kort.
+207	Sett inn det opprinnelige SD-kortet eller trykk på OK for å fortsette
+208	Ta ut SD-kortet for å fortsette behandlingen
+209	Skrivebeskyttet kort. Ta ut, lås opp og sett inn igjen SD-kortet
+210	Feil på SD-kortet. Ta det ut og trykk på Start for å begynne behandlingen.
+211	Innstillinger ikke brukt. Ta ut SD-kortet og kontakt behandler.
+212	Sett inn SD-kortet eller trykk på OK for å godta ingen logging av oksymetridata
+213	Koble til en 90 W strømforsyning for å oppleve fullstendig Climate Control
+214	ClimateLineAir-feil. Skift slangen.
+215	Oppvarmingssystemsvikt. Behandlingen gis uten oppvarming.
+216	Motorens levetid overskredet. Kontakt behandlingssted.
+217	Svakt batteri for strømfeilalarm. Kontakt behandler.
+218	Apparatet klargjøres. Trykk på OK og prøv på nytt.
+219	Dato og klokkeslett kan ikke stilles til et tidligere tidspunkt
+220	Strømkontakten på baksiden av enheten er ikke satt helt inn
+221	Kontroller fingersensoren eller trykk på OK for å fortsette uten oksymetri
+222	Kontroller oksymetertilkobling eller trykk på OK for å fortsette uten oksymetri
+223	Innlæring av mål mislyktes. Trykk på OK og prøv igjen.
+224	Innstillingsminne-feil. Kontakt behandler.
+# 225: Ti Min is set shorter than Rise Time
+226	Sjekk søvnhelsen din på\nResMed.com/myAir
+227	Systemsvikt. Se brukerveiledning. Feil
+228	Stor lekkasje påvist. Kontroller vannbeholder, beholderforsegling eller sidedeksel.
+229	Slange blokkert. Kontroller slangen.
+230	Stor lekkasje påvist. Koble til slangen.
+231	Lekkasje påvist. Kontroller systemoppsettet og alle tilkoblinger.
+232	Lav SpO2 påvist
+233	Ingen SpO2-data. Kontroller feste av oksymetrisensor til modul/finger.
+234	Kontroller oksymetertilkobling eller trykk på OK for å fortsette uten oksymetri
+235	Lav MV påvist
+236	Uventilert maske påvist. Bruk ventilert maske eller fjern blokker. i maskevent.åpn.
+237	Apné påvist
+238	
+239	L
+240	Kjør oppvarming
+241	Stans oppvarming
+242	
+243	
+244	Varmer opp
+245	Klar
+246	Kjøler ned
+247	
+248	
+249	
+250	Lav SpO2
+251	Høy lekk.
+252	Lavt MV
+253	IngenSpO2
+254	Apné
+255	Ikke-vent.
+256	Ingen oksy.
+257	CPAP
+258	AutoSet
+259	APAP
+260	S
+261	ST
+262	T
+263	VAuto
+264	ASV
+265	ASVAuto
+266	iVAPS
+267	PAC
+268	AutoSet for Her
+# 269: Obstructive
+# 270: Restrictive
+# 271: Normal
+# 272: OHS
+273	Av
+274	10
+275	Av
+276	På
+277	Auto
+278	Bare rampe
+279	Fulltid
+280	Standard
+281	Myk
+282	Puter
+283	Helmaske
+284	Nese
+285	Barn
+286	SlimLine
+287	Standard
+288	3 m
+289	Lav
+290	Med
+291	Høy
+292	Full
+293	På
+294	English
+295	Français
+296	Deutsch
+297	Italiano
+298	Español
+299	Español
+300	Português
+301	Português
+302	Nederlands
+303	Svenska
+304	Dansk
+305	Norsk
+306	Suomi
+307	ニホンゴ
+308	Русский
+309	Türkçe
+310	繁體中文
+311	简体中文
+312	Polski
+313	日本語
+314	Česky
+315	jan
+316	feb
+317	mar
+318	apr
+319	mai
+320	jun
+321	jul
+322	aug
+323	sep
+324	okt
+325	nov
+326	des
+327	3%
+328	4%
+329	1 dag
+330	1 uke
+331	1 måned
+332	3 måneder
+333	6 måneder
+334	1 år
+335	
+336	
+337	Ti min
+338	Ti max
+339	Tidsf.
+340	Av
+341	På
+342	Auto
+343	Manuell
+344	Veldig lav
+345	Lav
+346	Med
+347	Høy
+348	Veldig høy
+349	Nei
+350	Ja
+351	cmH2O
+352	hPa
+353	cm
+354	"
+355	°C
+356	°F
+357	Min
+358	
+359	
+360	Hypopnea
+361	Central Apnea
+362	Obstructive Apnea
+363	Apnea
+364	Arousal
+365	SpO2 Desaturation
+366	No CSR Event
+367	CSR Start
+368	CSR End
+369	No Alarm
+370	Motor fault
+371	High pressure fault
+372	High Temperature fault
+373	Sensor fault
+374	System error
+375	Calibration Reset to default
+376	Settings Reset to default
+377	Over voltage fault
+378	Alarm Unit fault
+379	Hum tub/endcap Open activated
+380	Hum tub/endcap Open deactivated
+381	Tube Blocked activated
+382	Tube Blocked deactivated
+383	Tube Disconnected activated
+384	Tube Disconnected deactivated
+385	High Leak activated
+386	High Leak deactivated
+387	Non Vented Mask activated
+388	Non Vented Mask deactivated
+389	Low Min Ventilation activated
+390	Low Min Ventilation deactivated
+391	Apnoea Alarm activated
+392	Apnoea Alarm deactivated
+393	Low SpO2 activated
+394	Low SpO2 deactivated
+395	SpO2 Disconnected activated
+396	SpO2 Disconnected deactivated
+397	Invalid SpO2 Data activated
+398	Invalid SpO2 Data deactivated
