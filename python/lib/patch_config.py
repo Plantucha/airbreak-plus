@@ -9,7 +9,8 @@ import shlex
 import sys
 
 
-LOCAL_FILES = {"air10": "patch-airsense.config", "air11": "patch-airsense-s11.config"}
+LOCAL_FILES = {"air10": "patch-airsense.config", "air11": "patch-airsense-s11.config",
+               "s9": "patch-airsense-s9.config"}
 AIR10_LEGACY_OPTIONS = {
     "PATCH_CODE": ("--patch-fw-common-code", "y", "--patch-fw-graph", "y"),
     "PATCH_VAUTO_WRAPPER": ("--patch-fw-common-code", "y", "--patch-fw-vauto-wrapper", "y"),
@@ -28,6 +29,8 @@ def option_layers(platform):
     except FileNotFoundError:
         text = ""
     legacy = []
+    if platform == "s9" and os.environ.get("PATCH_S9_LCD") == "1":
+        legacy.extend(("--patch-fw-lcd", "y"))
     if platform == "air10":
         if "PATCH_TARGET_RH" in os.environ:
             legacy.extend(("--patch-target-rh", os.environ["PATCH_TARGET_RH"]))

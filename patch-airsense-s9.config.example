@@ -1,0 +1,32 @@
+# Copy to patch-airsense-s9.config to use these options.
+# This .example file is not loaded automatically.
+# Uncomment options to override built-in defaults; y enables, n disables.
+# Precedence: config, PATCH_S9_LCD, S9_PATCH_ARGS, explicit CLI options.
+
+# Bypass firmware integrity checks during startup
+# --patch-tamper y
+
+# Unlock all therapy modes supported by the firmware
+# --patch-extra-modes y
+
+# Enable respiratory event classification, statistics, report fields
+# --patch-respiratory-events y
+
+# Enable additional clinical settings
+# --patch-gui-config y
+
+# Pressure UI ranges 1..30 cmH2O and Ti Min/Max 0.1..4s
+# --patch-unlock-uilimits y
+
+# Unlock 0..25 PS ranges, the fixed 5 cmH2O gap and MCP-6 EPAP ceiling
+# --patch-asv-ps-range y
+
+# Disable the motor life exceeded warning
+# --patch-motor-nagscreen y
+
+# Allow operation without an alarm board
+# --patch-alarm-board y
+
+# Replacement ILI9225 display (requires compiled S9 LCD payloads)
+# --patch-fw-lcd n
+

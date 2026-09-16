@@ -13,4 +13,5 @@ __pycache__
 tmp/
 make.log
 /patch-airsense-s11.config
+/patch-airsense-s9.config
 /patch-airsense.config
