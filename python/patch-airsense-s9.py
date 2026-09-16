@@ -88,7 +88,7 @@ class TeeStream:
 PATCHES = (
     PatchSpec('patch-tamper', 'tamper', True, 'Patch bootloader integrity calls.', 'Bootloader'),
     PatchSpec('patch-extra-modes', 'extra_modes', True, 'Enable declared therapy mode options.'),
-    PatchSpec('patch-respiratory-events', 'respiratory_events', True, 'Enable CEN, respiratory statistics and EVE recording; retain event masks.'),
+    PatchSpec('patch-respiratory-events', 'respiratory_events', True, 'Enable CEN, respiratory statistics, EVE recording.'),
     PatchSpec('patch-gui-config', 'gui_config', True, 'Activate named clinical settings.'),
     PatchSpec('patch-unlock-uilimits', 'ui_limits', True, 'Extend pressure UI ranges and set Ti Min/Max to 0.1..4 s.'),
     PatchSpec('patch-asv-ps-range', 'ps_ranges', True, 'Unlock ASV/ASVAuto PS ranges and fixed separation.'),
@@ -156,6 +156,7 @@ class S9Patcher:
         cen = self.descriptor('CEN', 'enum')
         if cen.option_count != 2 or cen.default not in (0, 1) or cen.mask != 3:
             raise ValueError('unexpected CEN descriptor')
+        self.unlock_options('AET', 'enum')
         self.write(cen.off, b'\x01')
         for name in STATS:
             rec = self.descriptor(name, 'numeric')
@@ -164,14 +165,23 @@ class S9Patcher:
             rec = self.descriptor(name, 'setting')
             self.write(rec.flags_offset, bytes([rec.flags | 1]))
         self.write(event_record + 4, b'\x01')
-        return PatchOutcome.ok('CEN, respiratory statistics and EVE recording enabled; AET mask unchanged.')
+        return PatchOutcome.ok('CEN, respiratory statistics, EVE recording and all declared AET options enabled.')
+
+    def unlock_options(self, name, kind):
+        rec = self.descriptor(name, kind)
+        count = rec.option_count
+        if count is None or not 1 <= count <= 32 or not 0 <= rec.default < count:
+            raise ValueError(f'{name}: invalid declared option count or default')
+        self.write(rec.off + (4 if kind == 'enum' else 24), struct.pack('<I', (1 << count) - 1))
 
     def gui_config(self):
+        self.unlock_options('SQA', 'setting')
         names = sorted(CLINICAL.intersection(self.fw.name_lookup.by_name))
         for name in names:
             rec = self.descriptor(name, 'setting')
             self.write(rec.flags_offset, bytes([rec.flags | 1]))
-        return PatchOutcome.ok(f'{len(names)} named clinical settings active; native mode dependencies retained.')
+        return PatchOutcome.ok(f'{len(names)} named clinical settings active.')
+
 
     def ranges(self, names, minimum, maximum):
         present = [name for name in names if self.fw.name_entry(name)]
