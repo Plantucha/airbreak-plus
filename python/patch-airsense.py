@@ -2267,7 +2267,7 @@ def build_argument_parser():
             '--' + patch.option,
             type=patch.value_type or str2bool,
             default=patch.default,
-            metavar='PERCENT' if patch.value_type else 'BOOL',
+            metavar='PERCENT' if patch.value_type else ('Y/n' if patch.default else 'y/N'),
             help=(patch.description.replace('%', '%%') if patch.value_type else
                   '%s (default: %s)' % (patch.description, state)))
 
