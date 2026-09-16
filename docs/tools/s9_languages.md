@@ -32,11 +32,13 @@ s9_languages.py IMAGE build [SOURCE ...] [-o FILE] [--dry-run]
 ## Description
 
 Export a language from a firmware image to an editable TSV file, or replace the
-image's language set using version-matched TSV sources. Runs independently of
+image's language set using TSV sources. Runs independently of
 the patcher and shares its S9 firmware parser.
 
 Supports raw 1 MiB images with CDX versions SX474-0905, SX474-0907,
 SX474-0912, SX474-1201, SX474-1203, and SX474-1301.
+Language structures are selected by CDX; the tool does not require a matching
+bootloader BID.
 
 English (LAN ID `0`) always comes from the input image. Supply one source file
 for each other desired language. Languages omitted from the source list are
@@ -50,20 +52,25 @@ versions, modify fonts, or check display glyph coverage and line wrapping.
 
 `IMAGE`: raw firmware image to inspect, export from, or rebuild.
 
-`LANGUAGE`: language alias or decimal LAN ID. Aliases are case-insensitive;
+`LANGUAGE`: language alias or LAN ID in decimal or `0x` hexadecimal notation.
+For example, `PL`, `18`, and `0x12` select the same language. Aliases are case-insensitive;
 see [Source Format](#source-format). The language must exist in the image when
 exporting.
 
-`SOURCE`: UTF-8 TSV named `SX474-NNNN.LANGUAGE.tsv`. The CDX version in the
-filename must match the input image. Repository sources are stored under
-`locales/s9/<version>/`, for example
-`locales/s9/SX474-1301/SX474-1301.PL.tsv`.
+`SOURCE`: a path to UTF-8 tab-separated records with a `# language: PL` header
+(or another language alias or numeric LAN ID). The directory, name, and
+extension are unrestricted. Shell globs and brace expansion work normally.
+
+Every source argument is a path, including names containing `=`. The language
+comes only from the file's header. Filenames are not parsed for metadata.
+The repository's `locales/s9/<version>/` layout is for organizing translations.
 
 `FILE`: output path, distinct from the input image and all source files.
 Existing outputs require `--overwrite`. Parent directories must exist.
 
 Examples assume the script in the repository's `python/` directory is on
-`PATH`. Examples using `SX474-1301` files require an image with that CDX version.
+`PATH`. Choose source contents whose text IDs have the intended meaning in the
+target image; the tool does not infer that correspondence from filenames.
 
 ## Options
 
@@ -96,9 +103,9 @@ export LANGUAGE -o FILE [--overwrite]
 ```
 
 Export every localized text ID for one language, including empty strings.
-The result uses the [source format](#source-format). Use a versioned filename
-if the file will later be passed to `build`; `export` does not enforce the
-output filename convention.
+The result uses the [source format](#source-format), including the language
+header. The output can have any name or extension and be passed directly to
+`build`.
 
 | Option | Meaning | Default |
 |--------|---------|---------|
@@ -130,7 +137,7 @@ otherwise select English.
 | `--allow-relocation` | Permit moving the string-pointer table if retaining its address fails | Off |
 
 Missing source IDs use the input image's English text, with a warning for each
-file and ID. Repeated languages, an English source, mismatched versions,
+file and ID. Repeated languages, an English source,
 invalid source records, or insufficient resource space fail the build.
 
 By default the string-pointer table keeps its address. The builder can grow
@@ -152,15 +159,17 @@ unchanged regions.
 
 ```sh
 s9_languages.py firmware.bin build SX474-1301.PL.tsv --dry-run
+s9_languages.py firmware.bin build /tmp/translation.txt -o en-pl.bin
 s9_languages.py firmware.bin build SX474-1301.FR.tsv SX474-1301.PL.tsv -o en-fr-pl.bin
 s9_languages.py firmware.bin build -o english.bin
 ```
 
 ## Source Format
 
-A source is UTF-8 text without a header, with one record per line:
+A source is UTF-8 text with a language header and one record per line:
 
 ```text
+# language: PL
 ID<TAB>text
 ```
 
@@ -168,7 +177,11 @@ ID<TAB>text
 `0x` hexadecimal, within the input image's text-ID range. They are not raw
 string-table indexes. Record order does not matter. Blank lines are ignored.
 The first tab separates the ID from the text; leading and trailing text spaces
-are preserved.
+are preserved. Lines beginning with `#` (optionally after whitespace) are
+comments. The `# language:` directive selects the language; aliases are
+case-insensitive and decimal or `0x` LAN IDs are also accepted, for example
+`# language: 0x12`. Duplicate or malformed
+language directives are errors. The language header is required.
 
 | Record | Meaning |
 |--------|---------|
@@ -182,7 +195,7 @@ Export escapes non-UTF-8 bytes so they can be preserved when rebuilding.
 Embedded NUL, unknown or incomplete escapes, duplicate IDs, and out-of-range
 IDs are errors.
 
-The filename is `SX474-NNNN.LANGUAGE.tsv`. `LANGUAGE` can be a decimal LAN ID
+`LANGUAGE` in the header can be a decimal or `0x` LAN ID,
 or one of these aliases:
 
 | LAN ID | Alias | LAN ID | Alias |
@@ -203,8 +216,8 @@ regional meanings. The target image's LAN options determine which IDs are
 valid. EN exports are useful as translation references; `build` takes English
 from its image and rejects EN source files.
 
-Source IDs must already correspond to the target firmware version. Renaming
-a file from another version does not convert its IDs. Repository translations
+Source IDs are used as provided; the builder does not remap them between
+firmware versions. Renaming a file does not convert its IDs. Repository translations
 may include drafts; inspect terminology and display layout on the target.
 
 ## Output
@@ -231,6 +244,19 @@ English fallbacks and permitted relocation produce warnings but do not make
 a successful build fail.
 
 ## Examples
+
+Build from a file with an arbitrary name and extension whose header specifies
+its language:
+
+```sh
+s9_languages.py firmware.bin build /tmp/janek/translation.txt -o translated.bin
+```
+
+Select several catalog languages with shell expansion:
+
+```sh
+s9_languages.py firmware.bin build locales/s9/SX474-1301/SX474-1301.{FR,DE,NL,NO,ES,FI,PL}*tsv -o translated.bin
+```
 
 For a SX474-1301 image, keep its French translation and add Polish from the
 repository catalog:

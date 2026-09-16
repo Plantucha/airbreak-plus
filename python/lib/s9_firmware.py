@@ -312,6 +312,7 @@ class ConfigRecord:
 
 class S9Firmware:
     image_size = 0x100000
+    check_bootloader_id = True
     # Named regions with file offsets; end offsets are exclusive.
     regions = (('BLX', BLX_OFF, CCX_OFF), ('CCX', CCX_OFF, CCX_END),
                ('CDX', CDX_OFF, image_size))
@@ -329,7 +330,7 @@ class S9Firmware:
             self.profile = self.profiles[self.cdx_version]
         except KeyError:
             raise ValueError(f"unsupported S9 CDX: {self.cdx_version!r}") from None
-        if self.bid != self.profile.bid:
+        if self.check_bootloader_id and self.bid != self.profile.bid:
             raise ValueError(f"unexpected BID {self.bid!r} for {self.cdx_version}")
         self.table_a = find_table_a(self.fl, self.profile)
         self.records = [ConfigRecord.parse(self.fl, i, self.table_a.offset + i * 40)

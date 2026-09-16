@@ -23,7 +23,7 @@ def main(argv=None):
     export.add_argument('-o', '--output', type=Path, required=True)
     export.add_argument('--overwrite', action='store_true')
     build = sub.add_parser('build', help='Replace the language set; English is always retained')
-    build.add_argument('sources', nargs='*', type=Path, help='SX474-NNNN.LANGUAGE.tsv files; no files builds English only')
+    build.add_argument('sources', nargs='*', type=Path, help='tsv translation files; no files builds English only')
     build.add_argument('-o', '--output', type=Path)
     build.add_argument('--dry-run', action='store_true')
     build.add_argument('--overwrite', action='store_true')
@@ -32,6 +32,7 @@ def main(argv=None):
                        help='Allow moving the string pointer table if needed; CCX and CDX must then be flashed together.')
     args = parser.parse_args(argv)
     try:
+        sources = args.sources if args.command == 'build' else []
         fw = S9LanguageFirmware(args.image)
         if args.command == 'inspect':
             start, end, used = resource_arena(fw)
@@ -43,7 +44,7 @@ def main(argv=None):
             print(f'Language arena: 0x{start:05X}..0x{end:05X} (end exclusive); {used} resource bytes / {end-start} capacity')
             return 0
         if args.output:
-            inputs = [args.image, *getattr(args, 'sources', [])]
+            inputs = [args.image, *sources]
             if any(paths_alias(args.output, p) for p in inputs):
                 raise ValueError('output must differ from the image and source files')
             if args.output.exists() and not args.overwrite:
@@ -54,7 +55,7 @@ def main(argv=None):
             return 0
         if args.output is None and not args.dry_run:
             raise ValueError('build requires --output or --dry-run')
-        data, warnings, report = build_languages(fw, args.sources, args.ignore_input_crc, args.allow_relocation)
+        data, warnings, report = build_languages(fw, sources, args.ignore_input_crc, args.allow_relocation)
         for warning in warnings:
             print('WARNING: '+warning, file=sys.stderr)
         print(f"Languages: {report['languages']}; LAN mask: 0x{report['mask']:X}; default: {report['default']}")

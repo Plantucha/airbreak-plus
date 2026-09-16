@@ -15,6 +15,8 @@ class S9LanguageFirmware(S9Firmware):
     Numeric and enum roots delimit 368 text records. Other 0905 record
     namespaces and patch sites are not added to the general firmware profiles.
     """
+    # Language structures are selected by CDX; BLX identity is irrelevant.
+    check_bootloader_id = False
     profiles = {**PROFILES, 'SX474-0905': Profile(
         'SX525-0300', 0x571C, 0x14D, 176, 0x729C, 9, 262,
         0x9294, 0x10F, 61, 0x9BE8)}
@@ -37,10 +39,12 @@ def language_id(value):
     value = str(value)
     if value.isdecimal():
         return int(value)
+    if re.fullmatch(r'0[xX][0-9a-fA-F]+', value):
+        return int(value, 16)
     try:
         return LANGUAGES.index(value.upper())
     except ValueError:
-        raise ValueError(f'unknown language {value!r}; use a numeric LAN ID') from None
+        raise ValueError(f'unknown language {value!r}; use a language alias or decimal/0x LAN ID') from None
 
 
 def escape_text(raw):
@@ -81,13 +85,36 @@ def unescape_text(text):
     return bytes(out)
 
 
-def read_tsv(path, count):
+def _tsv_source(path):
     # Do not strip lines: trailing tabs and spaces are meaningful.
-    result = {}
+    language = None
+    records = []
     text = Path(path).read_bytes().decode('utf-8-sig')
     for lineno, line in enumerate(text.split('\n'), 1):
         if line.endswith('\r'): line = line[:-1]
         if line == '': continue
+        if line.lstrip().startswith('#'):
+            if re.match(r'\s*#\s*language\b', line, re.I):
+                try:
+                    header = re.fullmatch(r'\s*#\s*language\s*:\s*(\S+)\s*', line, re.I)
+                    if not header:
+                        raise ValueError('expected # language: LANGUAGE')
+                    if language is not None:
+                        raise ValueError('duplicate language header')
+                    language = language_id(header[1])
+                except ValueError as exc:
+                    raise ValueError(f'{path}:{lineno}: {exc}') from None
+            continue
+        records.append((lineno, line))
+    return language, records
+
+
+def read_tsv(path, count):
+    language, records = _tsv_source(path)
+    if language is None:
+        raise ValueError(f'{path}: missing # language: LANGUAGE header')
+    result = {}
+    for lineno, line in records:
         try:
             ident, value = line.split('\t', 1)
             if not re.fullmatch(r'(?:[0-9]+|0[xX][0-9a-fA-F]+)', ident):
@@ -98,14 +125,7 @@ def read_tsv(path, count):
             result[tid] = unescape_text(value)
         except ValueError as exc:
             raise ValueError(f'{path}:{lineno}: {exc}') from None
-    return result
-
-
-def source_identity(path):
-    match = re.fullmatch(r'(SX474-\d{4})\.([A-Za-z0-9-]+)\.tsv', Path(path).name, re.I)
-    if not match:
-        raise ValueError(f'{path}: expected SX474-NNNN.LANGUAGE.tsv (e.g. SX474-1301.PL.tsv)')
-    return match[1].upper(), language_id(match[2])
+    return language, result
 
 
 def raw_text(fw, tid, language):
@@ -119,8 +139,10 @@ def raw_text(fw, tid, language):
 def export_tsv(fw, language):
     if language not in fw.text_languages:
         raise ValueError(f'language {language} is not present in the image')
-    return ''.join(f'{tid}\t{escape_text(raw_text(fw, tid, language))}\n'
-                   for tid in range(fw.text_layout[1])).encode('utf-8')
+    label = LANGUAGES[language] if 0 <= language < len(LANGUAGES) else str(language)
+    return (f'# language: {label}\n' +
+            ''.join(f'{tid}\t{escape_text(raw_text(fw, tid, language))}\n'
+                    for tid in range(fw.text_layout[1]))).encode('utf-8')
 
 
 def resource_arena(fw):
@@ -200,13 +222,11 @@ def build_languages(fw, sources, ignore_input_crc=False, allow_relocation=False)
     translations = {0: {i: raw_text(fw, i, 0) for i in range(count)}}
     warnings = []
     for source in sources:
-        version, lang = source_identity(source)
-        if version != fw.cdx_version:
-            raise ValueError(f'{source}: firmware {version} does not match {fw.cdx_version}')
+        source = Path(source)
+        lang, entries = read_tsv(source, count)
         if not 0 < lang < lan.option_count:
             raise ValueError(f'{source}: language must be within 1..{lan.option_count-1}; English comes from the image')
         if lang in translations: raise ValueError(f'duplicate language {lang}')
-        entries = read_tsv(source, count)
         for tid in range(count):
             if tid not in entries:
                 warnings.append(f'{Path(source).name}: text ID {tid} missing; using English')
