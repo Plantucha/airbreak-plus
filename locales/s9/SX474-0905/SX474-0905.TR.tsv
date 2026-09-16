@@ -1,0 +1,368 @@
+0	ANASAYFA
+1	TEDAVİ
+2	NEMLİLİK DÜZEYİ
+3	ISITILMIŞ TÜP
+4	CLIMATE CTRL
+5	YÜKSELME
+6	AYARLAR
+7	SEÇENEKLER
+8	HATIRLATMALAR
+9	KONFİGÜRASYON
+10	UYKU KALİTESİ
+11	UYKU RAPORU
+12	AY. GÖRÜNTÜLE
+13	SERVİS
+14	MASKE OTURUMU
+15	Mod
+16	Basıncı Ayarla
+17	Azami Basınç
+18	Min Basınç
+19	IPAP
+20	EPAP
+21	Basıncı Başlat
+22	EPAP Başlat
+23	Azami IPAP
+24	Min EPAP
+25	BD
+26	Azami BD
+27	Min BD
+28	Azami Ramp
+29	EPR
+30	EPR Düzeyi
+31	Maske
+32	Maske Oturumu ->
+33	Tüp
+34	Yükslm Süre
+35	Ti
+36	Tetik
+37	Döngü
+38	Soln Oranı
+39	Ydklme Oranı
+40	Easy-Breathe
+41	AB Filtresi
+42	Climate Ctrl
+43	SmartStart
+44	Yükseklik
+45	Sızıntı Uyarısı
+46	<- GERİ
+47	<<- ANASAYFA
+48	Uyku Kalitesi
+49	EPR Nefes Al
+50	Tarih
+51	Zaman
+52	Maske
+53	Su Hazne
+54	Tüp
+55	Filtre
+56	SD Kartı
+57	Servis
+58	Özel 1
+59	Özel 2
+60	Dil
+61	Varsayılana Dön ->
+62	Verileri Sil ->
+63	Basınç Birimi
+64	Sıcaklık Birimi
+65	Süre
+66	Maske Oturumu
+67	Kullanım
+68	AHI
+69	Basınç
+70	İnsp. Basınç
+71	Eksp. Basınç
+72	% Doğal T
+73	% Doğal D
+74	Toplam AI
+75	Merkezi AI
+76	Ort. Kullan.
+77	Kullanln Gün
+78	Gün >4 saat
+79	Kul. Saat
+80	Topl. Saat
+81	Yazılım
+82	BID
+83	VID
+84	RID
+85	HID
+86	Başlat
+87	SpO2
+88	Nabız
+89	Sızıntı
+90	Vt
+91	RR
+92	MV
+93	BD
+94	MaxTi
+95	Ti
+96	Min Ti
+97	I:E
+98	HdMV
+99	% Doğal
+100	Teti
+101	Dev
+102	Tekrarla
+103	Bilgi
+104	Dial tuşu
+105	Kurulum
+106	3sn
+107	%
+108	°C
+109	°F
+110	dk.
+111	Min
+112	ms
+113	s
+114	ay
+115	L/dk
+116	ml
+117	saat
+118	--
+119	Isınma
+120	
+121	Lütfen Bekleyiniz:
+122	Tamamlandı:
+123	Dikkat:
+124	Hata:
+125	Emin misiniz?
+126	Hatırlatma:
+127	Lütfen Bekleyiniz…
+128	Evet
+129	Hayır
+130	Mask Events
+131	Mask Off
+132	Mask Dur
+133	Mask On
+134	Flow
+135	Mask Pressure
+136	Therapy Pressure
+137	Insp Pressure
+138	Exp Pressure
+139	Mask Pres Med
+140	Mask Pres 95
+141	Mask Pres Max
+142	Insp Pres Med
+143	Insp Pres 95
+144	Insp Pres Max
+145	Therapy Pres Med
+146	Therapy Pres 95
+147	Therapy Pres Max
+148	Exp Pres Med
+149	Exp Pres 95
+150	Exp Pres Max
+151	Leak Med
+152	Leak 95
+153	Leak Max
+154	RR Med
+155	RR 95
+156	RR Max
+157	Min Vent
+158	Min Vent Med
+159	Min Vent 95
+160	Min Vent Max
+161	Tid Vol Med
+162	Tid Vol 95
+163	Tid Vol Max
+164	I:E Med
+165	I:E 95
+166	I:E Max
+167	Targ Vent
+168	Targ Vent Med
+169	Targ Vent 95
+170	Targ Vent Max
+171	Snore Index
+172	FFL Index
+173	HI
+174	AHI
+175	AI
+176	CAI
+177	OAI
+178	UAI
+179	Resp Event
+180	Te
+181	
+182	L
+183	L/s
+184	bpm
+185	
+186	
+187	days
+188	cmH2O
+189	Kplı
+190	Açık
+191	Hasta
+192	
+193	Hypopnea
+194	Central Apnea
+195	Obstructive Apnea
+196	Apnea
+197	Arousal
+198	Kplı
+199	10
+200	
+201	
+202	Min Ti
+203	MaxTi
+204	Timed
+205	°C
+206	°F
+207	Manuel
+208	Otomatik
+209	Hasta
+210	cmH2O
+211	hPa
+212	
+213	Güncelleme gerçekleştirilsin mi?
+214	Geçersiz SD kart, kart verileri silinsin mi?
+215	Tüm veriler silinsin mi?
+216	Fabrika ayarlarına dönülsün mü?
+217	Kplı
+218	1
+219	2
+220	3
+221	Hasta
+222	Hızlı
+223	Orta
+224	Kplı
+225	Sadece Ramp
+226	Tam Zamanlı
+227	SlimLine
+228	Standart
+229	3m
+230	
+231	Isınıyor
+232	Isınma Hazır
+233	Soğuyor
+234	
+235	
+236	
+237	
+238	Isıtmalı nemlendirme için 60W/90W'lık güç kaynağına bağlayın
+239	Climate Control/nmlndirme için ltf. 90W'lık güç kaynağına bğlyın
+240	Veriler başarıyla silindi, herhangi bir tuşa basın
+241	Fabrika ayarlarına dönüldü, herhangi bir tuşa basın
+242	SD kartı bulunamadı
+243	Ayarlar başarıyla güncellendi, herhangi bir tuşa basın
+244	Lütfen H5i döner kapağı kapatın, tüpü takın ve bir tuşa basın
+245	Geçersiz tarih/saat, bu süre için veri mevcut
+246	Veri işleniyor, lütfen bir tuşa basın ve tekrar deneyin
+247	Basınç değişimi tespit edildi, yüks. doğrlğndn emin olun
+248	Motor ömrü aşıldı, lütfen servis sağlayıcınızla temasa geçin
+249	English
+250	Français
+251	Deutsch
+252	Italiano
+253	Español
+254	Español
+255	Português
+256	Português
+257	Nederlands
+258	Svenska
+259	Dansk
+260	Norsk
+261	Suomi
+262	ニホンゴ
+263	Русский
+264	Türkçe
+265	繁體中文
+266	简体中文
+267	Polski
+268	日本語
+269	Yastıklar
+270	Tam Yüz
+271	Burun
+272	Burun Ultra
+273	Pediatrik
+274	
+275	Ayarla
+276	İyi
+277	Oca
+278	Şub
+279	Mar
+280	Nis
+281	May
+282	Haz
+283	Tem
+284	Ağu
+285	Eyl
+286	Eki
+287	Kas
+288	Ara
+289	Manuel
+290	Otomatik
+291	Kplı
+292	Açık
+293	CPAP
+294	AutoSet
+295	APAP
+296	S
+297	ST
+298	T
+299	VAuto
+300	ASV
+301	
+302	Geçersiz GKÜ, ResMed Güç Kaynak Ünitesini bağlayın
+303	Isıtılmış tüp hatası, tüpü değiştirin
+304	Nemlendirici hatası, nemlendiriciyi değiştirin
+305	Motor hatası, servis sağlayıcınız ile temasa geçin
+306	Yüksek basınç hatası, servis sağlayıcınız ile temasa geçin
+307	Yüksek akım hatası, servis sağlayıcınız ile temasa geçin
+308	Yüksek ısı hatası, kullanıcı kılavuzuna başvurun
+309	Sistem hatası, lütfen sistem sağlayıcınız ile temasa geçin
+310	Sensör hatası, lütfen servis sağlayıcınız ile temasa geçin
+311	Tüp tıkalı, tüpü kontrol edin
+312	Ayarlar varsayılan değerlerine döndü, lütfen servisinize başvurun
+313	Kalibrasyon varsayılan değerlerde, servise başvurun
+314	Yüksek voltaj hatası, servis sağlayıcı ile irtibat kurun
+315	Düşük voltaj hatası, servis sağlayıcı ile irtibat kurun
+316	
+317	Ayarlar başarıyla güncellendi, orijinal SD kartını tekrar takın
+318	Lütfen SD kartı çıkarın
+319	Lütfen SD kartını çıkarın ve orijinal SD kartını tekrar takın
+320	Salt okunur kart, lütfen çıkarın, kilidini açın ve SD kartını tekrar takın
+321	Kart hatası, SD kartı çıkarın ve servis sağlayıcınızla iletişime geçin
+322	Ayar hatası, lütfen SD kartını çıkarın ve servisinize başvurun
+323	Geçersiz SD kartı, lütfen kartı çıkarın ve servisinize başvurun
+324	ResMed 30/90W Güç Kaynağı Birimi’ni kntrl edin ve konektörü takın
+325	
+326	SD kartı okunuyor
+327	Ayarlar güncelleniyor
+328	Fabrika ayarlarına dönülüyor
+329	SD kart verileri siliniyor
+330	Tüm veriler siliniyor
+331	Veri kaydediliyor, SD Kartı çıkarmayın
+332	
+333	Maskenizi değiştirme zamanı, lütfen servisinize başvurun
+334	Hortumunuzu değiştirme zamanı, lütfen servisinize başvurun
+335	Su haznenizi değiştirme zamanı geldi, lütfen servisinizi arayın.
+336	Filtrenizi değiştirme zamanı, lütfen servisinize başvurun
+337	SD Kartınızı servis sağlayıcınıza iade etme zamanı geldi
+338	Cihazınızın servis zamanı geldi, lütfen servisinize başvurun
+339	
+340	Fazla kaçak, sistem kurulumunu ve tüm bağlantıları kontrol edin
+341	Oxisensörü bağla veya oximetrisiz veri kaydı için dial'a basın
+342	Oxisensörü kontrol et veya oximetrisiz veri kaydı için dial'a basın
+343	SD kartını takın veya oksimetri kayıtsız kabul için dial tuşuna basınız.
+344	Isıtılmış tüp hatası, tüpü değiştirin
+345	Nemlendirici hatası, nemlendiriciyi değiştirin
+346	Çok Düşük
+347	Düşük
+348	Orta
+349	Yüksek
+350	Çok Yüksek
+351	Dün Gece
+352	Geçen Ay
+353	1 Gün
+354	1 Hafta
+355	1 Ay
+356	3 Ay
+357	6 Ay
+358	1 Yıl
+359	Kullanım
+360	Açık
+361	Kplı
+362	
+363	Nemlendirici devrede
+364	Climate Control devrede
+365	Oksimetre devrede
+366	Hayır
+367	Evet

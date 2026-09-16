@@ -1,0 +1,372 @@
+0	INICIO
+1	TRATAMIENTO
+2	CLIMATE CTRL
+3	NIVEL HUMEDAD
+4	TUBO CALIENTE
+5	RAMPA
+6	PARÁMETROS
+7	OPCIONES
+8	RECORDATORIOS
+9	CONFIGURACIÓN
+10	CALIDAD SUEÑO
+11	INFORME SUEÑO
+12	VER PARÁMETROS
+13	SERVICIO
+14	AJUS MASC
+15	Modo
+16	Presión est
+17	Presión máx
+18	Presión mín
+19	IPAP
+20	IPAP Máx
+21	EPAP
+22	EPAP Mín
+23	PS
+24	PS Mín
+25	PS Máx
+26	Frec. resp.
+27	Frec. respaldo
+28	Easy-Breathe
+29	Ti
+30	Tiemp Sub.
+31	Disparo
+32	Ciclado
+33	Rampa máx
+34	Presión inicial
+35	EPAP inicial
+36	APE
+37	Nivel APE
+38	Masc
+39	Ajus masc ->
+40	Tubo
+41	Filtro AB
+42	<- ATRÁS
+43	<<- INICIO
+44	Climate Ctrl
+45	Calidad sueño
+46	Alerta fuga
+47	SmartStart
+48	APE Inhala
+49	Acceso
+50	Fecha
+51	Hora
+52	Altitud
+53	Mascarilla
+54	Cub agua
+55	Tubo
+56	Filtro
+57	Tarjeta SD
+58	Servicio
+59	Pers 1
+60	Pers 2
+61	Idioma
+62	Rest. val. predet. ->
+63	Borrar datos ->
+64	Uds. presión
+65	Uds. temp
+66	Período
+67	Uso
+68	Ajus masc
+69	ÍAH
+70	Días usado
+71	Días >4hs
+72	Uso prom
+73	Hs usado
+74	Presión
+75	Presión insp.
+76	Presión esp.
+77	%Disp. esp.
+78	%Cic. esp.
+79	ÍA totales
+80	ÍA centrales
+81	Hs func
+82	VS
+83	BID
+84	VID
+85	RID
+86	HID
+87	Inicio
+88	SpO2
+89	Fuga
+90	VM
+91	VM d
+92	Pulso
+93	FR
+94	Vc
+95	PS
+96	Ti
+97	I:E
+98	% Esp.
+99	Disp.
+100	Ti Máx
+101	Ti Mín
+102	Cic.
+103	Rep
+104	Info
+105	Bot. selec.
+106	Instalación
+107	3seg
+108	°C
+109	°F
+110	%
+111	min
+112	l/min
+113	ml
+114	hs
+115	s
+116	Min
+117	ms
+118	mes.
+119	--
+120	Calen-
+121	tamiento
+122	Espere:
+123	Finalizado:
+124	¿Está seguro?
+125	Recordatorio:
+126	Atención:
+127	Espere…
+128	Error:
+129	Sí
+130	No
+131	Mask Events
+132	Mask Off
+133	Mask Dur
+134	Mask On
+135	Flow
+136	Mask Pressure
+137	Therapy Pressure
+138	Insp Pressure
+139	Exp Pressure
+140	Mask Pres Med
+141	Mask Pres 95
+142	Mask Pres Max
+143	Insp Pres Med
+144	Insp Pres 95
+145	Insp Pres Max
+146	Therapy Pres Med
+147	Therapy Pres 95
+148	Therapy Pres Max
+149	Exp Pres Med
+150	Exp Pres 95
+151	Exp Pres Max
+152	Leak Med
+153	Leak 95
+154	Leak Max
+155	RR Med
+156	RR 95
+157	RR Max
+158	Min Vent
+159	Min Vent Med
+160	Min Vent 95
+161	Min Vent Max
+162	Tid Vol Med
+163	Tid Vol 95
+164	Tid Vol Max
+165	I:E Med
+166	I:E 95
+167	I:E Max
+168	Targ Vent
+169	Targ Vent Med
+170	Targ Vent 95
+171	Targ Vent Max
+172	Snore Index
+173	FFL Index
+174	HI
+175	AHI
+176	AI
+177	CAI
+178	OAI
+179	UAI
+180	Resp Event
+181	Te
+182	
+183	L
+184	L/s
+185	bpm
+186	
+187	
+188	days
+189	cmH2O
+190	Apag
+191	Ence
+192	Paciente
+193	
+194	Hypopnea
+195	Central Apnea
+196	Obstructive Apnea
+197	Apnea
+198	Arousal
+199	Apag
+200	10
+201	
+202	
+203	Ti Mín
+204	Ti Máx
+205	Prog.
+206	°C
+207	°F
+208	Manual
+209	Auto
+210	Paciente
+211	cmH2O
+212	hPa
+213	
+214	¿Realizar actualización?
+215	Reescritura de datos a tarjeta SD, oprima sí para continuar
+216	¿Borrar todos los datos?
+217	¿Restablecer configuración predeterminada?
+218	Apag
+219	1
+220	2
+221	3
+222	Paciente
+223	Rápid
+224	Med
+225	Apag
+226	Solo rampa
+227	Siempre
+228	SlimLine
+229	Estándar
+230	3m
+231	
+232	Calentando
+233	Calentamiento listo
+234	Enfriando
+235	
+236	
+237	
+238	
+239	Configuración actualizada, oprima cualquier tecla
+240	Conecte fuente de aliment de 60W/90W para humidif térmica
+241	Conecte fuente de aliment de 90 W para Climate Ctrl /humidificación
+242	Datos borrados correctamente, oprima cualquier tecla
+243	Config predet restablecida, oprima cualquier tecla
+244	No se detectó tarjeta SD
+245	Cierre la tapa del H5i, conecte el tubo y oprima cualquier tecla
+246	Fecha/hora inválida, hay datos correspondientes a este período
+247	Procesando datos. Oprima cualquier tecla y vuelva a intentarlo
+248	Se detectó cambio de presión, revise la configuración de la altitud
+249	Venció vida útil del motor, comuníquese con prov. de servicio
+250	Error memoria config. Cambios se perderán al desconec. aliment.
+251	Tubo bloqueado, verifíquelo
+252	English
+253	Français
+254	Deutsch
+255	Italiano
+256	Español
+257	Español
+258	Português
+259	Português
+260	Nederlands
+261	Svenska
+262	Dansk
+263	Norsk
+264	Suomi
+265	ニホンゴ
+266	Русский
+267	Türkçe
+268	繁體中文
+269	简体中文
+270	Polski
+271	日本語
+272	Almohadillas
+273	Facial
+274	Nasal
+275	Nasal Ultra
+276	Pediátrica
+277	
+278	Ajustar
+279	Bueno
+280	Limitado
+281	Completo
+282	Ene
+283	Feb
+284	Mar
+285	Abr
+286	May
+287	Jun
+288	Jul
+289	Ago
+290	Set
+291	Oct
+292	Nov
+293	Dic
+294	Manual
+295	Auto
+296	Apag
+297	Ence
+298	CPAP
+299	AutoSet
+300	APAP
+301	S
+302	ST
+303	T
+304	VAuto
+305	ASV
+306	
+307	Fuente de alimentación inválida, conecte fuente de ResMed
+308	Tubo caliente averiado, reemplácelo
+309	Humidificador averiado, reemplácelo
+310	Motor averiado, comuníquese con proveedor de servicio
+311	Fallo de presión elevada, comuníquese con prov de servicio
+312	Fallo de corriente elevada, comuníquese con prov de servicio
+313	Fallo de temp elevada, consulte el manual de usuario
+314	Error del sistema, comuníquese con el proveedor de servicios
+315	Avería en sensor, comuníquese con el proveedor de servicios
+316	Configuración restabl a valores predet, llame a proveedor de serv
+317	Calibración restabl a valores predet, llame a proveedor de serv
+318	Falla de sobretensión. Llame al proveedor de asistencia.
+319	Falla de subtensión. Llame al proveedor de asistencia.
+320	
+321	Configuración actualizada, vuelva a insertar tarjeta SD original
+322	Retire la tarjeta SD y oprima iniciar para comenzar el tratamiento
+323	Retire tarjeta SD y vuelva a insertar tarjeta SD original
+324	Tarj de sólo lectura, retírela, desbloquee y reinserte tarj SD
+325	Error en tarj. SD, retírela y oprima iniciar para comenzar tratam.
+326	Error config, retire tarj SD y comuníquese con prov de servicio
+327	Tarj SD inválida, retírela y comuníquese con prov de servicio
+328	 Revise fuente de alimen ResMed 30/90W y coloque bien el conector
+329	
+330	Tarjeta SD en uso, no extraiga la tarjeta ni apague el equipo
+331	Actualizando configuración
+332	Restableciendo configuración predeterminada
+333	Borrando datos de tarjeta SD
+334	Borrando todos los datos
+335	Grabando datos, no retirar tarjeta SD
+336	
+337	Es hora de reemplazar masc, comuníquese con proveedor de serv
+338	Es hora de reemplazar tubo, comuníquese con proveedor de serv
+339	Es hora reemplaz cub de agua, comuníquese con proveedor de serv
+340	Es hora de reemplazar filtro, comuníquese con proveedor de serv
+341	Es hora de regresar tarjeta SD a proveedor de servicio
+342	Es hora de hacer mant del equipo, comuníquese con prov servicios
+343	
+344	Fuga elevada, verif instalación del sistema y todas las conexiones
+345	Conecte sensor de oxim u oprima bot selec para aceptar no registro oxim
+346	Verifiq sensor de oxim u oprima bot selec para acept no registro oxim
+347	Inserte tarj SD u oprima bot selec para aceptar no registro oxim
+348	Tubo caliente averiado, reemplácelo
+349	Humidificador averiado, reemplácelo
+350	Muy baja
+351	Baja
+352	Med
+353	Alta
+354	Muy alta
+355	Anoche
+356	Mes pasad.
+357	1 día
+358	1 sem
+359	1 mes
+360	3 meses
+361	6 meses
+362	1 año
+363	Uso
+364	Ence
+365	Apag
+366	
+367	Humidificador habilitado
+368	Climate Control habilitado
+369	Oxímetro habilitado
+370	No
+371	Sí

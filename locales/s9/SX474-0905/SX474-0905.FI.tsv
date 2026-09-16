@@ -1,0 +1,368 @@
+0	KOTI
+1	HOITO
+2	KOSTEUSTASO
+3	LÄMMIT LETKU
+4	CLIMATE CTRL
+5	VIIVE
+6	ASETUKSET
+7	LISÄTOIMINNOT
+8	MUISTUTUKSET
+9	MÄÄRITYKSET
+10	UNEN LAATU
+11	UNIRAPORTTI
+12	NÄYTÄ ASETUKS
+13	HUOLTO
+14	MASKIN SOPIV
+15	Toim.muoto
+16	Asetuspaine
+17	Max paine
+18	Min paine
+19	IPAP
+20	EPAP
+21	Alkupaine
+22	Alku-EPAP
+23	Max IPAP
+24	Min EPAP
+25	PS
+26	Max PS
+27	Min PS
+28	Max viive
+29	EPR
+30	EPR-taso
+31	Maski
+32	Maskin sopiv ->
+33	Letku
+34	Nousuaika
+35	Ti
+36	Trigger
+37	Cycle
+38	Hengitystaajuus
+39	Taustataajuus
+40	Easy-Breathe
+41	AB-suodatin
+42	Climate Ctrl
+43	SmartStart
+44	Korkeus
+45	Vuotohälytys
+46	<- TAKAISIN
+47	<<- KOTI
+48	Unen laatu
+49	EPR Sisään
+50	Pvm
+51	Kello
+52	Maski
+53	Vesisäiliö
+54	Letku
+55	Suodatin
+56	SD-kortti
+57	Huolto
+58	Oma 1
+59	Oma 2
+60	Kieli
+61	Tehdasasetukset ->
+62	Poista tiedot ->
+63	Paineyksikkö
+64	Lämpötilayks
+65	Jakso
+66	Maskin sopiv
+67	Käyttö
+68	AHI
+69	Paine
+70	Sis.heng.paine
+71	Ulosheng.paine
+72	% Spont T
+73	% Spont C
+74	Kok AI
+75	Sentr.AI
+76	Keskim. käyttö
+77	Käyttöpäivät
+78	Päivät >4 h
+79	Käyttötunnit
+80	Käyntiaika
+81	SW
+82	BID
+83	VID
+84	RID
+85	HID
+86	Käynn
+87	SpO2
+88	Syke
+89	Vuoto
+90	Vt
+91	RR
+92	MV
+93	PS
+94	Ti Max
+95	Ti
+96	Ti Min
+97	I:E
+98	TgMV
+99	% Spont
+100	Trig
+101	Cyc
+102	Toist
+103	Tiedot
+104	Säädin
+105	Asetus
+106	3 sek
+107	%
+108	°C
+109	°F
+110	min.
+111	Min
+112	ms
+113	s
+114	kk
+115	l/min
+116	ml
+117	h
+118	--
+119	Lämmitys
+120	
+121	Odota:
+122	Valmis:
+123	Huomio:
+124	Virhe:
+125	Oletko varma?
+126	Muistutus:
+127	Odota…
+128	Kyllä
+129	Ei
+130	Mask Events
+131	Mask Off
+132	Mask Dur
+133	Mask On
+134	Flow
+135	Mask Pressure
+136	Therapy Pressure
+137	Insp Pressure
+138	Exp Pressure
+139	Mask Pres Med
+140	Mask Pres 95
+141	Mask Pres Max
+142	Insp Pres Med
+143	Insp Pres 95
+144	Insp Pres Max
+145	Therapy Pres Med
+146	Therapy Pres 95
+147	Therapy Pres Max
+148	Exp Pres Med
+149	Exp Pres 95
+150	Exp Pres Max
+151	Leak Med
+152	Leak 95
+153	Leak Max
+154	RR Med
+155	RR 95
+156	RR Max
+157	Min Vent
+158	Min Vent Med
+159	Min Vent 95
+160	Min Vent Max
+161	Tid Vol Med
+162	Tid Vol 95
+163	Tid Vol Max
+164	I:E Med
+165	I:E 95
+166	I:E Max
+167	Targ Vent
+168	Targ Vent Med
+169	Targ Vent 95
+170	Targ Vent Max
+171	Snore Index
+172	FFL Index
+173	HI
+174	AHI
+175	AI
+176	CAI
+177	OAI
+178	UAI
+179	Resp Event
+180	Te
+181	
+182	L
+183	L/s
+184	bpm
+185	
+186	
+187	days
+188	cmH2O
+189	Pois
+190	Päällä
+191	Potilas
+192	
+193	Hypopnea
+194	Central Apnea
+195	Obstructive Apnea
+196	Apnea
+197	Arousal
+198	Pois
+199	10
+200	
+201	
+202	Ti Min
+203	Ti Max
+204	Ajast.
+205	°C
+206	°F
+207	Manuaal
+208	Auto
+209	Potilas
+210	cmH2O
+211	hPa
+212	
+213	Päivitetäänkö?
+214	Virheellinen SD-kortti. Poistetaanko kortin tiedot?
+215	Poistetaanko tiedot?
+216	Palautetaanko tehdasasetukset?
+217	Pois
+218	1
+219	2
+220	3
+221	Potilas
+222	Nopea
+223	Keskim
+224	Pois
+225	Vain viive
+226	Koko ajan
+227	SlimLine
+228	Standard
+229	3 m
+230	
+231	Lämmitetään
+232	Lämmitys valmis
+233	Jäähdytetään
+234	
+235	
+236	
+237	
+238	Liitä 60W/90W:n virtalähde lämmitettävää kostutinta varten
+239	Liitä 90 W:n virtalähde Climate Control/kostutinta varten
+240	Tiedot saatiin poistettua. Paina jotain näppäintä
+241	Tehdasasetukset saatiin palautettua. Paina jotain näppäintä
+242	SD-korttia ei voitu tunnistaa
+243	Asetukset saatiin päivitettyä. Paina jotain näppäintä
+244	Sulje H5i-kansi, liitä letku ja paina jotain näppäintä
+245	Väärä pvm/aika. Tiedot jo olemassa tältä jaksolta
+246	Tietoja käsitellään. Paina jotain näppäintä ja yritä uudestaan
+247	Paineen muutos tunnistettu. Varmista, että korkeus on oikein
+248	Moottorin käyttöikä ylitetty. Ota yhteys hoidosta vastaavaan
+249	English
+250	Français
+251	Deutsch
+252	Italiano
+253	Español
+254	Español
+255	Português
+256	Português
+257	Nederlands
+258	Svenska
+259	Dansk
+260	Norsk
+261	Suomi
+262	ニホンゴ
+263	Русский
+264	Türkçe
+265	繁體中文
+266	简体中文
+267	Polski
+268	日本語
+269	Sierain
+270	Kokokasvo
+271	Nenä
+272	Nenä Ultra
+273	Lasten
+274	
+275	Säädä
+276	Hyvä
+277	Tam
+278	Hel
+279	Maa
+280	Huh
+281	Tou
+282	Kes
+283	Hei
+284	Elo
+285	Syy
+286	Lok
+287	Mar
+288	Jou
+289	Manuaal
+290	Auto
+291	Pois
+292	Päällä
+293	CPAP
+294	AutoSet
+295	APAP
+296	S
+297	ST
+298	T
+299	VAuto
+300	ASV
+301	
+302	Väärä virtalähde. Liitä ResMed- virtalähde
+303	Lämm. letkun vika. Vaihda letku
+304	Kostutinvika. Vaihda kostutin
+305	Moottorivika. Ota yhteys laitetoim.
+306	Korkea paine vika. Ota yhteys hoidosta vastaavaan
+307	Suuri sähkövirta -vika. Ota yhteys hoidosta vastaavaan
+308	Korkea lämpötila. Katso käyttöohjetta
+309	Järjestelmävirhe. Ota yhteys hoidosta vastaavaan
+310	Anturivika. Ota yhteys hoidosta vastaavaan
+311	Letku tukossa. Tarkista letku
+312	Asetukset pal. oletusarvoiksi. Ota yhteys hoitovastaavaan
+313	Kalibr. palaut. oletusarvot. Ota yhteys hoitovastaavaan
+314	Ylijännitevika. Ota yhteyttä palveluntuottajaan
+315	Alijännitevika. Ota yhteyttä palveluntuottajaan
+316	
+317	Asetukset saatiin päivitettyä. Laita takaisin alkupe- räinen SD-kortti
+318	Poista SD-kortti
+319	Ota pois SD-kortti ja laita takaisin alkup. SD-kortti
+320	Vain-luku-kortti. Ota se pois, avaa lukitus ja laita takaisin SD-kortti
+321	Korttivirhe. Poista SD-kortti ja ota yhteys hoitopaikkaan
+322	Asetusvirhe. Poista SD-kortti ja ota yhteys hoitolaitokseen
+323	Väärä SD-kortti. Poista se ja ota yhteys hoitolaitokseen
+324	Tarkista ResMed 30/90W –virtalähde ja kytke liitin
+325	
+326	SD-korttia luetaan
+327	Asetusten päivitys
+328	Tehdasasetuksia palautetaan
+329	SD-kortin tiedot poistetaan
+330	Tiedot poistetaan
+331	Tietoja tallennetaan. Älä poista SD-korttia
+332	
+333	On aika vaihtaa maski. Ota yhteys hoidosta vastaavaan
+334	On aika vaihtaa letku. Ota yhteys hoidosta vastaavaan
+335	On aika vaihtaa vesiastia. Ota yhteys hoidosta vastaavaan
+336	On aika vaihtaa suodatin. Ota yhteys hoidosta vastaavaan
+337	On aika palauttaa SD-kortti hoidosta vastaavalle
+338	On aika huoltaa laite. Ota yhteys hoidosta vastaavaan
+339	
+340	Suuri ilmavuoto. Tarkista asetukset ja kaikki liitännät
+341	Liitä oks.anturi tai paina näppäintä, ettei oks.tietoja kerätä
+342	Tarkista oks.anturi tai paina näppäintä, ettei oks.tietoja kerätä
+343	Laita SD-kortti tai paina näppäintä, ettei oksim.tietoja kerätä
+344	Lämm. letkun vika. Vaihda letku
+345	Kostutinvika. Vaihda kostutin
+346	Hyvin matala
+347	Matala
+348	Keskim
+349	Korkea
+350	Hyvin korkea
+351	Edellinen yö
+352	Edell. Kk
+353	1 päivä
+354	1 viikko
+355	1 kk
+356	3 kk
+357	6 kk
+358	1 vuosi
+359	Käyttö
+360	Päällä
+361	Pois
+362	
+363	Kostutin käytössä
+364	Climate Control käytössä
+365	Oksimetri käytössä
+366	Ei
+367	Kyllä

@@ -1,0 +1,368 @@
+0	EKRAN GŁÓWNY
+1	LECZENIE
+2	POZIOM WILG.
+3	PODGRZ. RURA
+4	CLIMATE CTRL
+5	ST. NARASTANIE
+6	USTAWIENIA
+7	OPCJE
+8	PRZYPOMNIENIA
+9	KONFIGURACJA
+10	JAKOŚĆ SNU
+11	RAPORT ZE SNU
+12	WYŚWIETL UST.
+13	SERWIS
+14	DOPAS.MASKI
+15	Tryb
+16	Ustaw ciśnienie
+17	Ciśn. maks.
+18	Ciśn. min.
+19	IPAP
+20	EPAP
+21	Ciśn. pocz.
+22	EPAP początk.
+23	Maks. IPAP
+24	Min. EPAP
+25	PS
+26	Maks. PS
+27	Min. PS
+28	Maks. narast.
+29	EPR
+30	Poziom EPR
+31	Maska
+32	Dopas.maski ->
+33	Rura
+34	Cz. narast.
+35	Ti
+36	Wyzwalacz
+37	Cykl
+38	Częst. oddechu
+39	Współ. rezer.
+40	Easy-Breathe
+41	Filtr AB
+42	Climate Ctrl
+43	SmartStart
+44	Wys.n.p.m
+45	Al. nieszcz.
+46	<- WSTECZ
+47	<<- EKRAN GŁÓWNY
+48	Jakość snu
+49	Wdych. EPR
+50	Data
+51	Godzina
+52	Maska
+53	Zb. wody
+54	Rura
+55	Filtr
+56	Karta SD
+57	Usł.
+58	Niestand. 1
+59	Niestand. 2
+60	Język
+61	Przywróć wart. ->
+62	Kasuj dane ->
+63	Jedn. ciśn.
+64	Jedn. temp.
+65	Okres
+66	Dopas.maski
+67	Użycie
+68	AHI
+69	Ciśnienie
+70	Ciś. na wdechu
+71	Ciś. na wydechu
+72	% T spont.
+73	% C spont.
+74	Łączn. AI
+75	Centr. AI
+76	Śr. użycie
+77	Dni użycia
+78	Dni > 4 godz
+79	Czas uż.
+80	Godz. ur.
+81	SW
+82	BID
+83	VID
+84	RID
+85	HID
+86	Start
+87	SpO2
+88	Puls
+89	Niesz.
+90	Vt
+91	RR
+92	MV
+93	PS
+94	Ti max
+95	Ti
+96	Ti min.
+97	I:E
+98	D.MV
+99	% spont.
+100	Wyzw.
+101	Cyk
+102	Powt.
+103	Info
+104	Pokr. przyc.
+105	Konfiguracja
+106	3 s
+107	%
+108	°C
+109	°F
+110	min.
+111	Min
+112	ms
+113	s
+114	mies.
+115	l/min
+116	ml
+117	godz.
+118	--
+119	Nagrz.
+120	
+121	Czekaj:
+122	Wykonano:
+123	Uwaga:
+124	Błąd:
+125	Czy na pewno?
+126	Przypomnienie:
+127	Czekaj...
+128	Tak
+129	Nie
+130	Mask Events
+131	Mask Off
+132	Mask Dur
+133	Mask On
+134	Flow
+135	Mask Pressure
+136	Therapy Pressure
+137	Insp Pressure
+138	Exp Pressure
+139	Mask Pres Med
+140	Mask Pres 95
+141	Mask Pres Max
+142	Insp Pres Med
+143	Insp Pres 95
+144	Insp Pres Max
+145	Therapy Pres Med
+146	Therapy Pres 95
+147	Therapy Pres Max
+148	Exp Pres Med
+149	Exp Pres 95
+150	Exp Pres Max
+151	Leak Med
+152	Leak 95
+153	Leak Max
+154	RR Med
+155	RR 95
+156	RR Max
+157	Min Vent
+158	Min Vent Med
+159	Min Vent 95
+160	Min Vent Max
+161	Tid Vol Med
+162	Tid Vol 95
+163	Tid Vol Max
+164	I:E Med
+165	I:E 95
+166	I:E Max
+167	Targ Vent
+168	Targ Vent Med
+169	Targ Vent 95
+170	Targ Vent Max
+171	Snore Index
+172	FFL Index
+173	HI
+174	AHI
+175	AI
+176	CAI
+177	OAI
+178	UAI
+179	Resp Event
+180	Te
+181	
+182	L
+183	L/s
+184	bpm
+185	
+186	
+187	days
+188	cmH2O
+189	Wył.
+190	Wł.
+191	Pacjent
+192	
+193	Hypopnea
+194	Central Apnea
+195	Obstructive Apnea
+196	Apnea
+197	Arousal
+198	Wył.
+199	10
+200	
+201	
+202	Ti min.
+203	Ti max
+204	Czas.
+205	°C
+206	°F
+207	Ręcz.
+208	Auto
+209	Pacjent
+210	cmH2O
+211	hPa
+212	
+213	Wykonać aktualizację?
+214	Nieprawidłowa karta SD. Usunąć dane z karty?
+215	Skasować wszystkie dane?
+216	Przywrócić ustawienia domyślne?
+217	Wył.
+218	1
+219	2
+220	3
+221	Pacjent
+222	Szybki
+223	Średni
+224	Wył.
+225	Tylko narast.
+226	Stale
+227	SlimLine
+228	Standardowa
+229	3 m
+230	
+231	Nagrzewanie
+232	Nagrz. gotowe
+233	Schładzanie
+234	
+235	
+236	
+237	
+238	Podłącz zasilanie 60 W/90 W na potrzeby nawilżania z ogrzewaniem
+239	Podłącz zasilanie 90 W na potrzeby Climate Control / nawilżania
+240	Dane wykasowane pomyślnie, naciśnij dowolny klawisz
+241	Ustaw. fabryczne przywrócone pomyślnie, naciśnij dowolny klawisz
+242	Nie wykryto karty SD
+243	Ustawienia zaktualizowane pomyślnie, naciśnij dowolny klawisz
+244	Zamknij pokr. zatrz. H5i, dołącz rurę i naciśnij dowolny przycisk
+245	Nieprawidłowa data/godzina, dane istnieją dla tego okresu
+246	Trwa przetwarz. danych; naciśnij dowolny klawisz i spróbuj ponownie
+247	Wykryto zm. ciśn., upewnij się, że wys. n.p.m. jest popr. ustawiona
+248	Upłynął termin trwałości silnika, skontaktuj się z dostawcą usługi
+249	English
+250	Français
+251	Deutsch
+252	Italiano
+253	Español
+254	Español
+255	Português
+256	Português
+257	Nederlands
+258	Svenska
+259	Dansk
+260	Norsk
+261	Suomi
+262	ニホンゴ
+263	Русский
+264	Türkçe
+265	繁體中文
+266	简体中文
+267	Polski
+268	日本語
+269	Wkładki
+270	Pełnotwarz.
+271	Nosowa
+272	Nosowa ultra
+273	Pediatrycz.
+274	
+275	Dopasuj
+276	Dobre
+277	Sty
+278	Lut
+279	Mar
+280	Kwi
+281	Maj
+282	Cze
+283	Lip
+284	Sie
+285	Wrz
+286	Paź
+287	Lis
+288	Gru
+289	Ręcz.
+290	Auto
+291	Wył.
+292	Wł.
+293	CPAP
+294	AutoSet
+295	APAP
+296	S
+297	ST
+298	T
+299	VAuto
+300	ASV
+301	
+302	Nieprawidłowy PSU, podłącz zasilacz ResMed
+303	Usterka podgrzewanej rury, wymienić rurę
+304	Usterka nawilżacza, wymień nawilżacz
+305	Usterka silnika, skontaktuj się z firmą serwisową
+306	Usterka wys. ciśnienia, skontaktuj się z firmą serwisową
+307	Usterka prądu wys. częst., skontaktuj się z firmą serwisową
+308	Usterka wys. temperatury, zapoznaj się z treścią instrukcji
+309	Błąd systemu, skontaktuj się z firmą serwisową
+310	Błąd czujnika; skontaktuj się z firmą serwisową
+311	Rura zablokowana, sprawdzić rurę
+312	Ust. zresetowane do wart. Dom., skontaktuj się z firmą serwisową
+313	Kal. zresetow. do wart. domyślnych; skontaktuj się z firmą serwisową
+314	Usterka zbyt wys. napięcia, skontaktuj się z firmą serwisową
+315	Usterka zbyt niskiego napięcia, skontaktuj się z firmą serwisową
+316	
+317	Ust. zaktualizowane; włóż ponownie oryg. kartę SD
+318	Wyjmij kartę SD
+319	Wyjmij kartę SD i ponownie włóż oryginalną kartę SD
+320	Karta SD tylko do odczytu; wyjmij kartę, odblokuj i włóż ponownie
+321	Błąd karty. Wyjmij kartę SD i skontaktuj się z dostawcą urządzenia
+322	Błąd ustawień; wyjmij kartę SD i skontaktuj się z firmą serwisową
+323	Nieprawidłowa karta SD; wyjmij kartę i skontaktuj się z dost. usługi
+324	Sprawdź zasilacz 30W / 90W ResMed i mocno wciśnij wtyczkę
+325	
+326	Odczyt karty SD
+327	Aktualizacja ustawień
+328	Przywracanie ustawień domyślnych
+329	Kasowanie danych z karty SD
+330	Kasowanie wszystkich danych
+331	Zapis danych, nie wyjmuj karty SD
+332	
+333	Nadszedł termin wymiany maski; skontaktuj się z firmą serwisową
+334	Nadszedł termin wymiany rury; skontaktuj się z firmą serwisową
+335	Nadszedł termin wymiany zb. wody; skontaktuj się z firmą serwisową
+336	Nadszedł termin wymiany filtru; skontaktuj się z firmą serwisową
+337	Nadszedł termin zwrotu karty SD do firmy serwisowej
+338	Nadszedł termin przeglądu urządz.; skontaktuj się z firmą serwisową
+339	
+340	Nieszczelność, sprawdź konf. systemu i połączenia
+341	Podłącz cz. oks. lub naciśnij pokrętło, aby zaakcept. brak rej. danych oksym.
+342	Sprawdź cz. oks. lub naciśn. pokręt- ło, aby zaakcept. brak rej. danych
+343	Włóż kartę SD lub naciśnij pokrętło, aby zaakcept. brak rej. danych oksym.
+344	Usterka podgrzewanej rury, wymienić rurę
+345	Usterka nawilżacza, wymień nawilżacz
+346	B. niski
+347	Niski
+348	Średni
+349	Wysoki
+350	B. wysoki
+351	Ost. noc
+352	Ost. mies.
+353	1 dzień
+354	1 tydz.
+355	1 mies.
+356	3 mies.
+357	6 mies.
+358	1 rok
+359	Użycie
+360	Wł.
+361	Wył.
+362	
+363	Nawilżacz włączony
+364	Climate Control włączona
+365	Oksymetr włączony
+366	Nie
+367	Tak

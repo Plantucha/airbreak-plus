@@ -1,0 +1,371 @@
+0	HOME
+1	BEHANDELING
+2	CLIMATE CTRL
+3	VOCHTIGH.NIV.
+4	VERWARM SLANG
+5	AANLOOP
+6	INSTELLINGEN
+7	OPTIES
+8	HERINNERINGEN
+9	CONFIGURATIE
+10	SLAAPKWALITEIT
+11	SLAAPRAPPORT
+12	INST. BEKIJKEN
+13	SERVICE
+14	MASKERPAS.
+15	Modus
+16	Ingestelde druk
+17	Max druk
+18	Min druk
+19	IPAP
+20	Max IPAP
+21	EPAP
+22	Min EPAP
+23	PS
+24	Min PS
+25	Max PS
+26	Ademh.freq.
+27	Backup-freq
+28	Easy-Breathe
+29	Ti
+30	Stijgtijd
+31	Trigger
+32	Cycle
+33	Max aanloop
+34	Start druk
+35	Start EPAP
+36	EPR
+37	EPR-niveau
+38	Masker
+39	Maskerpas. ->
+40	Slang
+41	AB-Filter
+42	<- VORIGE
+43	<<- HOME
+44	Climate Ctrl
+45	Slaapkwaliteit
+46	Lekalarm
+47	SmartStart
+48	EPR inadem
+49	Toegang
+50	Datum
+51	Tijd
+52	Hoogte
+53	Masker
+54	Reservoir
+55	Slang
+56	Filter
+57	SD-kaart
+58	Service
+59	Aangep. 1
+60	Aangep. 2
+61	Taal
+62	Fabrieksinst. her. ->
+63	Gegevens wissen ->
+64	Drukeenh.
+65	Temp.eenh.
+66	Periode
+67	Gebruik
+68	Maskerpas.
+69	AHI
+70	Dagen gbrkt
+71	Dagen>4uur
+72	Gem. gebrk
+73	Gbr. Uren
+74	Druk
+75	Inademingsdruk
+76	Uitademingsdruk
+77	% Spont T
+78	% Spont C
+79	Totale AI
+80	Centrale AI
+81	Draaiuren
+82	SW
+83	BID
+84	VID
+85	RID
+86	HID
+87	Start
+88	SpO2
+89	Lekk.
+90	MV
+91	D-MV
+92	Pols
+93	RR
+94	Vt
+95	PS
+96	Ti
+97	I:E
+98	% Spont
+99	Trig
+100	Ti Max
+101	Ti Min
+102	Cyc
+103	Herh.
+104	Info
+105	Drukknop
+106	Instellingen
+107	3sec.
+108	°C
+109	°F
+110	%
+111	min
+112	l/min
+113	ml
+114	uur
+115	s
+116	Min
+117	ms
+118	mndn
+119	--
+120	Opwar-
+121	ming
+122	Wachten a.u.b.:
+123	Gereed:
+124	Weet u 't zeker?
+125	Herinnering:
+126	Let op:
+127	Wachten a.u.b…
+128	Fout:
+129	Ja
+130	Nee
+131	Mask Events
+132	Mask Off
+133	Mask Dur
+134	Mask On
+135	Flow
+136	Mask Pressure
+137	Therapy Pressure
+138	Insp Pressure
+139	Exp Pressure
+140	Mask Pres Med
+141	Mask Pres 95
+142	Mask Pres Max
+143	Insp Pres Med
+144	Insp Pres 95
+145	Insp Pres Max
+146	Therapy Pres Med
+147	Therapy Pres 95
+148	Therapy Pres Max
+149	Exp Pres Med
+150	Exp Pres 95
+151	Exp Pres Max
+152	Leak Med
+153	Leak 95
+154	Leak Max
+155	RR Med
+156	RR 95
+157	RR Max
+158	Min Vent
+159	Min Vent Med
+160	Min Vent 95
+161	Min Vent Max
+162	Tid Vol Med
+163	Tid Vol 95
+164	Tid Vol Max
+165	I:E Med
+166	I:E 95
+167	I:E Max
+168	Targ Vent
+169	Targ Vent Med
+170	Targ Vent 95
+171	Targ Vent Max
+172	Snore Index
+173	FFL Index
+174	HI
+175	AHI
+176	AI
+177	CAI
+178	OAI
+179	UAI
+180	Resp Event
+181	Te
+182	
+183	L
+184	L/s
+185	bpm
+186	
+187	
+188	days
+189	cmH2O
+190	Uit
+191	Aan
+192	Patiënt
+193	
+194	Hypopnea
+195	Central Apnea
+196	Obstructive Apnea
+197	Apnea
+198	Arousal
+199	Uit
+200	10
+201	
+202	
+203	Ti Min
+204	Ti Max
+205	Timed
+206	°C
+207	°F
+208	Handm.
+209	Auto
+210	Patiënt
+211	cmH2O
+212	hPa
+213	
+214	Upgrade uitvoeren?
+215	Gegevens naar SD- kaart herschrijven. Druk op ja om door te gaan
+216	Alle gegevens wissen?
+217	Fabrieksinstel- lingen herstellen?
+218	Uit
+219	1
+220	2
+221	3
+222	Patiënt
+223	Snel
+224	Gem.
+225	Uit
+226	Alleen aanloop
+227	Fulltime
+228	SlimLine
+229	Standaard
+230	3 m
+231	
+232	Opwarmen
+233	Opwarmen gereed
+234	Afkoelen
+235	
+236	
+237	
+238	
+239	60W/90W stroomtoev. voor verw. bevochtiging aansluiten
+240	90 W stroomtoev. voor Climate Ctrl/ bevochtiging aansluiten
+241	Gegevens gewist. Druk op willekeurige toets
+242	Fabrieksinstel- lingen hersteld. Druk op willekeurige toets
+243	Geen SD-kaart gedetecteerd
+244	Instellingen bijgewerkt. Druk op willekeurige toets
+245	H5i-klep sluiten, slang bevestigen en op een toets drukken
+246	Ongeldige datum/ tijd. Er zijn al gegevens over deze periode
+247	Gegevens worden verwerkt. Druk op een toets en probeer opnieuw
+248	Drukwijziging gedetecteerd. Is hoogte correct ingesteld?
+249	Levensduur motor overschreden. Servicedienst contacteren
+250	English
+251	Français
+252	Deutsch
+253	Italiano
+254	Español
+255	Español
+256	Português
+257	Português
+258	Nederlands
+259	Svenska
+260	Dansk
+261	Norsk
+262	Suomi
+263	ニホンゴ
+264	Русский
+265	Türkçe
+266	繁體中文
+267	简体中文
+268	Polski
+269	日本語
+270	Kussentjes
+271	Volgelaat
+272	Neus
+273	Neus Ultra
+274	Kind
+275	
+276	Bijstellen
+277	Goed
+278	Beperkt
+279	Volledig
+280	Jan
+281	Feb
+282	Mrt
+283	Apr
+284	Mei
+285	Jun
+286	Jul
+287	Aug
+288	Sep
+289	Okt
+290	Nov
+291	Dec
+292	Handm.
+293	Auto
+294	Uit
+295	Aan
+296	CPAP
+297	AutoSet
+298	APAP
+299	S
+300	ST
+301	T
+302	VAuto
+303	ASV
+304	
+305	Ongeldige PSU. ResMed stroomtoevoer unit aansluiten
+306	Fout met verwarmde slang. Slang vervangen
+307	Fout met bevochtiger. Bevochtiger vervangen
+308	Fout met motor. Servicedienst benaderen
+309	Fout met hoge druk. Servicedienst benaderen
+310	Fout met hoge stroomsterkte. Servicedienst benaderen
+311	Fout met hoge temperatuur. Handleiding raadplegen
+312	Systeemfout. Servicedienst benaderen
+313	Sensorstoring. Servicedienst benaderen
+314	Slang geblokkeerd. Slang controleren
+315	Instellingen naar standaardwaarden teruggezet. Service -dienst benaderen
+316	Kalibratie naar standaardwaarden teruggezet. Service -dienst benaderen
+317	Overspannings- fout. Neem contact met servicedienst op.
+318	Onderspannings- fout. Neem contact met servicedienst op.
+319	
+320	Instellingen bijgew. Oorspronkelijke SD- kaart nogmaals invoeren
+321	Verwijder SD-kaart en druk op start om therapie te starten
+322	Verwijder SD-kaart en oorspronkelijke SD-kaart nogmaals invoeren
+323	Alleen-lezen kaart. Verwijderen, ontgr. en SD-kaart nogmaals invoeren
+324	SD-kaartfout. Verwijder kaart en druk op start om therapie te starten
+325	Instellingsfout. SD- kaart verwijderen en servicedienst benaderen
+326	Ongeldige SD- kaart. Verwijderen en servicedienst benaderen
+327	Controleer ResMed 30/90W voedings- eenheid, stekker volledig insteken
+328	
+329	SD-kaart lezen
+330	Instellingen bijwerken
+331	Fabrieksinstel- lingen herstellen
+332	Gegevens SD-kaart wissen
+333	Alle gegevens wissen
+334	Geg. registreren... SD-kaart niet verwijderen
+335	
+336	Tijd om masker te vervangen. Servicedienst benaderen
+337	Tijd om slang te vervangen. Servicedienst benaderen
+338	Tijd om reservoir te vervangen. Servicedienst benaderen
+339	Tijd om filter te vervangen. Servicedienst benaderen
+340	Tijd om SD-kaart terug te sturen naar servicedienst
+341	Tijd voor onderhoud. Servicedienst benaderen
+342	
+343	Hoge lekkage. Systeeminst. en alle aansluitingen controleren
+344	Zuurstofsens. aan- sl. of knop indr. voor accept. ontbr. geg.reg. oxymet.
+345	Zuurstofsens. contr. of knop indr. voor accept. ontbr. geg.reg. oxymet.
+346	SD-krt inv. of knop indr. voor accept. ontbr. gegevens- registr. oxymetrie
+347	Fout met verwarmde slang. Slang vervangen
+348	Fout met bevochtiger. Bevochtiger vervangen
+349	Erg laag
+350	Laag
+351	Gem.
+352	Hoog
+353	Erg hoog
+354	Laatste nacht
+355	Laatste mnd
+356	1 dag
+357	1 week
+358	1 maand
+359	3 maanden
+360	6 maanden
+361	1 jaar
+362	Gebrk
+363	Aan
+364	Uit
+365	
+366	Bevochtiger ingeschakeld
+367	Climate Control ingeschakeld
+368	Oxymeter ingeschakeld
+369	Nee
+370	Ja

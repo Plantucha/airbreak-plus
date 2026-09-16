@@ -1,0 +1,458 @@
+0	HJEM
+1	BEHANDLING
+2	CLIMATE CTRL
+3	FUGTIGH.NIV.
+4	OPVARM. SL.
+5	RAMPE
+6	INDSTILLINGER
+7	OPTIONER
+8	PÅMINDELSER
+9	KONFIGURATION
+10	SØVNKVALITET
+11	SØVNRAPPORT
+12	VIS INDST.
+13	SERVICE
+14	MASKETILP.
+15	INDLÆR MÅLVÆRDIER
+16	Funkt
+17	Indst. tryk
+18	Maks. tryk
+19	Min. tryk
+20	IPAP
+21	Maks. IPAP
+22	EPAP
+23	Min. EPAP
+24	Maks. EPAP
+25	PS
+26	Min. PS
+27	Maks. PS
+28	Resp.frekv.
+29	Backupfrekv.
+30	Easy-Breathe
+31	Ti
+32	Stign.tid
+33	Trigger
+34	Cyklus
+35	Maks. rampe
+36	Starttryk
+37	Start EPAP
+38	EPR
+39	EPR-niveau
+40	Maske
+41	Masketilp. ->
+42	Slange
+43	AB-filter
+44	<- TILBAGE
+45	<<- HJEM
+46	Climate Ctrl
+47	Søvnkvalitet
+48	Lækalarm
+49	SmartStart
+50	EPR insp.
+51	Adgang
+52	Dato
+53	Kl.
+54	Maske
+55	Vandbeh.
+56	Slange
+57	Filter
+58	SD-kort
+59	Service
+60	Tilpas. 1
+61	Tilpas. 2
+62	Sprog
+63	Gendan fabriksindst->
+64	Slet data ->
+65	Trykenh.
+66	Temp.enh.
+67	Højdeenhed
+68	Periode
+69	Brug
+70	Masketilp.
+71	AHI
+72	Dage brugt
+73	Dage >4 tim
+74	Gns.brug
+75	Anv. tim.
+76	Tryk
+77	Insp.tryk
+78	Ekssp.tryk
+79	% spont T
+80	% spont C
+81	Total AI
+82	Central AI
+83	Kørte timer
+84	SW
+85	BID
+86	VID
+87	RID
+88	Højde
+89	Mål-resp.frekv.
+90	Mål-Va
+91	Vt/kg
+92	Indlær målværdier ->
+93	Slangesystem
+94	Alarmer
+95	Valgmuligheder
+96	Ekst. fugter
+97	Lav MV
+98	Stor lækage
+99	Maske uden udluft.
+100	Lav SpO2
+101	Apnøalarm
+102	Alarmstyrke/test
+103	Bekræft stop
+104	Behandlings-LED
+105	HID
+106	AID
+107	Indlærer…
+108	Beregner…
+109	Acceptér ->
+110	<- Annuller
+111	INGEN ALARMER
+112	ALARM
+113	Start
+114	SpO2
+115	Læk
+116	MV
+117	Va
+118	MåMV
+119	Puls
+120	RF
+121	Vt
+122	TgVa
+123	PS
+124	FL
+125	I:E
+126	% spont
+127	trig
+128	Ti max
+129	Ti min.
+130	cyk
+131	Gentag
+132	Info
+133	 Trykknap
+134	Indst
+135	3 sek
+136	°C
+137	°F
+138	%
+139	min.
+140	cm
+141	Tommer
+142	ml/kg IBW
+143	l/min
+144	ml
+145	timer
+146	s
+147	Min
+148	ms
+149	mdr
+150	--
+151	iVAPS LT
+152	Opvarm-
+153	ning
+154	Vent:
+155	Færdig:
+156	Er du sikker?
+157	Husk:
+158	Obs!
+159	Vent…
+160	Fejl:
+161	Alarm:
+162	Ja
+163	Nej
+164	Mask Events
+165	Mask Off
+166	Mask Dur
+167	Mask On
+168	Flow
+169	Mask Pressure
+170	Therapy Pressure
+171	Insp Pressure
+172	Exp Pressure
+173	Alveolær ventilation
+174	Indåndingstid Ti
+175	Mask Pres Med
+176	Mask Pres 95
+177	Mask Pres Max
+178	Insp Pres Med
+179	Insp Pres 95
+180	Insp Pres Max
+181	Therapy Pres Med
+182	Therapy Pres 95
+183	Therapy Pres Max
+184	Exp Pres Med
+185	Exp Pres 95
+186	Exp Pres Max
+187	Leak Med
+188	Leak 95
+189	Leak Max
+190	RR Med
+191	RR 95
+192	RR Max
+193	Min Vent
+194	Min Vent Med
+195	Min Vent 95
+196	Min Vent Max
+197	Tid Vol Med
+198	Tid Vol 95
+199	Tid Vol Max
+200	I:E Med
+201	I:E 95
+202	I:E Max
+203	Targ Vent
+204	Targ Vent Med
+205	Targ Vent 95
+206	Targ Vent Max
+207	Alv. vent. median
+208	Alv. vent. 95
+209	Alv. vent. maks.
+210	Insp.tid median
+211	Insp.tid 95
+212	Insp.tid maks.
+213	Snore Index
+214	FFL Index
+215	HI
+216	AHI
+217	AI
+218	CAI
+219	OAI
+220	UAI
+221	Resp Event
+222	Te
+223	
+224	L
+225	L/s
+226	bpm
+227	
+228	
+229	days
+230	cmH2O
+231	
+232	Luk H5i-låget, forbind slangen, og tryk på en vilkårlig tast.
+233	Tilstoppet slange; efterse slange.
+234	Ingen slange, kontrollér at slangen er tilsluttet
+235	
+236	Stor læk.; tjek systemindst. og alle forbind.
+237	Maske uden udluftning. Brug en maske med udluftning, eller fjern blokeringer i udluftningshullerne
+238	Lav MV
+239	Apnea
+240	Lav SpO2
+241	Intet oximeter, kontrollér/tilslut oximeteradapteren
+242	Ingen SpO2-data, kontrollér sensorens tilslutning til modulet og placering på fingeren
+243	Fra
+244	Til
+245	Patient
+246	Motorfejl
+247	Fejl: højt tryk
+248	Fejl: høj strøm
+249	Fejl: høj temperatur
+250	Sensorfejl
+251	Systemfejl
+252	Kalibrering nulstillet til standard
+253	Indstillinger nulstillet til standard
+254	Fejl: lav spænding
+255	Fejl: høj spænding
+256	Fejl i alarmenhed
+257	Fugterlåg åbent
+258	Slange blokeret
+259	Slange frakoblet
+260	Stor lækage
+261	Maske uden udluftning
+262	Lav minutventilation
+263	Apnøalarm
+264	Lav SpO2
+265	SpO2 frakoblet
+266	Ugyldige SpO2-data
+267	Lav
+268	Med.
+269	Høj
+270	
+271	Hypopnea
+272	Central Apnea
+273	Obstructive Apnea
+274	Apnea
+275	Arousal
+276	Fra
+277	10
+278	
+279	
+280	Ti min.
+281	Ti max
+282	Timet
+283	°C
+284	°F
+285	Manuel
+286	Auto
+287	Patient
+288	cm
+289	Tommer
+290	cmH2O
+291	hPa
+292	
+293	Data genskrives til SD-kort, tryk på ja for at fortsætte
+294	Skal alle data slettes?
+295	Skal fabriksindstillinger gendannes?
+296	Annuller indlæring af målværdier?
+297	Stop behandling?
+298	Fra
+299	1
+300	2
+301	3
+302	Patient
+303	Hurtig
+304	Med.
+305	Fra
+306	Kun rampe
+307	Hele tiden
+308	SlimLine
+309	Standard
+310	3 m
+311	
+312	Varmer op
+313	Opvarmning klar
+314	Køler af
+315	
+316	
+317	
+318	
+319	Tilslut en 90 W strømforsyning til Climate Ctrl /fugtning
+320	Data er slettet; tryk på en vilkårlig tast.
+321	Fabriksindstillinger er gendannet; tryk på en vilkårlig tast.
+322	SD-kort ikke registreret.
+323	Indstillinger er opdateret; tryk på en vilkårlig tast.
+324	Ugyldig dato/tid, data eksisterer for denne periode
+325	Data under behandling. Tryk på en vilkårlig knap og prøv igen
+326	Motorlevetid overskredet; kontakt leverandør,
+327	Begrænset strømsvigtsalarm, kontakt behandleren
+328	Målværdier indlært. Tryk på en vilkårlig tast for at fortsætte
+329	Indlæring mislykkedes. Tryk på en vilkårlig tast, og prøv igen
+330	Beregner målværdier
+331	Fejl i indstillings huk., ændringerne vil gå tabt når strømmen slukkes
+332	English
+333	Français
+334	Deutsch
+335	Italiano
+336	Español
+337	Español
+338	Português
+339	Português
+340	Nederlands
+341	Svenska
+342	Dansk
+343	Norsk
+344	Suomi
+345	ニホンゴ
+346	Русский
+347	Türkçe
+348	繁體中文
+349	简体中文
+350	Polski
+351	日本語
+352	Pillows
+353	Full Face
+354	Nasal
+355	Nasal Ultra
+356	Barn
+357	
+358	Juster
+359	God
+360	Begrænset
+361	Fuld
+362	Jan
+363	Feb
+364	Mar
+365	Apr
+366	Maj
+367	Jun
+368	Jul
+369	Aug
+370	Sep
+371	Okt
+372	Nov
+373	Dec
+374	Manuel
+375	Auto
+376	Fra
+377	Til
+378	CPAP
+379	AutoSet
+380	APAP
+381	S
+382	ST
+383	T
+384	VAuto
+385	ASV
+386	ASVAuto
+387	iVAPS
+388	PAC
+389	
+390	Fejl i motor; kontakt din behandler.
+391	Fejl i alarmmodul, kontakt behandleren
+392	For højt tryk; kontakt din behandler.
+393	For høj strømstyrke; kontakt din behandler.
+394	For høj temperatur; se brugervejledningen.
+395	Systemfejl; kontakt din behandler.
+396	Fejl i sensor; kontakt din behandler.
+397	Indstillinger nul- stillet til standard- værdier, kontakt serviceudbyder
+398	Kalibrering nul- stillet til standard- værdier, kontakt serviceudbyder
+399	Fejl pga. for høj spænding, kontakt leverandøren
+400	Fejl pga. for lav spænding, kontakt leverandøren
+401	
+402	Indstillinger er opdateret; sæt originalt SD-kort i igen.
+403	Tag SD-kort ud og tryk på start for at begynde behandling
+404	Tag SD-kort ud, og indsæt originalt SD-kort.
+405	Skrivebeskyttet kort; tag SD-kort ud, lås det op, og sæt det i igen.
+406	SD-kort-fejl, tag kortet ud og tryk på start for at begynde behandl.
+407	Indstillingsfejl; tag SD-kort ud, og kontakt en servicetekniker.
+408	Ugyldigt SD-kort; tag det ud, og kontakt servicetekniker.
+409	Tjek ResMed 30/90W strøm- forsyningsenhed. Sæt stikket helt ind
+410	
+411	SD-kortet er i brug. Fjern ikke kortet, og sluk ikke apparatet
+412	Opdaterer indstillinger
+413	Gendanner fabriksindstillinger
+414	Sletter SD-kortdata
+415	Sletter alle data
+416	Registrerer data; fjern ikke SD-kort.
+417	
+418	Masken skal udskiftes; kontakt din behandler.
+419	Slangen skal udskiftes; kontakt din behandler.
+420	Vandbeholderen skal udskiftes; kontakt din behandler.
+421	Filteret skal udskiftes; kontakt din behandler.
+422	SD-kortet skal sendes til din behandler.
+423	Apparatet skal til eftersyn; kontakt din behandler.
+424	
+425	Tilslut oxi-sensor el. tryk på knap til accept af ingen oximetridatalog.
+426	Tjek oxi-sensor el. tryk på knap til accept af ingen oximetridatalog.
+427	Isæt SD-kort el. tryk på knap til accept af ingen oximetridatalog.
+428	Fejl i opvarmet slange; udskift slange.
+429	Fejl i fugter; udskift fugter.
+430	Meget lav
+431	Lav
+432	Med.
+433	Høj
+434	Meget høj
+435	Sidste nat
+436	Sidste måned
+437	1 dag
+438	1 uge
+439	1 måned
+440	3 måneder
+441	6 måneder
+442	1 år
+443	Brug
+444	Til
+445	Fra
+446	
+447	Fugter aktiveret
+448	Climate Control aktiveret
+449	Stor lækage
+450	Uden udluftning
+451	Lav MV
+452	Apnea
+453	Lav SpO2
+454	Intet oximeter
+455	Ingen SpO2
+456	Nej
+457	Ja

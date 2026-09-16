@@ -1,0 +1,368 @@
+0	HEM
+1	BEHANDLING
+2	FUKTIGHETSNIVÅ
+3	UPPVÄRM. SLANG
+4	CLIMATE CTRL
+5	RAMP
+6	INSTÄLLNINGAR
+7	OPTIONER
+8	PÅMINNELSER
+9	KONFIGURERING
+10	SÖMNKVALITET
+11	SÖMNRAPPORT
+12	VISA INSTÄLLN
+13	SERVICE
+14	MASKPASS
+15	Funktion
+16	Inställt tryck
+17	Max tryck
+18	Min tryck
+19	IPAP
+20	EPAP
+21	Starttryck
+22	Start EPAP
+23	Max IPAP
+24	Min EPAP
+25	PS
+26	Max PS
+27	Min PS
+28	Max ramp
+29	EPR-nivå
+30	EPR-nivå
+31	Mask
+32	Maskpass ->
+33	Slang
+34	Stigtid
+35	Ti
+36	Trigger
+37	Cykel
+38	And.frek
+39	Backup frek.
+40	Easy-Breathe
+41	AB filter
+42	Climate Ctrl
+43	SmartStart
+44	Altitud
+45	Läckvarning
+46	<- Bakåt
+47	<<- HEM
+48	Sömnkvalitet
+49	EPR inand
+50	Datum
+51	Tid
+52	Mask
+53	Vattenbeh
+54	Slang
+55	Filter
+56	SD-kort
+57	Service
+58	Anpas. 1
+59	Anpas. 2
+60	Språk
+61	Återställ strd.värd. ->
+62	Radera data ->
+63	Tryck-enheter
+64	Temp-enheter
+65	Period
+66	Maskpass
+67	Användn.
+68	AHI
+69	Tryck
+70	Inandningstryck
+71	Utandningstryck
+72	% Spont T
+73	% Spont C
+74	Totalt AI
+75	Centralt AI
+76	Snitt använd.
+77	Dag använ
+78	Dag > 4 tim
+79	Anv. Tim
+80	Körtim
+81	SW
+82	BID
+83	VID
+84	RID
+85	HID
+86	Start
+87	SpO2
+88	Puls
+89	Läcka
+90	Vt
+91	AF
+92	MV
+93	PS
+94	Ti Max
+95	Ti
+96	Ti Min
+97	I:E
+98	MåMV
+99	% Spont
+100	Trig
+101	Cyk
+102	Återk.
+103	Info
+104	Tryckknapp
+105	Install
+106	3sek
+107	%
+108	°C
+109	°F
+110	min.
+111	Min
+112	msek
+113	sek
+114	mån
+115	l/min
+116	ml
+117	tim
+118	--
+119	Uppvärm
+120	
+121	Vänta:
+122	Slutförd:
+123	Se upp:
+124	Fel:
+125	Är du säker?
+126	Påminnelse:
+127	Vänta…
+128	Ja
+129	Nej
+130	Mask Events
+131	Mask Off
+132	Mask Dur
+133	Mask On
+134	Flow
+135	Mask Pressure
+136	Therapy Pressure
+137	Insp Pressure
+138	Exp Pressure
+139	Mask Pres Med
+140	Mask Pres 95
+141	Mask Pres Max
+142	Insp Pres Med
+143	Insp Pres 95
+144	Insp Pres Max
+145	Therapy Pres Med
+146	Therapy Pres 95
+147	Therapy Pres Max
+148	Exp Pres Med
+149	Exp Pres 95
+150	Exp Pres Max
+151	Leak Med
+152	Leak 95
+153	Leak Max
+154	RR Med
+155	RR 95
+156	RR Max
+157	Min Vent
+158	Min Vent Med
+159	Min Vent 95
+160	Min Vent Max
+161	Tid Vol Med
+162	Tid Vol 95
+163	Tid Vol Max
+164	I:E Med
+165	I:E 95
+166	I:E Max
+167	Targ Vent
+168	Targ Vent Med
+169	Targ Vent 95
+170	Targ Vent Max
+171	Snore Index
+172	FFL Index
+173	HI
+174	AHI
+175	AI
+176	CAI
+177	OAI
+178	UAI
+179	Resp Event
+180	Te
+181	
+182	L
+183	L/s
+184	bpm
+185	
+186	
+187	days
+188	cmH2O
+189	Av
+190	På
+191	Patient
+192	
+193	Hypopnea
+194	Central Apnea
+195	Obstructive Apnea
+196	Apnea
+197	Arousal
+198	Av
+199	10
+200	
+201	
+202	Ti Min
+203	Ti Max
+204	Tidsin.
+205	°C
+206	°F
+207	Manuell
+208	Auto
+209	Patient
+210	cmH2O
+211	hPa
+212	
+213	Uppgradera?
+214	Ogiltigt SD-kort, radera kortdata?
+215	Radera alla data?
+216	Återställ fabriks- inställningar?
+217	Av
+218	1
+219	2
+220	3
+221	Patient
+222	Snabb
+223	Med
+224	Av
+225	Endast ramp
+226	Heltid
+227	SlimLine
+228	Standard
+229	3 m
+230	
+231	Uppvärmning
+232	Uppvärm klar
+233	Svalnar
+234	
+235	
+236	
+237	
+238	Koppla in 60/90W strömförsörjning för uppvärmd befuktning
+239	Koppla in 90 W strömförsörjning för Climate Ctrl /befuktning
+240	Data har raderats, tryck på valfri knapp
+241	Fabriks- inställningar återställda, tryck på valfri knapp
+242	Inget SD-kort upptäckt
+243	Inställningar har uppdaterats, tryck på valfri knapp
+244	Stäng H5i lock, koppla in slang och tryck valfri knapp
+245	Dag/tid ogiltig, data finns för perioden
+246	Databehandlig pågår, tryck på valfri tangent och försök igen
+247	Tryckförändring detekterad, kontrollera altitud korrekt inställd 
+248	Motorns livslängd överskriden, kontaka klinikern
+249	English
+250	Français
+251	Deutsch
+252	Italiano
+253	Español
+254	Español
+255	Português
+256	Português
+257	Nederlands
+258	Svenska
+259	Dansk
+260	Norsk
+261	Suomi
+262	ニホンゴ
+263	Русский
+264	Türkçe
+265	繁體中文
+266	简体中文
+267	Polski
+268	日本語
+269	Kuddar
+270	Full Face
+271	Nasal
+272	Nasal Ultra
+273	Pediatrisk
+274	
+275	Justera
+276	Bra
+277	Jan
+278	Feb
+279	Mar
+280	Apr
+281	Maj
+282	Jun
+283	Jul
+284	Aug
+285	Sep
+286	Okt
+287	Nov
+288	Dec
+289	Manuell
+290	Auto
+291	Av
+292	På
+293	CPAP
+294	AutoSet
+295	APAP
+296	S
+297	ST
+298	T
+299	VAuto
+300	ASV
+301	
+302	Ogiltig PSU, koppla in strömförsörjningsenhet från ResMed
+303	Fel på uppvärmd slang, byt ut slang
+304	Fel på befuktaren, byt ut befuktare
+305	Motorfel, kontakta klinikern
+306	Fel, högt tryck, kontakta klinikern
+307	Fel, hög ström, kontakta klinikern
+308	Fel, hög temperatur, se bruksanvisning
+309	Systemfel, kontakta klinikern
+310	Sensorfel, kontakta klinikern
+311	Blockerad slang, kolla slang
+312	Inställningar återställda till standardvärden, kontakta klinikern
+313	Kalibrering återställd till standardvärden, kontakta klinikern
+314	Överspänningsfel, kontakta service- leverantör
+315	Underspänningsfel, kontakta service- leverantör
+316	
+317	Inställningar har uppdaterats, sätt tillbaka ursprung- ligt SD-kort
+318	Ta ut SD-kortet
+319	Ta bort SD-kort och sätt tillbaka ursprung-ligt SD-kort
+320	Skrivskyddat kort, ta bort, lås upp och sätt tillbaka SD-kort
+321	Kortfel, ta ut SD-kortet och kontakta vårdgivaren
+322	Inställningsfel, ta bort SD-kort och kontakta klinikern
+323	Ogiltigt SD-kort, ta bort och kontakta klinikern
+324	Kontrollera ResMeds 30/90W nätadapter. Tryck in konnektorn helt.
+325	
+326	Läser SD-kort
+327	Uppdaterar inställn
+328	Återställer fabriks- inställningar
+329	Raderar SD-kort data
+330	Raderar alla data
+331	Registrerar data, ta inte bort SD-kort
+332	
+333	Dags för maskbyte, kontakta klinikern
+334	Dags för slangbyte, kontakta klinikern
+335	Dags för vattenbehållarbyte, kontakta klinikern
+336	Dags för filterbyte, kontakta klinikern
+337	Dags att returnera SD-kort till klinikern
+338	Dags för utrustningsservice, kontakta klinikern
+339	
+340	Hög läcka, kolla systeminstallation och alla kopplingar
+341	Anslut oxi-sensor eller tryck på knapp för att inte logga oximetridata
+342	Kolla oxi-sensor eller tryck på knapp för att inte logga oximetridata
+343	Sätt in SD-kort eller tryck knapp för att inte logga oximetridata
+344	Fel på uppvärmd slang, byt ut slang
+345	Fel på befuktaren, byt ut befuktare
+346	Mkt låg
+347	Låg
+348	Med
+349	Hög
+350	Mkt hög
+351	Föreg. natt
+352	Föreg. Mån
+353	1 dag
+354	1 vecka
+355	1 månad
+356	3 månader
+357	6 månader
+358	1 år
+359	Användn
+360	På
+361	Av
+362	
+363	Befuktare aktiverad
+364	Climate Control aktiverad
+365	Oximeter aktiverad
+366	Nej
+367	Ja
