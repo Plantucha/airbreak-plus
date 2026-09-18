@@ -28,9 +28,9 @@ LANG_MASTER = {
     2:  ("DE",  "German"),
     3:  ("IT",  "Italian"),
     4:  ("ES",  "Spanish"),
-    5:  ("ES*", "Spanish (regional)"),
+    5:  ("ES*", "Spanish (LatAm)"),
     6:  ("PT",  "Portuguese"),
-    7:  ("PT*", "Portuguese (regional)"),
+    7:  ("PT*", "Portuguese (BR)"),
     8:  ("NL",  "Dutch"),
     9:  ("SV",  "Swedish"),
     10: ("DA",  "Danish"),
@@ -43,6 +43,7 @@ LANG_MASTER = {
     17: ("ZS",  "Chinese (Simplified)"),
     18: ("PL",  "Polish"),
     19: ("JK",  "Japanese (Kanji)"),
+    20: ("CZ",  "Czech"),
 }
 
 def detect_languages(flash, ta, lan_idx=5):
