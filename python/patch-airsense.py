@@ -1823,6 +1823,110 @@ class ASFirmwarePatches(CompiledPayloadMixin):
             'patch_graph_keep_screen_on: backlight timeout call')
         return PatchOutcome.ok(None, detail)
 
+    def patch_font_ua(self):
+        """Add Ukrainian letters to the standard text font without changing LAN."""
+        if not self._supports_compiled_payloads():
+            return PatchOutcome.skip("unsupported CDX version %s" % self.asf.cdx_ver)
+
+        # Use the versioned font symbol; no language_fonts code is injected here.
+        elf_path = self._require_versioned_artifact('language_fonts', 'elf')
+        font = self._elf_symbol_addr(elf_path, 'font_16') - self.asf.FLASH_BASE
+        height = self.asf.read_u8(font + 0x18)
+        if height != 22:
+            raise ValueError("font_ua: expected the 22-pixel standard text font")
+
+        # The font owns a linked list of Unicode ranges. Each range points to
+        # eight-byte glyph records: width, advance, row bytes, padding, bitmap.
+        head = self.asf.read_u32(font + 0x1c)
+        node = head
+        glyphs, visited = {}, set()
+        while node:
+            off = self.asf._flash_ptr_offset(node)
+            if off is None or off + 12 > len(self.asf.fw) or node in visited:
+                raise ValueError("font_ua: invalid font range chain")
+            visited.add(node)
+            first, last, info, node = struct.unpack('<HHII', self.asf.read_bytes(off, 12))
+            info_off = self.asf._flash_ptr_offset(info)
+            if first > last or info_off is None or info_off + (last - first + 1) * 8 > len(self.asf.fw):
+                raise ValueError("font_ua: invalid glyph table")
+            for codepoint in range(first, last + 1):
+                glyphs[codepoint] = self.asf.read_bytes(info_off + (codepoint - first) * 8, 8)
+
+        # I/i and I/i with diaeresis already have matching Latin glyphs.
+        # Ukrainian Ye mirrors Cyrillic E; Ghe adds an upturn to Cyrillic Ge.
+        sources = {
+            0x0404: (0x042d, 'mirror'), 0x0406: (0x0049, None),
+            0x0407: (0x00cf, None),     0x0454: (0x044d, 'mirror'),
+            0x0456: (0x0069, None),     0x0457: (0x00ef, None),
+            0x0490: (0x0413, 'upturn'), 0x0491: (0x0433, 'upturn'),
+        }
+        missing = sorted(set(sources) - glyphs.keys())
+        if not missing:
+            return PatchOutcome.skip("standard font already contains all Ukrainian letters")
+
+        records, bitmaps = {}, {}
+        for codepoint in missing:
+            source, operation = sources[codepoint]
+            if source not in glyphs:
+                raise ValueError("font_ua: missing source glyph U+%04X" % source)
+            record = glyphs[source]
+            records[codepoint] = record
+            if operation is None:
+                continue
+
+            width, advance, stride, padding, bitmap = struct.unpack('<BBBBI', record)
+            off = self.asf._flash_ptr_offset(bitmap)
+            if not 0 < width <= stride * 8 or off is None or off + height * stride > len(self.asf.fw):
+                raise ValueError("font_ua: invalid bitmap for U+%04X" % source)
+            rows = [int.from_bytes(self.asf.read_bytes(off + y * stride, stride), 'big') for y in range(height)]
+            bits = stride * 8
+            if operation == 'mirror':
+                # Reverse only the visible columns, not the byte-alignment padding.
+                rows = [sum(((row >> (bits - 1 - x)) & 1) << (bits - width + x)
+                            for x in range(width)) for row in rows]
+            else:
+                top = next((y for y, row in enumerate(rows) if row), 0)
+                if top < 2:
+                    raise ValueError("font_ua: no room for upturn on U+%04X" % source)
+                right = rows[top] & -rows[top]
+                rows[top - 2] = rows[top - 1] = right | (right << 1)
+            bitmaps[codepoint] = b''.join(row.to_bytes(stride, 'big') for row in rows)
+
+        # Group adjacent new characters. The new ranges precede the stock list;
+        # existing glyph records and bitmap pointers remain unchanged.
+        ranges = []
+        for codepoint in missing:
+            if ranges and codepoint == ranges[-1][-1] + 1:
+                ranges[-1].append(codepoint)
+            else:
+                ranges.append([codepoint])
+
+        info_start = len(ranges) * 12
+        bitmap_start = info_start + len(missing) * 8
+        size = bitmap_start + sum(len(bitmap) for bitmap in bitmaps.values())
+        # Request alignment slack because the shared CCX allocator is byte-based.
+        off = (self.asf.find_ccx_ff_range_backwards(size + 3) + 3) & ~3
+        address = self.asf.FLASH_BASE + off
+        data = bytearray(size)
+        info_pos, bitmap_pos = info_start, bitmap_start
+        for index, chars in enumerate(ranges):
+            next_node = address + (index + 1) * 12 if index + 1 < len(ranges) else head
+            struct.pack_into('<HHII', data, index * 12, chars[0], chars[-1], address + info_pos, next_node)
+            for codepoint in chars:
+                data[info_pos:info_pos + 8] = records[codepoint]
+                if codepoint in bitmaps:
+                    bitmap = bitmaps[codepoint]
+                    struct.pack_into('<I', data, info_pos + 4, address + bitmap_pos)
+                    data[bitmap_pos:bitmap_pos + len(bitmap)] = bitmap
+                    bitmap_pos += len(bitmap)
+                info_pos += 8
+
+        self.asf.patch(data, off, checkempty=True)
+        self.asf.write_u32(font + 0x1c, address)
+        return PatchOutcome.ok(
+            "Added %d Ukrainian glyphs to the standard font" % len(missing),
+            "Font data: %dB at 0x%08X (CCX)" % (size, address))
+
     def patch_language_fonts(self):
         """Select fonts for the active language and for individual LAN option rows."""
         sites_by_version = {
@@ -2151,6 +2255,8 @@ PATCH_PHASES = (
                   True, 'unlock_languages'),
         PatchSpec('patch-language-fonts', 'Select GUI fonts for the active language.',
                   True, 'patch_language_fonts'),
+        PatchSpec('patch-font-ua', 'Add Ukrainian glyphs to the standard GUI font.',
+                  False, 'patch_font_ua'),
         PatchSpec('patch-therapy-screen', 'Enable additional therapy-screen information.',
                   True, 'patch_therapy_screen'),
         PatchSpec('patch-defaults', 'Change firmware defaults.',
