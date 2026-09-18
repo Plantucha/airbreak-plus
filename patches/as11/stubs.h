@@ -73,6 +73,7 @@ extern void gui_owned_object_invalidate(void *object);
 extern void touch_screen_controller_process_report(void *controller);
 extern void touch_screen_controller_discard_all_reports(void *controller);
 extern unsigned int ring_buffer_free_count(void *ring);
+extern void *ring_buffer_front_ptr(void *ring);
 extern void ring_buffer_write_elements(
     void *ring, const void *elements, unsigned int count);
 extern void user_interface_process_touch_events(void *user_interface);

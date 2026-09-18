@@ -33,6 +33,7 @@
 #define STATE_TOUCH_CANDIDATE 0x10u
 #define STATE_TOUCH_DEFERRED  0x20u
 #define STATE_CONFIRMATION_ACTIVE 0x40u
+#define STATE_WAIT_RELEASE 0x80u
 
 typedef struct {
     unsigned int type;
@@ -129,7 +130,6 @@ start(void *controller)
     int third = point_is_active(controller, TOUCH_POINT_3_OFFSET);
     int all_three = first && second && third;
     int any = first || second || third;
-    int release_deferred_after_report = 0;
     unsigned int saved_third = 0;
 
     if (*((volatile unsigned char *)controller +
@@ -140,9 +140,27 @@ start(void *controller)
 
     state = lcd_runtime_state();
 
+    if ((*state & STATE_WAIT_RELEASE) != 0) {
+        /* A clinical-menu hold owns all contacts through the final release. */
+        if (!any) {
+            *((volatile unsigned char *)controller + TOUCH_HOLD_LATCH_OFFSET) = 0;
+            touch_screen_controller_process_report(controller);
+            *state &= (unsigned char)~STATE_WAIT_RELEASE;
+            return;
+        }
+        saved_third = read_u32(controller, TOUCH_POINT_3_OFFSET);
+        write_u32(controller, TOUCH_POINT_3_OFFSET, saved_third | TOUCH_POINT_ACTIVE);
+        touch_screen_controller_process_report(controller);
+        write_u32(controller, TOUCH_POINT_3_OFFSET, saved_third);
+        return;
+    }
+
     if ((*state & STATE_GESTURE_ACTIVE) == 0 &&
             (*state & STATE_TOUCH_CANDIDATE) == 0 && any) {
-        *state |= STATE_TOUCH_CANDIDATE | STATE_TOUCH_DEFERRED;
+        *state |= STATE_TOUCH_CANDIDATE;
+        /* Leave earlier reports drainable, especially a preceding release. */
+        if (ring_buffer_front_ptr((unsigned char *)controller + TOUCH_RING_OFFSET) == 0)
+            *state |= STATE_TOUCH_DEFERRED;
         write_u32(controller, TOUCH_HOLD_TIMER_OFFSET, 0);
     }
 
@@ -163,26 +181,51 @@ start(void *controller)
     }
 
     if ((*state & STATE_GESTURE_ACTIVE) == 0) {
+        if (first && second && !third) {
+            const touch_event_t *pending = ring_buffer_front_ptr(
+                (unsigned char *)controller + TOUCH_RING_OFFSET);
+
+            /* Do not replay a deferred press into the newly opened menu. */
+            if (pending && pending->type != 2)
+                touch_screen_controller_discard_all_reports(controller);
+        }
+
         if ((*state & STATE_TOUCH_DEFERRED) != 0) {
             unsigned int elapsed = read_u32(
                 controller, TOUCH_HOLD_TIMER_OFFSET);
+            int moved = 0;
 
-            if (first && !second && !third && elapsed >= TOUCH_DEFER_MS) {
+            if (first && !second && !third) {
+                const touch_event_t *initial = ring_buffer_front_ptr(
+                    (unsigned char *)controller + TOUCH_RING_OFFSET);
+                touch_event_t current = decode_touch_point(
+                    read_u32(controller, TOUCH_POINT_1_OFFSET));
+
+                /* Preserve the queued press, then pass movement to the GUI now. */
+                moved = initial && initial->type == 1 &&
+                    (current.x != initial->x || current.y != initial->y);
+            }
+
+            if (first && !second && !third && (moved || elapsed >= TOUCH_DEFER_MS)) {
                 *state &= (unsigned char)~STATE_TOUCH_DEFERRED;
                 *((volatile unsigned char *)controller +
                     TOUCH_HOLD_LATCH_OFFSET) = 0;
                 write_u32(controller, TOUCH_HOLD_TIMER_OFFSET, 0);
-            } else if (first && second && !third &&
-                    elapsed >= 3000u) {
-                release_deferred_after_report = 1;
             }
         }
 
         touch_screen_controller_process_report(controller);
 
-        if (release_deferred_after_report)
-            *state &= (unsigned char)~STATE_TOUCH_DEFERRED;
-        else if ((*state & STATE_TOUCH_DEFERRED) != 0)
+        if (first && second && !third) {
+            const touch_event_t *pending = ring_buffer_front_ptr(
+                (unsigned char *)controller + TOUCH_RING_OFFSET);
+
+            if (pending && pending->type == 2) {
+                *state &= (unsigned char)~(STATE_TOUCH_CANDIDATE | STATE_TOUCH_DEFERRED);
+                *state |= STATE_WAIT_RELEASE;
+            }
+        }
+        if ((*state & STATE_TOUCH_DEFERRED) != 0)
             *((volatile unsigned char *)controller +
                 TOUCH_HOLD_LATCH_OFFSET) = 1;
         return;
