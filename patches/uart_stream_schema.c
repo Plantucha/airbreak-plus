@@ -69,7 +69,7 @@ enum {
     G4_SCALE_OFFSET = 0x16,
     G4_STEP_OFFSET = 0x18,
     G4_UNITS_STR_OFFSET = 0x1a,
-    CUSTOM_SETTINGS_PROTOCOL_VERSION = 1,
+    CUSTOM_SETTINGS_PROTOCOL_VERSION = 2,
 };
 
 static int same_name(const char *left, const char *right)
@@ -238,17 +238,35 @@ static const custom_menu_entry_t *custom_settings_page(u8 container)
     return 0;
 }
 
-static u8 custom_settings_category(u8 container)
+/* Collect headings and page names from the variable outward. The wire response
+ * reverses this list so each variable carries its own outer-to-inner context. */
+static u8 custom_settings_groups(const custom_menu_entry_t *item,
+                                 u16 *groups, unsigned int *count)
 {
+    const custom_menu_entry_t *registry = custom_settings_registry();
+
+    *count = 0;
     for (unsigned int depth = 0; depth < CUSTOM_MENU_REGISTRY_LIMIT; depth++) {
-        const custom_menu_entry_t *page;
+        const custom_menu_entry_t *heading = 0;
+        u8 container = item->container;
+
+        for (const custom_menu_entry_t *entry = registry; entry < item; entry++) {
+            if (entry->container == container &&
+                (entry->flags & CUSTOM_MENU_FLAG_HEADING))
+                heading = entry;
+        }
+        if (heading) {
+            if (*count == CUSTOM_MENU_REGISTRY_LIMIT)
+                return 0xff;
+            groups[(*count)++] = heading->item_id;
+        }
 
         if (container < CUSTOM_MENU_PAGE_CONTAINER_BASE)
             return container < 5 ? container : 0xff;
-        page = custom_settings_page(container);
-        if (!page)
+        item = custom_settings_page(container);
+        if (!item || *count == CUSTOM_MENU_REGISTRY_LIMIT)
             return 0xff;
-        container = page->container;
+        groups[(*count)++] = item->item_id;
     }
     return 0xff;
 }
@@ -273,12 +291,14 @@ static int write_custom_settings_entry(unsigned int index, char *response,
     char name[4] = {0, 0, 0, 0};
     const char *units;
     unsigned int units_length;
+    u16 groups[CUSTOM_MENU_REGISTRY_LIMIT];
+    unsigned int group_count;
     u8 category;
     int length;
 
     if (!entry)
         return write_error(response, response_size, 0x6033);
-    category = custom_settings_category(entry->container);
+    category = custom_settings_groups(entry, groups, &group_count);
     if (category == 0xff)
         return write_error(response, response_size, 0x6033);
 
@@ -290,26 +310,46 @@ static int write_custom_settings_entry(unsigned int index, char *response,
         units = localized_string(*(const u16 *)(descriptor +
                                                 G4_UNITS_STR_OFFSET));
         units_length = strlen_fast(units);
-        if (units_length > 0xff)
-            units_length = 0xff;
+        if (units_length > 0xff) {
+            variable_handler_release(handler);
+            return write_error(response, response_size, 0x6052);
+        }
         length = snprintf(
             response, response_size,
-            "V4 %02X %08X %s %04X %04X %02X %02X:%s %s",
+            "V4 %02X %08X %s %04X %04X %02X %02X:%s ",
             category, entry->mode_mask & CUSTOM_MENU_MODE_BITS, name,
             *(const u16 *)(descriptor + G4_SCALE_OFFSET),
             *(const u16 *)(descriptor + G4_STEP_OFFSET),
-            descriptor[G4_DECIMALS_OFFSET], units_length, units,
-            localized_string(*(const u16 *)(descriptor +
-                                             DESCRIPTOR_NAME_STR_OFFSET)));
+            descriptor[G4_DECIMALS_OFFSET], units_length, units);
     } else {
         length = snprintf(
-            response, response_size, "V8 %02X %08X %s %s",
-            category, entry->mode_mask & CUSTOM_MENU_MODE_BITS, name,
-            localized_string(*(const u16 *)(descriptor +
-                                             DESCRIPTOR_NAME_STR_OFFSET)));
+            response, response_size, "V8 %02X %08X %s ",
+            category, entry->mode_mask & CUSTOM_MENU_MODE_BITS, name);
     }
     variable_handler_release(handler);
-    return formatted_response(response, response_size, length);
+    if (!formatted_response(response, response_size, length))
+        return 0;
+    char *cursor = response + length;
+    char *end = response + response_size;
+    if (!append_hex_byte(&cursor, end, group_count))
+        return write_error(response, response_size, 0x6052);
+    while (group_count) {
+        const char *group = localized_string(groups[--group_count]);
+        unsigned int size = strlen_fast(group);
+
+        if (size > 0xff)
+            return write_error(response, response_size, 0x6052);
+        length = snprintf(cursor, end - cursor, " %02X:%s", size, group);
+        if (length < 0 || (unsigned int)length >= (unsigned int)(end - cursor))
+            return write_error(response, response_size, 0x6052);
+        cursor += length;
+    }
+    length = snprintf(cursor, end - cursor, " %s",
+                      localized_string(*(const u16 *)(descriptor +
+                                                       DESCRIPTOR_NAME_STR_OFFSET)));
+    if (length < 0 || (unsigned int)length >= (unsigned int)(end - cursor))
+        return write_error(response, response_size, 0x6052);
+    return 1;
 }
 
 static int handle_custom_settings(const char *request, char *response,

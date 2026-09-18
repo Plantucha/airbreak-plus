@@ -174,7 +174,8 @@ may use a stock section or an earlier generated page as their parent.
 The UART metadata patch exposes custom variables through `G C &CSG`. It
 resolves variable names, categories, and localized strings from the patched
 firmware, so external interfaces do not need a static list of reclaimed
-assignments. Firmware page layout and static headings are not exposed. Current
+assignments. Page titles and section headings form a localized group path for
+each variable; clients choose how to present that path. Current
 values and writes continue to use the stock `G S #VAR` and `P S #VAR VALUE`
 paths. Numeric limits and enum options remain available through the stock
 `G C #VAR` capability path. See the

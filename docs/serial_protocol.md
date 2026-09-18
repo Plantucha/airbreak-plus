@@ -216,7 +216,7 @@ Q: G C &CSG
 R: G C &CSG = VV NN
 ```
 
-`VV` is the two-digit protocol version. Version `01` uses the records below.
+`VV` is the two-digit protocol version. Version `02` uses the records below.
 `NN` is the two-digit record count. Records are read by a two-digit hexadecimal
 index:
 
@@ -228,8 +228,8 @@ R: G C &CSG II = ENTRY
 The entry type is the first token:
 
 ```
-V4 CC MMMMMMMM VAR SSSS TTTT DD UU:UNITS LABEL
-V8 CC MMMMMMMM VAR LABEL
+V4 CC MMMMMMMM VAR SSSS TTTT DD UU:UNITS GG [LL:GROUP ...] LABEL
+V8 CC MMMMMMMM VAR GG [LL:GROUP ...] LABEL
 ```
 
 | Field | Content |
@@ -243,12 +243,36 @@ V8 CC MMMMMMMM VAR LABEL
 | `TTTT` | Signed raw g[4] step |
 | `DD` | g[4] display precision |
 | `UU` | Byte length of `UNITS` |
+| `GG` | Number of groups, two hex digits |
+| `LL` | Byte length of the following localized `GROUP`, two hex digits |
+| `GROUP` | Page or section heading name |
 | `LABEL` | Localized label through the end of the response |
 
 Category values `00` through `04` are Therapy, Comfort, Accessories, Options,
-and Configuration. Variables placed on generated firmware pages report the
-top-level category containing that page; page layout and static headings are
-not part of this interface.
+and Configuration. Groups describe the path within that category, from outermost
+to innermost. Each page contributes its title; the nearest preceding heading in
+each container contributes its name. Headings in other containers do not apply.
+The category and variable label are not repeated in the group list. `GG=00`
+means no groups. Pages and headings have no separate records or indexes.
+
+Brackets in the grammar denote the optional list, not literal wire characters.
+Fields are separated by one space. Consume exactly `UU` or `LL` bytes after
+each colon, including any spaces within the string. Lengths count bytes before
+frame escaping. Empty units are `00:`. `LABEL` occupies the rest of the response.
+
+Examples (English locale):
+
+```
+V4 04 00000FFF LLH 0001 0001 00 00: 02 03:LCD 03:LCD High
+V4 04 00000FFF LBH 0001 0001 00 00: 02 03:LCD 07:Buttons High
+V8 00 00000040 RPO 00 Custom VAuto
+```
+
+These describe `Configuration > LCD > LCD > High`,
+`Configuration > LCD > Buttons > High`, and `Therapy > Custom VAuto`.
+Clients may use the groups as sections, submenus, or label prefixes.
+Version `01` omits `GG` and the group list; clients must read `VV` before
+decoding entries.
 
 A positive `SSSS` means the displayed value is the raw value divided by the
 scale. A negative scale means the displayed value is the raw value multiplied
@@ -261,10 +285,11 @@ stock `G C #VAR INDEX` command. Read and write current values through the normal
 `G S #VAR` and `P S #VAR VALUE` commands.
 
 `G C &CSG` does not replace the scalar `#CSG` variable path. Firmware with the
-UART metadata patch but no generated custom menu reports version `01` and zero
+UART metadata patch but no generated custom menu reports version `02` and zero
 records. A malformed index returns `0x600E`, non-hex index text returns
 `0x6031`, and an unavailable index returns `0x6033`. Stock firmware returns
-`0x6009`.
+`0x6009`. A response exceeding the output buffer, or a units/group string longer
+than 255 bytes, returns `0x6052` rather than a truncated record.
 
 ### Live Stream Reporting
 
