@@ -62,9 +62,13 @@ def openocd_call(rpc, *words):
         f"set __lcd_status [catch [list {command}] __lcd_result __lcd_options]; "
         "if {$__lcd_status && $__lcd_result eq \"\"} { "
         "set __lcd_result [dict get $__lcd_options -errorcode] }; "
-        'format "%d\\n%s" $__lcd_status $__lcd_result'
+        'if {$__lcd_status || $__lcd_result ne ""} { '
+        'format "%d\\n%s" $__lcd_status $__lcd_result }'
     )
     response = rpc.command(wrapped)
+    # OpenOCD also prints nonempty Tcl replies to its console.
+    if response == "":
+        return ""
     status, separator, result = response.partition("\n")
     if not separator or status not in ("0", "1"):
         raise OpenOcdError(f"invalid Tcl RPC response: {response!r}")
@@ -81,16 +85,37 @@ def temporary_path(directory, stem, suffix):
     return Path(name)
 
 
-def convert_screenshot(convert, ppm_path, png_path):
+def detect_platform(rpc):
+    cpuid = int(openocd_call(rpc, "read_memory", "0xe000ed00", 32, 1), 0)
+    cores = {
+        0xc24: ("air10", "0xe0042000", (0x413, 0x411)),
+        0xc27: ("air11", "0x5c001000", (0x450,)),
+    }
+    core = (cpuid >> 4) & 0xfff
+    if cpuid >> 24 != 0x41 or core not in cores:
+        raise OpenOcdError(f"unsupported MCU CPUID 0x{cpuid:08x}")
+    platform, address, device_ids = cores[core]
+    device_id = int(openocd_call(rpc, "read_memory", address, 32, 1), 0) & 0xfff
+    # Early STM32F405/407 silicon reports 0x411; the Cortex-M4 check distinguishes it from F2.
+    if device_id not in device_ids:
+        raise OpenOcdError(f"unsupported MCU device ID 0x{device_id:03x} (CPUID 0x{cpuid:08x})")
+    return platform
+
+
+def convert_screenshot(convert, ppm_path, png_path, platform="air10"):
+    correction = []
+    if platform == "air10":
+        correction = [
+            "-channel", "R", "-evaluate", "multiply", "0.90",
+            "-channel", "G", "-evaluate", "multiply", "1.20",
+            "-channel", "B", "-evaluate", "multiply", "1.75",
+            "+channel", "-gamma", "1.25",
+        ]
     subprocess.run(
         [
             convert,
             f"{ppm_path}[0]",
-            "-channel", "R", "-evaluate", "multiply", "0.90",
-            "-channel", "G", "-evaluate", "multiply", "1.20",
-            "-channel", "B", "-evaluate", "multiply", "1.75",
-            "+channel",
-            "-gamma", "1.25",
+            *correction,
             f"png:{png_path}",
         ],
         check=True,
@@ -99,9 +124,9 @@ def convert_screenshot(convert, ppm_path, png_path):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Capture the Air 10 LCD through an existing OpenOCD server."
+        description="Capture the Air 10 or Air11 LCD through an existing OpenOCD server."
     )
-    parser.add_argument("output", nargs="?", type=Path, default=Path("lcd.png"))
+    parser.add_argument("output", nargs="?", type=Path, default=Path("lcd.png"), help="PNG output path (default: lcd.png)")
     parser.add_argument("--host", default="127.0.0.1", help="OpenOCD Tcl RPC host")
     parser.add_argument("--port", type=int, default=6666, help="OpenOCD Tcl RPC port")
     parser.add_argument(
@@ -109,13 +134,13 @@ def parse_args():
         help="TCP timeout in seconds (default: 30)",
     )
     parser.add_argument(
-        "--controller", choices=("auto", "ili9341", "ili932x"), default="auto"
+        "--controller", choices=("auto", "ili9341", "ili932x"), default="auto",
+        help="Air 10 LCD controller (default: auto)",
     )
     parser.add_argument(
         "--tcl",
         type=Path,
-        default="tcl/lcd_screenshot.tcl",
-        help="LCD capture Tcl backend",
+        help="LCD capture Tcl backend (default: selected automatically from the MCU)",
     )
     return parser.parse_args()
 
@@ -127,12 +152,8 @@ def main():
         return 2
 
     output = args.output.resolve()
-    tcl_backend = args.tcl.resolve()
     convert = shutil.which("convert")
 
-    if not tcl_backend.is_file():
-        print(f"[!] Tcl backend not found: {tcl_backend}", file=sys.stderr)
-        return 1
     if convert is None:
         print("[!] ImageMagick 'convert' not found", file=sys.stderr)
         return 1
@@ -145,6 +166,7 @@ def main():
 
     ppm_path = None
     png_path = None
+    capture_pending = False
 
     try:
         ppm_path = temporary_path(output.parent, output.stem, ".ppm")
@@ -154,19 +176,50 @@ def main():
             flush=True,
         )
         with OpenOcdTclRpc(args.host, args.port, args.timeout) as rpc:
-            print(f"[*] Loading {tcl_backend}", flush=True)
+            platform = detect_platform(rpc)
+            if platform == "air11" and args.controller != "auto":
+                raise OpenOcdError("--controller is only supported on Air 10")
+            backend_name = "as11-lcd-screenshot.tcl" if platform == "air11" else "lcd_screenshot.tcl"
+            tcl_backend = (args.tcl or Path(__file__).resolve().parent.parent / "tcl" / backend_name).resolve()
+            if not tcl_backend.is_file():
+                raise OpenOcdError(f"Tcl backend not found: {tcl_backend}")
             openocd_call(rpc, "source", tcl_backend)
-            print(f"[*] Capturing LCD through {args.controller}", flush=True)
-            openocd_call(rpc, "lcd_screenshot", ppm_path, args.controller)
+            if platform == "air11":
+                print("[*] Capturing Air11 LCD", flush=True)
+                height = int(openocd_call(rpc, "set", "as11_lcd::height"))
+                progress = sys.stdout.isatty()
+                if progress:
+                    print(f"[*] LCD rows: 0/{height}", end="", flush=True)
+                try:
+                    for first_row in range(0, height, 8):
+                        row_count = min(8, height - first_row)
+                        capture_pending = True
+                        openocd_call(rpc, "as11_lcd::capture", ppm_path, first_row, row_count)
+                        capture_pending = False
+                        if progress:
+                            print(f"\r[*] LCD rows: {first_row + row_count}/{height}", end="", flush=True)
+                finally:
+                    if progress:
+                        print(flush=True)
+                openocd_call(rpc, "resume")
+            else:
+                print(f"[*] Capturing LCD through {args.controller}", flush=True)
+                openocd_call(rpc, "lcd_screenshot", ppm_path, args.controller)
 
         if ppm_path.stat().st_size == 0:
             raise OpenOcdError("OpenOCD produced an empty PPM file")
 
-        print("[*] Applying color correction", flush=True)
-        convert_screenshot(convert, ppm_path, png_path)
+        convert_screenshot(convert, ppm_path, png_path, platform)
         os.replace(png_path, output)
         print(f"[+] Wrote {output}", flush=True)
         return 0
+    except TimeoutError:
+        print(f"[!] OpenOCD did not reply within {args.timeout:g}s", file=sys.stderr)
+        if capture_pending:
+            print(f"[!] Capture may still be running in OpenOCD; partial PPM retained: {ppm_path}", file=sys.stderr)
+            print("[!] Wait for OpenOCD to finish before issuing reset run or another capture", file=sys.stderr)
+            ppm_path = None
+        return 1
     except (OSError, OpenOcdError, ValueError, subprocess.CalledProcessError) as error:
         print(f"[!] {error}", file=sys.stderr)
         return 1
