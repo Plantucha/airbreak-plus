@@ -98,9 +98,21 @@ proc as11_lcd::capture {{path "lcd.ppm"} {first_row 0} {row_count 240}} {
         error "LCD PF0 is not configured as FMC_A0"
     }
 
+    set target [target current]
+    set dap [$target cget -dap]
+    set saved_ap [$dap apsel]
     set out [::open $path [expr {$first_row == 0 ? "wb" : "ab"}]]
     set rs_changed 0
+    set csw_saved 0
     set status [catch {
+        $dap apsel [$target cget -ap-num]
+        if {![regexp {csw (0x[0-9a-fA-F]+)} [$dap apcsw] match saved_csw]} {
+            error "Cannot read debug-port memory access attributes"
+        }
+        set csw_saved 1
+        # STM32H7 OpenOCD enables cacheable debug accesses. LCD GRAM reads
+        # must reach the bus each time, including repeated reads of one address.
+        $dap apcsw 0 0x08000000
         fconfigure $out -translation binary
         if {$first_row == 0} {
             ::puts -nonewline $out $header
@@ -122,6 +134,16 @@ proc as11_lcd::capture {{path "lcd.ppm"} {first_row 0} {row_count 240}} {
             set status 1
             append message "\nFailed to restore PF0: $restore_message"
         }
+    }
+    if {$csw_saved} {
+        if {[catch {$dap apcsw $saved_csw 0x08000000} restore_message]} {
+            set status 1
+            append message "\nFailed to restore debug-port access attributes: $restore_message"
+        }
+    }
+    if {[catch {$dap apsel $saved_ap} restore_message]} {
+        set status 1
+        append message "\nFailed to restore debug-port selection: $restore_message"
     }
     if {[catch {::close $out} close_message]} {
         set status 1
