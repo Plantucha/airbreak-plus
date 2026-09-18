@@ -44,6 +44,17 @@ Best support for SX567-0401 and SX567-0402 firmware. Other versions are handled 
 - [Unlocks configured languages and selected firmware defaults](docs/guide/as11/features.md#languages-and-defaults)
 - [Removes the design-life warning triggered after ~20,000 hours of runtime](docs/guide/as11/features.md#device-design-life-message)
 
+<p align="center">
+  <img src="docs/images/as11-therapy-modes-1.png" alt="Unlocked therapy modes" width="180">
+  <img src="docs/images/as11-therapy-modes-2.png" alt="Unlocked therapy modes" width="180">
+  <img src="docs/images/as11-therapy-modes-3.png" alt="Unlocked therapy modes" width="180">
+  <img src="docs/images/as11-therapy-modes-4.png" alt="Unlocked therapy modes" width="180">
+  <img src="docs/images/as11-asv-psrange.png" alt="Unlocked pressure ranges" width="180">
+  <img src="docs/images/as11-asv-backuprate.png" alt="ASV Backup Rate settings" width="180">
+  <img src="docs/images/as11-clock.png" alt="Header clock" width="180">
+  <img src="docs/images/as11-therapy-stats.png" alt="Extra info on therapy screen" width="180">
+</p>
+
 ## Getting started
 
 Windows users can prepare the common build environment with the
