@@ -1,7 +1,7 @@
 # Air11 Standard Patch Features
 
-The standard Air11 image applies the patches selected in `patch-airsense-s11`.
-These features are separate from the Air10 compiled therapy payloads.
+The standard Air11 image includes the features below, except those marked
+optional. See [Patching](patching.md#selecting-patches) to change the selection.
 
 ## Supported Therapy Modes
 
@@ -38,10 +38,25 @@ the paired range-selector calculation are patched together.
 
 The ASV backup-rate patch adds a persistent `Backup Rate` control to the
 clinical therapy settings in ASV and ASVAuto. `On` preserves stock behavior
-and `Off` suppresses backup breaths.
+and `Off` suppresses backup breaths. The default is `On`.
 
 See [Air11 Custom Settings](../../as11/custom_settings.md) for persistence and
 fallback behavior.
+
+## Header Clock
+
+The clock patch shows local time in the home and therapy-screen headers.
+Enable `Clock` in the clinical menu's Configuration section. The default is
+`Off`.
+
+## Custom Settings
+
+The custom-settings patch adds the `Backup Rate` and `Clock` menu controls
+used by the corresponding patches. Their values are saved across restarts.
+These controls replace the stock Reminders feature.
+
+See [Air11 Custom Settings](../../as11/custom_settings.md) for setting
+assignments and behavior when this patch is disabled.
 
 ## Languages and Defaults
 
@@ -58,18 +73,27 @@ The remote-access patches expose additional therapy and feature settings to
 compatible tools. They can make selected commands available over connections
 where the stock firmware blocks them. By default, this includes `SetDateTime`
 and `ApplyUpgrade` over paired Bluetooth, allowing the date and time to be set
-and firmware to be updated without extracting the device OTA key. Commands can
-also be blocked on selected direct-control connections.
+and firmware to be updated without extracting the device OTA key. `ResetDevice`
+is also enabled for remote restarts. Commands can also be blocked on selected
+direct-control connections.
 
 Selected device settings can also be made available for remote reading or
 writing. By default, this includes Warmup, which preheats the humidifier before
 therapy.
+
+## Cloud Updates (Optional)
 
 An optional cloud-update patch prevents flow-generator updates received from
 the cellular service from being installed. By default, it records the update
 details without downloading the file. It can instead download and retain the
 file for inspection without installing it. Modem and alarm-module updates are
 unaffected.
+
+## Cellular Downloads (Optional)
+
+The cellular-download patch adds `AirbreakDownload` to RPC, allowing a supplied
+HTTP URL to be downloaded through the cellular modem into firmware-update
+storage. The patch is disabled by default.
 
 ## Time Zone
 
@@ -112,3 +136,21 @@ the problem and skips VID spoofing rather than installing an unsafe hook.
 The motor patch suppresses the "Your device has reached its design life"
 message shown when accumulated runtime reaches its firmware threshold. The
 stored runtime counter continues to track device usage.
+
+## Bootloader Service
+
+The bootloader-service patch allows firmware and external flash to be read
+and written over CAN, including when the application cannot start. It supports
+bootloader version 1.1.0.
+
+See [CAN Firmware Dump](service_dump.md) for entering service mode and
+backing up the firmware, and [as11_flash](../../tools/as11_flash.md) for
+service commands.
+
+## Build Information
+
+The build-information patch exposes the Airbreak version, patch results, and
+custom-setting assignments through RPC `Get AirbreakInfo`. Compatible tools
+can use this information to identify the installed modifications.
+
+See [AirbreakInfo](../../as11/patch_airbreak_info.md) for the reported fields.

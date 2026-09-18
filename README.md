@@ -39,6 +39,9 @@ Best support for SX567-0401 and SX567-0402 firmware. Other versions are handled 
 
 - [Unlocks supported therapy modes and related clinical settings](docs/guide/as11/features.md#supported-therapy-modes)
 - [Allows custom ASV and ASVAuto pressure-support ranges](docs/guide/as11/features.md#asv-pressure-support-range)
+- [Allows backup breaths to be disabled in ASV and ASVAuto](docs/guide/as11/features.md#asv-backup-rate)
+- [Adds respiratory statistics to the therapy screen](docs/guide/as11/features.md#therapy-screen)
+- [Adds an optional clock to the home and therapy screens](docs/guide/as11/features.md#header-clock)
 - [Expands EDF recording across unlocked therapy modes](docs/guide/as11/features.md#edf-recording)
 - [Keeps EDF and myAir variant reporting aligned with the selected mode](docs/guide/as11/features.md#variant-reporting)
 - [Unlocks configured languages and selected firmware defaults](docs/guide/as11/features.md#languages-and-defaults)
