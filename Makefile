@@ -6,6 +6,7 @@ BUILD=build
 PATCH_STUBS=$(SRC)/stubs
 MAKE_LOG ?= make.log
 AIR10_PATCH_ARGS ?=
+AIR10_FIRMWARE ?= stm32.bin
 export AIR10_PATCH_ARGS
 
 AIR10_LEGACY_ENV := PATCH_CODE PATCH_VAUTO_WRAPPER PATCH_S PATCH_ASV_TASK_WRAPPER \
@@ -97,12 +98,12 @@ $(BUILD):
 # unlocked stock-ish
 $(BUILD)/stm32-patched.bin: $(S10_PATCHER_DEPS) $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
 	$(announce_image)
-	./patch-airsense stm32.bin $@ $(PATCHER_OUTPUT_ARGS)
+	./patch-airsense '$(AIR10_FIRMWARE)' $@ $(PATCHER_OUTPUT_ARGS)
 
 # Graph, Custom VAuto, ASV backup-rate control and Square Wave
 $(BUILD)/stm32-plus.bin: $(S10_PATCHER_DEPS) $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
 	$(announce_image)
-	PATCH_CODE=1 PATCH_ASV_TASK_WRAPPER=1 PATCH_VAUTO_WRAPPER=1 PATCH_S=1 ./patch-airsense stm32.bin $@ $(PATCHER_OUTPUT_ARGS)
+	PATCH_CODE=1 PATCH_ASV_TASK_WRAPPER=1 PATCH_VAUTO_WRAPPER=1 PATCH_S=1 ./patch-airsense '$(AIR10_FIRMWARE)' $@ $(PATCHER_OUTPUT_ARGS)
 
 binaries: $(PAYLOAD_TARGETS)
 
@@ -424,7 +425,7 @@ $(1).config: patch-config-force
 	python3 python/lib/patch_config.py '$(2)' '$(3)' '$$@'
 endef
 
-$(foreach image,$(BUILD_VARIANTS),$(eval $(call patch_config_rule,$(image),air10,stm32.bin)))
+$(foreach image,$(BUILD_VARIANTS),$(eval $(call patch_config_rule,$(image),air10,$(AIR10_FIRMWARE))))
 
 -include Makefile.s9
 -include Makefile.as11
