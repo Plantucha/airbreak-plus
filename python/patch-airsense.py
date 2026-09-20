@@ -1525,6 +1525,15 @@ class ASFirmwarePatches(CompiledPayloadMixin):
             "descriptor ranges updated, but CDX constraints are unknown for %s" %
             self.asf.cdx_ver)
 
+    def ivaps_unlock_ps_range(self):
+        """Remove the additional Max PS minimum used with iVAPS AutoEPAP."""
+        if 'ZLL' not in self.asf.var_ids_by_name():
+            return PatchOutcome.skip("ZLL variable not present in firmware")
+        rec = self.asf.find_var('ZLL')
+        self.asf.write_u32(rec + self.asf.G4_DEFAULT, 0)
+        self.asf.write_u32(rec + self.asf.G4_MAX, 0)
+        return PatchOutcome.ok("ZLL threshold cleared for iVAPS AutoEPAP")
+
     def gui_config(self):
         # enable editable options in clinical settings menu
         # by setting bit 0 (ACT) of the flags field at record +0x00
@@ -2273,6 +2282,8 @@ PATCH_PHASES = (
                   True, 'enable_ivaps_settings'),
         PatchSpec('patch-asv-ps-range', 'Unlock ASV/ASVAuto pressure constraints.',
                   True, 'asv_unlock_ps_range'),
+        PatchSpec('patch-ivaps-ps-range', 'Unlock iVAPS AutoEPAP pressure support constraints.',
+                  True, 'ivaps_unlock_ps_range'),
     )),
 
     ('Quality of life', (
