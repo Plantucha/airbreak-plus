@@ -131,7 +131,7 @@ $(BUILD)/as11_fgbl_stubs_%.o: $(SRC)/as11/fgbl_stubs_%.S Makefile Makefile.as11 
 # APPL and FGBL payloads share one versioned object rule.
 define AS11_VERSIONED_OBJECTS_template
 $$(BUILD)/as11_%_$(1).o: $$(SRC)/as11/%.c $$(SRC)/as11/stubs.h \
-		$$(SRC)/as11/rpc_object.h $$(SRC)/as11/vars.h \
+		$$(SRC)/as11/rpc_object.h $$(SRC)/as11/custom_settings.h $$(SRC)/as11/vars.h \
 		$$(wildcard $$(SRC)/as11/vars_$(1).h) \
 		Makefile Makefile.as11 | $$(BUILD)
 	$$(CC) $$(AS11_CFLAGS) $$(AS11_PAYLOAD_CFLAGS_as11_$$*) \

@@ -115,6 +115,8 @@ AS11_PATCH_VERSIONS = {
         "custom_settings": {
             "rpc_enum_symbols": 0x08105318,
             "rpc_enum_symbol_count": 974,
+            "gui_enum_count_pointer": 0x08073A5C,
+            "gui_enum_table_pointer": 0x08073A60,
             "menu": {
                 "scroller_call": 0x0805AC68,
             },
@@ -176,6 +178,8 @@ AS11_PATCH_VERSIONS = {
         "custom_settings": {
             "rpc_enum_symbols": 0x081070A0,
             "rpc_enum_symbol_count": 1027,
+            "gui_enum_count_pointer": 0x080761A0,
+            "gui_enum_table_pointer": 0x080761A4,
             "menu": {
                 "scroller_call": 0x0805E014,
             },
@@ -247,6 +251,9 @@ AS11_PATCH_VERSIONS = {
         "custom_settings": {
             "rpc_enum_symbols": 0x08107BA8,
             "rpc_enum_symbol_count": 1032,
+            # Literal-pool slots read by the GUI enum-label resolver.
+            "gui_enum_count_pointer": 0x0807667C,
+            "gui_enum_table_pointer": 0x08076680,
             "menu": {
                 # Final GuiScroller_ctor call in the clinical-settings
                 # constructor; redirected through the menu bridge.
@@ -327,6 +334,8 @@ AS11_PATCH_VERSIONS = {
         "custom_settings": {
             "rpc_enum_symbols": 0x08108398,
             "rpc_enum_symbol_count": 1041,
+            "gui_enum_count_pointer": 0x08076CE8,
+            "gui_enum_table_pointer": 0x08076CEC,
             "menu": {
                 "scroller_call": 0x0805E586,
             },

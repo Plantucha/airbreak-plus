@@ -1,7 +1,7 @@
 # Air11 Custom Settings
 
 The custom settings framework provides persistent DataItems and clinical-menu
-controls for compiled Air11 payloads. Storage, descriptor changes, menu rows,
+controls for Air11 feature patches. Storage, descriptor changes, menu rows,
 and payload bindings are independent parts of the framework.
 
 `patch-custom-settings` enables the finalization pass. When no active feature
@@ -39,6 +39,10 @@ processed. Afterward, the custom settings finalizer:
 Reclaim providers and the menu payload are installed only when required by an
 active feature.
 
+Storage extensions and GUI enum-label registrations are finalized after the
+custom settings pass. Requests from all features are merged before each table
+is allocated and written.
+
 ## Optional Integration
 
 Custom settings configure feature payloads but are not their runtime
@@ -52,10 +56,24 @@ it as backup rate disabled; the header-clock payload displays the clock.
 
 ## Persistence
 
-The reclaimed fields remain members of the stock `HST` storage set. The
-framework does not create another settings file, change the HST member list,
-or alter its serialized record length. Values are loaded and saved through the
-normal HST dependency and dirty-tracking paths.
+The reclaimed fields remain members of the stock `HST` storage set. Values are
+loaded and saved through the normal HST dependency and dirty-tracking paths.
+
+Feature patches can also persist existing DataItems without reclaiming a donor:
+
+```python
+self.storage_register_members("HST", "TSS")
+```
+
+This registers a request without changing the image. `finalize_storage()`
+merges requests per group, appends missing members, and relocates each extended
+list once through the shared CONF allocator. The g[6] headers and filenames
+stay unchanged; only the affected header's pointer and member count change.
+Repeated members are included once.
+
+The finalizer also assigns the group's update counter to each requested
+DataItem, so changes schedule a storage write. This pass runs after descriptor
+changes and does not require `patch-custom-settings`.
 
 The descriptor default is used only when no persisted value is available. An
 existing HST value takes precedence after boot.
@@ -120,6 +138,12 @@ supported application version.
 The header-clock feature draws `Clock` for its menu row. That label is not
 localized.
 
+For an enum selector, a feature can associate raw values with existing GUI
+text IDs through `custom_enum_labels(setting, {raw_value: text_id, ...})`.
+`finalize_enum_labels()` merges these requests into the native option-label
+table and relocates it into CONF. The native formatter and selector both use
+the updated table. RPC symbols remain unchanged.
+
 ## Menu Registry
 
 The shared payload stores sentinel-terminated 8-byte menu records:
@@ -162,16 +186,25 @@ selected section. The current bridge adds DataItem rows to stock sections; it
 does not create headings or additional pages.
 
 Factory addresses are deduplicated in a separate table. The built-in
-`text_value` factory creates a normal text-value list item. A feature may
-instead register another factory with this interface:
+`text_value` factory creates a native On/Off switch. The `enum` factory creates
+a native enum selector using the popup controller shared by stock menu rows.
+Its choices come from the DataItem's option mask and GUI enum-label table.
+A feature may instead register another factory with this interface:
 
 ```c
-void *factory(uint32_t var_id, uint32_t label_id);
+#include "custom_settings.h"
+
+void *factory(unsigned int var_id, unsigned int label_id,
+              const custom_menu_context_t *context);
 ```
 
 This keeps menu presentation independent from the descriptor table used for
 storage. Numeric or otherwise specialized controls can supply a factory suited
 to their native UI class.
+
+The context exposes the stock clinical-menu rows during construction. A factory
+may reuse controllers owned by those rows; the context pointer itself must not
+be retained after the factory returns.
 
 ## Mode Visibility
 

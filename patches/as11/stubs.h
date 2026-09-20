@@ -27,6 +27,12 @@ extern void GuiTextValueFormatter_ctor(void *formatter);
 extern void GuiTextValueFormatter_dtor(void *formatter);
 extern void *GuiMenuTextValueListItem_ctor(
     void *item, unsigned int var_id, unsigned int label_id, void *formatter);
+extern void *gui_menu_data_value_callback_ctor_empty(void *callback);
+extern void gui_menu_data_value_callback_dtor(void *callback);
+extern void *GuiMenuDataValueListItem_ctor(
+    void *item, unsigned int var_id, unsigned int label_id,
+    unsigned int title_id, unsigned int activity_id, void *controller,
+    void *callback, unsigned int flags);
 extern void *GuiScroller_ctor(
     void *scroller,
     unsigned int arg2,

@@ -1006,6 +1006,8 @@ def resolve_custom_settings_candidates(
     sites = {
         "scroller_call": matcher.site(reference["menu"]["scroller_call"]),
     }
+    for name in ("gui_enum_count_pointer", "gui_enum_table_pointer"):
+        sites[name] = matcher.site(reference[name])
     for name in ("row_call", "row_label", "row_store", "scheduler_call"):
         value = reminders[name]
         sites[name] = matcher.site(
@@ -1971,6 +1973,12 @@ def self_check_candidates(
         ))
 
         sites = candidates.custom_settings.sites
+        for name in ("gui_enum_count_pointer", "gui_enum_table_pointer"):
+            result = sites[name]
+            checks.append(compare_candidate(
+                "custom_settings." + name, custom_expected[name],
+                CandidateValue(result.address, result.quality, result.evidence),
+            ))
         reminders = custom_expected["reclaim"]["reminders"]
         scroller = sites["scroller_call"]
         checks.append(compare_candidate(
@@ -2428,6 +2436,8 @@ def prepare(args) -> int:
         ),
         "    },",
         "    \"custom_settings\": {",
+        "        \"gui_enum_count_pointer\": %s," % format_address(custom_site_results["gui_enum_count_pointer"].address),
+        "        \"gui_enum_table_pointer\": %s," % format_address(custom_site_results["gui_enum_table_pointer"].address),
         "        \"rpc_enum_symbols\": %s," % format_address(
             rpc_enum_symbols.address
         ),

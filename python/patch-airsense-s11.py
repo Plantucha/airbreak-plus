@@ -401,6 +401,7 @@ class S11Firmware(object):
         self.fw = bytearray(fileobj.read())
         self.crcfunc = crc16_ccitt_false
         self._rpc_json_index = None
+        self._conf_free = None
 
         self.validate()
         self.setup_arrays()
@@ -667,6 +668,66 @@ class S11Firmware(object):
                 (idx, row["value"])
             )
         return row["offset"]
+
+    def allocate_conf(self, size, alignment=4):
+        """Reserve bytes from the high end of the main erased CONF area."""
+        if self._conf_free is None:
+            # Use the large gap between the tables and footer, not small FF
+            # fields inside descriptors. Keep reservations even before writing.
+            runs = list(re.finditer(rb"\xff+", self.fw[self.CONF_OFF:self.APPL_OFF]))
+            if not runs:
+                raise ValueError("CONF has no erased allocation space")
+            gap = max(runs, key=lambda run: run.end() - run.start())
+            self._conf_free = (self.CONF_OFF + gap.start(), self.CONF_OFF + gap.end())
+        start, end = self._conf_free
+        off = (end - size) // alignment * alignment
+        if off < start:
+            raise ValueError("CONF allocation exhausted: need %d bytes" % size)
+        self._conf_free = (start, off)
+        return off
+
+    def find_storage_group(self, name):
+        """Return the g[6] header for a three-letter settings filename stem."""
+        base = self.globals_offset(6)
+        for index in range(7):
+            off = base + index * 16
+            if self.read_str(off, 4) == name.upper():
+                return off
+        raise ValueError("unknown settings storage group %s" % name)
+
+    def extend_storage_group(self, name, identifiers):
+        """Append DataItems to a settings group and bind its update counter."""
+        header = self.find_storage_group(name)
+        counter = self.u16(header + 4)
+        old_off = self.ptr_to_off(self.u32(header + 8))
+        old_count = self.u8(header + 12)
+        members = [self.u16(old_off + index * 2) for index in range(old_count)]
+        rows = []
+        for identifier in identifiers:
+            matches = self.find_descriptors(identifier)
+            if not matches:
+                raise ValueError("unknown storage DataItem %s" % identifier)
+            rows.extend(matches)
+        for row in rows:
+            if row["var_id"] not in members:
+                members.append(row["var_id"])
+
+        if len(members) > 255:
+            raise ValueError("storage group %s exceeds 255 members" % name)
+        if len(members) != old_count:
+            data = struct.pack("<%dH" % len(members), *members)
+            off = self.allocate_conf(len(data))
+            self.fw[off:off + len(data)] = data
+            # Only the member list moves; the header and original list stay put.
+            self.write_u32(header + 8, self.FLASH_BASE + off)
+            self.write_u8(header + 12, len(members))
+            print("Extending %s storage: %d -> %d members at 0x%08X" %
+                  (name, old_count, len(members), self.FLASH_BASE + off))
+
+        # Membership controls serialization; the counter makes a Set schedule
+        # a write even when no other member of this group has changed.
+        for row in rows:
+            self.write_descriptor_fields(row, {"linked_counter_index": counter})
 
     def setup_arrays(self):
         self.globals = self.read_globals()
@@ -973,6 +1034,7 @@ class S11FirmwarePatches(CompiledPayloadMixin):
     }
     CUSTOM_MENU_FACTORY_SYMBOLS = {
         "text_value": "custom_menu_text_value_factory",
+        "enum": "custom_menu_enum_factory",
     }
 
     def __init__(self, asf, rpc_method_permissions=None, rpc_dataitem_permissions=None, cloud_firmware_change_mode="metadata"):
@@ -989,7 +1051,9 @@ class S11FirmwarePatches(CompiledPayloadMixin):
         self.custom_settings_enabled = False
         self.custom_setting_claims = {}
         self.custom_menu_entries = []
+        self.custom_enum_label_requests = {}
         self.custom_setting_bindings = []
+        self.storage_member_requests = {}
         self.airbreak_info_enabled = False
         self.patch_outcomes = {}
         self.claimed_dataitems = {}
@@ -1291,6 +1355,19 @@ class S11FirmwarePatches(CompiledPayloadMixin):
         """Enable custom settings requested by payload patches."""
         self.custom_settings_enabled = True
 
+    def storage_register_members(self, group, *identifiers):
+        """Queue persistent DataItems; each group is rebuilt once at finalization."""
+        self.storage_member_requests.setdefault(group.upper(), []).extend(identifiers)
+
+    def finalize_storage(self):
+        """Extend storage lists after feature and custom descriptor changes."""
+        if not self.storage_member_requests:
+            return PatchOutcome.skip("no storage extensions requested")
+        for group, identifiers in self.storage_member_requests.items():
+            self.asf.extend_storage_group(group, identifiers)
+        self.storage_member_requests.clear()
+        return PatchOutcome.ok()
+
     def therapy_mode_mask(self, *names):
         """Build the MOP bitset used to gate a custom menu row."""
         wanted = set(names)
@@ -1375,6 +1452,46 @@ class S11FirmwarePatches(CompiledPayloadMixin):
         """Write a DataItem's var_id into a payload ABI slot."""
         setting = self._custom_setting_key(setting)
         self.custom_setting_bindings.append((setting, abi_slot))
+
+    def custom_enum_labels(self, setting, labels):
+        """Assign existing GUI text IDs to raw enum values."""
+        setting = self._custom_setting_key(setting)
+        self.custom_enum_label_requests.setdefault(setting, {}).update(labels)
+
+    def finalize_enum_labels(self):
+        """Merge registered labels into the native GUI enum table."""
+        if not self.custom_settings_enabled or not self.custom_enum_label_requests:
+            return PatchOutcome.skip("no enum labels requested")
+        layout = self._patch_version_data("custom_settings", self._payload_version_key())
+        count_slot = self.asf.ptr_to_off(layout["gui_enum_count_pointer"])
+        table_slot = self.asf.ptr_to_off(layout["gui_enum_table_pointer"])
+        count = self.asf.u32(self.asf.ptr_to_off(self.asf.u32(count_slot)))
+        table = self.asf.ptr_to_off(self.asf.u32(table_slot))
+        labels = [
+            (self.asf.u32(off), self.asf.u32(off + 4), self.asf.u32(off + 8))
+            for off in range(table, table + count * 12, 12)
+        ]
+        updates = {}
+        for setting, values in self.custom_enum_label_requests.items():
+            row = self.asf.find_descriptors(setting, ("g5",))[0]
+            updates.update({(row["index"], value): text_id for value, text_id in values.items()})
+        labels = [(index, value, updates.pop((index, value), label)) for index, value, label in labels]
+        labels.extend((index, value, label) for (index, value), label in updates.items())
+
+        # Keep the count beside the relocated table and redirect the resolver's
+        # two literals. All native enum formatters then see the same labels.
+        data = struct.pack("<I", len(labels))
+        data += b"".join(struct.pack("<III", *row) for row in labels)
+        if len(labels) == count and data[4:] == bytes(self.asf.fw[table:table + count * 12]):
+            self.custom_enum_label_requests.clear()
+            return PatchOutcome.ok("enum labels unchanged")
+        off = self.asf.allocate_conf(len(data))
+        self.asf.fw[off:off + len(data)] = data
+        self.asf.write_u32(count_slot, self.asf.off_to_addr(off))
+        self.asf.write_u32(table_slot, self.asf.off_to_addr(off + 4))
+        print("GUI enum labels: %d -> %d rows" % (count, len(labels)))
+        self.custom_enum_label_requests.clear()
+        return PatchOutcome.ok()
 
     def _custom_settings_reclaim_reminders(self, layout):
         """Detach the stock Reminders consumers from its persistent fields."""
@@ -2885,7 +3002,7 @@ PATCH_LIST = [
     },
     {
         "arg": "patch-custom-settings",
-        "desc": "Expose settings requested by active compiled payloads.",
+        "desc": "Expose settings requested by active feature patches.",
         "default": True,
         "function": "enable_custom_settings",
     },
@@ -3090,6 +3207,9 @@ def run_patcher(args, detail_log=None):
     custom_settings_outcome = apply_reported_patch("finalize-custom-settings", patches.finalize_custom_settings, args, detail_log)
     if "patch-custom-settings" in patches.patch_outcomes:
         patches.record_patch_outcome("patch-custom-settings", custom_settings_outcome)
+
+    apply_reported_patch("finalize-storage", patches.finalize_storage, args, detail_log)
+    apply_reported_patch("finalize-enum-labels", patches.finalize_enum_labels, args, detail_log)
 
     mop_dispatcher_outcome = apply_reported_patch(
         "patch-mop-callback-dispatcher",
