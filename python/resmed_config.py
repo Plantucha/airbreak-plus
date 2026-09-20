@@ -804,29 +804,50 @@ class FrameReader:
         responses, self.buffer = extract_responses(self.buffer)
         return responses
 
-def read_responses(ser, timeout=1.0, multi_frame=False):
+def response_matches_command(response, command):
+    """Match an R/E request echo, including arguments and optional index."""
+    if response['type'] not in ('R', 'E'):
+        return False
+    request = response['payload'].split(b'=', 1)[0].strip()
+    return request == command.strip().encode()
+
+
+def read_responses(ser, timeout=1.0, multi_frame=False, command=None):
+    """Wait for the requested reply; stream traffic cannot complete the request."""
     old_timeout = ser.timeout
-    if multi_frame:
-        ser.timeout = 0.1
-        trail_wait, trail_ext = 0.3, 0.1
-    else:
-        ser.timeout = 0.02
-        trail_wait, trail_ext = 0.02, 0.02
-    data = b''
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        chunk = ser.read(4096)
-        if chunk:
-            data += chunk
-            trail_deadline = time.time() + trail_wait
-            while time.time() < trail_deadline:
-                chunk = ser.read(4096)
-                if chunk:
-                    data += chunk
-                    trail_deadline = time.time() + trail_ext
-            break
-    ser.timeout = old_timeout
-    return data, parse_responses(data)
+    reader = FrameReader()
+    data = bytearray()
+    responses = []
+    reply_seen = False
+    deadline = time.monotonic() + timeout
+    trail_deadline = deadline
+    stream_tag = None
+    if command is not None and command.startswith('G F &'):
+        stream_tag = command.split()[2][1:].encode('ascii')
+    try:
+        while True:
+            remaining = min(deadline, trail_deadline) - time.monotonic()
+            if remaining <= 0:
+                break
+            ser.timeout = min(0.1 if multi_frame else 0.02, remaining)
+            chunk = ser.read(4096)
+            data.extend(chunk)
+            matched = False
+            for response in reader.feed(chunk):
+                reply = command is None or response_matches_command(response, command)
+                record = (stream_tag is not None and response['type'] == 'K' and
+                          response['payload'].startswith(stream_tag))
+                if reply or record:
+                    responses.append(response)
+                    matched |= reply
+                    reply_seen |= reply
+                    if multi_frame and reply_seen:
+                        trail_deadline = time.monotonic() + (0.3 if reply else 0.1)
+            if matched and not multi_frame:
+                break
+    finally:
+        ser.timeout = old_timeout
+    return bytes(data), responses
 
 def send_cmd(ser, cmd_str, timeout=0.5, quiet=False, no_response=False, multi_frame=False):
     if getattr(ser, 'text_mode', False):
@@ -845,9 +866,10 @@ def send_cmd(ser, cmd_str, timeout=0.5, quiet=False, no_response=False, multi_fr
     if no_response:
         return b'', []
     mf = multi_frame or cmd_str.startswith('G F &')
-    raw, responses = read_responses(ser, timeout=timeout, multi_frame=mf)
+    raw, responses = read_responses(ser, timeout=timeout, multi_frame=mf, command=cmd_str)
     if not quiet:
-        for r in responses:
+        # Keep unsolicited frames visible without passing them to value decoders.
+        for r in parse_responses(raw):
             print(f"  [{r['type']}] {r['payload'].decode('ascii', errors='replace')}")
     return raw, responses
 
@@ -1232,22 +1254,11 @@ def stream_control(ser, tag, enabled, timeout=1.0):
     ser.write(build_q_frame(command))
     ser.flush()
 
-    reader = FrameReader()
-    old_timeout = ser.timeout
-    ser.timeout = min(timeout, 0.05)
-    deadline = time.monotonic() + timeout
-    try:
-        while time.monotonic() < deadline:
-            for response in reader.feed(ser.read(4096)):
-                payload = response['payload'].decode('ascii', errors='replace')
-                if tag not in payload:
-                    continue
-                if response['type'] == 'R' and '=' in payload:
-                    return payload.split('=', 1)[1].strip() == state
-                if response['type'] == 'E':
-                    return False
-    finally:
-        ser.timeout = old_timeout
+    _, responses = read_responses(ser, timeout=timeout, command=command)
+    for response in responses:
+        payload = response['payload'].decode('ascii', errors='replace')
+        if response['type'] == 'R' and '=' in payload:
+            return payload.split('=', 1)[1].strip() == state
     return False
 
 
