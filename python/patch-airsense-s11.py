@@ -159,7 +159,6 @@ DEFAULT_SETTINGS = (
 
 # Standalone enum masks that are useful but not tied to therapy profiles.
 UNLOCKED_ENUM_SETTING_NAMES = (
-    "TSS",  # Treatment screen style: Dots, PressureBar, FlowWave
     "HeightDisplayUnit",
     "ZRM",  # FGState: include LearnTargets
 )
@@ -1943,6 +1942,24 @@ class S11FirmwarePatches(CompiledPayloadMixin):
             return PatchOutcome.warn("language configuration not found")
         return PatchOutcome.ok()
 
+    def therapy_screen_style(self):
+        """Enable persistent, RPC-writable therapy-screen selection."""
+        rows = self.asf.find_descriptors("TSS", ("g5",))
+        if not rows:
+            return PatchOutcome.skip("TSS descriptor unavailable")
+        row = rows[0]
+        self.asf.update_descriptor_flags(row, {
+            "ACT": True, "VIS": True, "MOD": True, "RPC": True, "RPW": True,
+        })
+        self.asf.write_descriptor_fields(row, {"option_mask": (1 << row["n_options"]) - 1})
+        self.storage_register_members("HST", "TSS")
+        menu = AS11_PATCH_VERSIONS.get(self._payload_version_key(), {}).get("therapy_screen_style")
+        if menu is None:
+            return PatchOutcome.warn("storage and RPC enabled; menu labels unavailable for this APPX")
+        self.custom_enum_labels("TSS", dict(enumerate(menu["option_labels"])))
+        self.custom_menu_add("configuration", "TSS", menu["label_id"], 0xFFFF, "enum")
+        return PatchOutcome.ok()
+
     def therapy_screen(self):
         """Show respiratory statistics hidden from compatible therapy modes."""
         visibility_plan = {
@@ -2981,6 +2998,12 @@ PATCH_LIST = [
         "desc": "Show additional respiratory statistics in compatible therapy modes.",
         "default": True,
         "function": "therapy_screen",
+    },
+    {
+        "arg": "patch-therapy-screen-style",
+        "desc": "Enable persistent therapy-screen style selection.",
+        "default": True,
+        "function": "therapy_screen_style",
     },
     {
         "arg": "patch-header-clock",

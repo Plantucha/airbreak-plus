@@ -146,6 +146,7 @@ class PortCandidates:
     header_clock: HeaderClockCandidates
     screen_keep_awake: ScreenKeepAwakeCandidates | None
     custom_settings: CustomSettingsCandidates
+    therapy_screen_style: dict[str, int | None]
     asv: AsvCandidates
     ota_compatibility: OtaCompatibilityCandidates
 
@@ -1617,6 +1618,13 @@ def resolve_port_candidates(
     custom_settings = resolve_custom_settings_candidates(
         target_fw, matcher, stubs, reference["custom_settings"]
     )
+    # Pressure has duplicate GUI strings; use the first exact text ID, as in
+    # the reviewed mapping. Missing labels remain TODOs in the bundle.
+    therapy_screen_style = {}
+    for name, text in (("label_id", "Therapy View"), ("simple", "Simple"),
+                       ("pressure", "Pressure"), ("flow", "Flow")):
+        matches = exact_gui_text_ids(target_fw, text)
+        therapy_screen_style[name] = matches[0] if matches else None
     asv = resolve_asv_candidates(
         target_fw, reference_fw, stubs, reference["asv_backup_rate"]
     )
@@ -1628,7 +1636,7 @@ def resolve_port_candidates(
     )
     return PortCandidates(
         stubs, cloud_firmware_change, cellular_download, rpc_dispatcher, mop,
-        timezone_write, header_clock, screen_keep_awake, custom_settings, asv,
+        timezone_write, header_clock, screen_keep_awake, custom_settings, therapy_screen_style, asv,
         ota_compatibility
     )
 
@@ -2093,6 +2101,16 @@ def self_check_candidates(
                 ),
             ))
 
+    style_expected = expected_version.get("therapy_screen_style")
+    if style_expected is not None:
+        expected_labels = dict(zip(("simple", "pressure", "flow"), style_expected["option_labels"]))
+        expected_labels["label_id"] = style_expected["label_id"]
+        for name, expected in expected_labels.items():
+            value = candidates.therapy_screen_style[name]
+            checks.append(compare_candidate(
+                "therapy_screen_style." + name, expected,
+                CandidateValue(value, "strong" if value is not None else "missing", "exact GUI text"),
+            ))
     return checks
 
 
@@ -2474,6 +2492,12 @@ def prepare(args) -> int:
         "        \"vtable_slot\": %s," % format_address(asv_vtable),
         "        \"label_id\": %s," % (
             "TODO" if target_label_id is None else "0x%04X" % target_label_id
+        ),
+        "    },",
+        "    \"therapy_screen_style\": {",
+        "        \"label_id\": %s," % format_text_id(candidates.therapy_screen_style["label_id"]),
+        "        \"option_labels\": (%s)," % ", ".join(
+            format_text_id(candidates.therapy_screen_style[name]) for name in ("simple", "pressure", "flow")
         ),
         "    },",
         "},",

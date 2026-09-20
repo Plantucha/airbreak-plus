@@ -175,6 +175,10 @@ AS11_PATCH_VERSIONS = {
             "empty_text_id": 0x0068,
             "menu_text_id": 0x012C,
         },
+        "therapy_screen_style": {
+            "label_id": 0x00AF,
+            "option_labels": (0x01F4, 0x0099, 0x0208),
+        },
         "custom_settings": {
             "rpc_enum_symbols": 0x081070A0,
             "rpc_enum_symbol_count": 1027,
@@ -247,6 +251,10 @@ AS11_PATCH_VERSIONS = {
             "home_text_id": 0x0078,
             "empty_text_id": 0x006A,
             "menu_text_id": 0x0131,
+        },
+        "therapy_screen_style": {
+            "label_id": 0x00B4,
+            "option_labels": (0x01FA, 0x009C, 0x020E),
         },
         "custom_settings": {
             "rpc_enum_symbols": 0x08107BA8,
@@ -330,6 +338,10 @@ AS11_PATCH_VERSIONS = {
             "home_text_id": 0x0078,
             "empty_text_id": 0x006A,
             "menu_text_id": 0x0131,
+        },
+        "therapy_screen_style": {
+            "label_id": 0x00B4,
+            "option_labels": (0x01FB, 0x009C, 0x020F),
         },
         "custom_settings": {
             "rpc_enum_symbols": 0x08108398,

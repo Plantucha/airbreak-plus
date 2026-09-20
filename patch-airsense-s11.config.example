@@ -13,6 +13,7 @@
 # --patch-edf-superset y
 # --patch-asv-ps-range y
 # --patch-therapy-screen y
+# --patch-therapy-screen-style y
 # --patch-vid-spoof y
 # --patch-header-clock y
 # --patch-screen-keep-awake y

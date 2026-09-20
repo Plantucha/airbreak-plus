@@ -14,12 +14,23 @@ unchanged.
 |---------|---------|---------------|-------|---------|------------|---------|
 | [ASV Backup Rate](../guide/as11/features.md#asv-backup-rate) | Backup Rate | `RIF` / `ReminderFilterEnable` | g[5] | Therapy | ASV, ASVAuto | On |
 | Header clock | Clock | `RIM` / `ReminderMaskEnable` | g[5] | Configuration | all modes | Off |
+| Therapy-screen style | Therapy View | `TSS` | g[5] | Configuration | all modes | Simple |
 
 For Backup Rate, `On` preserves stock ASV behavior. `Off` suppresses backup
 breaths while leaving the stock no-breathing detector active.
 
 For Header clock, `On` shows local time in the dashboard and therapy-screen
 headers. `Off` preserves the stock header labels.
+
+`patch-therapy-screen-style` enables the native TSS options and RPC writes,
+and adds TSS to HST. With custom settings, APPX 8.4.0 and later provide the
+Configuration selector below. Earlier versions retain RPC control and storage.
+
+| Value | RPC symbol | GUI label |
+|------:|------------|-----------|
+| 0 | `Dots` | Simple |
+| 1 | `PressureBar` | Pressure |
+| 2 | `FlowWave` | Flow |
 
 ## Application Sequence
 
@@ -233,6 +244,19 @@ A feature using reclaimed persistence should:
 A feature may omit the claim when it only displays an existing DataItem. It may
 also omit the menu row when the reclaimed field is controlled entirely by the
 payload or another interface.
+
+For an existing enum such as TSS, the feature registers persistence and menu
+integration without claiming a reminder field:
+
+```python
+self.storage_register_members("HST", "TSS")
+self.custom_enum_labels("TSS", dict(enumerate(menu["option_labels"])))
+self.custom_menu_add("configuration", "TSS", menu["label_id"], 0xFFFF, "enum")
+```
+
+Here `menu` is the feature's version-specific label mapping. The feature also
+sets the desired descriptor option mask and RPC flags through the generic
+descriptor API.
 
 Adding another reclaim provider requires a verified field pool and a provider
 handler that detaches every stock writer of those fields. Version-specific

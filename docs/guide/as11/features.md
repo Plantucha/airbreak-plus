@@ -28,6 +28,9 @@ The therapy-screen patch adds leak, minute ventilation, respiratory rate,
 tidal volume, and I:E ratio to the CPAP, AutoSet, and AutoSet for Her therapy
 screens. It also adds inspiratory time to ASV and ASVAuto.
 
+The separate `therapy-screen-style patch` adds `Therapy View` under Configuration,
+with `Simple`, `Pressure`, and `Flow` choices.
+
 ## ASV Pressure-Support Range
 
 The ASV range patch removes the stock 5 cmH2O minimum separation between
@@ -52,8 +55,9 @@ Enable `Clock` in the clinical menu's Configuration section. The default is
 ## Custom Settings
 
 The custom-settings patch adds the `Backup Rate` and `Clock` menu controls
-used by the corresponding patches. Their values are saved across restarts.
-These controls replace the stock Reminders feature.
+used by the corresponding patches, and the `Therapy View` selector. Their
+values are saved across restarts. Backup Rate and Clock replace the stock
+Reminders feature; Therapy View preserves it when used on its own.
 
 See [Air11 Custom Settings](../../as11/custom_settings.md) for setting
 assignments and behavior when this patch is disabled.
