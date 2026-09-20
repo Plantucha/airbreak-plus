@@ -1364,6 +1364,9 @@ class ASFirmwarePatches(CompiledPayloadMixin):
             'IVS', # Start EPAP (iVAPS)
         ]
 
+        # AutoEPAP EPAP bounds are only present in some firmware layouts.
+        available = self.asf.var_ids_by_name()
+        vars.extend(var for var in ('IMN', 'IMX') if var in available)
         for var in vars:
             # max=0x000005DC (1500) min=0x00000032 (50) scale=1/50
             rec = self.asf.find_var(var)
