@@ -1488,6 +1488,27 @@ class ASFirmwarePatches(CompiledPayloadMixin):
                 (0x76556, b'\x00'),
             ],
         }
+
+        lumis_patches = {
+            'SX584-0204': [
+                (0x51904, b'\xa0\xf5\x96\x71', b'\xa0\xf1\x00\x01'), # EEP max: MCP
+                (0x5194a, b'\xa0\xf1\xfa\x01', b'\xa0\xf1\x00\x01'), # MNS max: MCP - EEP
+                (0x5198a, b'\x01\x19', b'\x01\x46'),                 # MXS min: MNS + MMD -> MNS
+                (0x51a46, b'\xa0\xf1\xfa\x01', b'\xa0\xf1\x00\x01'), # ANS max: MCP - EAI
+                (0x51a52, b'\x00\xf1\xfa\x01', b'\x00\xf1\x00\x01'), # AXS min: ANS
+                ],
+            'SX584-0205': [
+                (0x51904, b'\xa0\xf5\x96\x71', b'\xa0\xf1\x00\x01'),
+                (0x5194a, b'\xa0\xf1\xfa\x01', b'\xa0\xf1\x00\x01'),
+                (0x5198a, b'\x01\x19', b'\x01\x46'),
+                (0x51a46, b'\xa0\xf1\xfa\x01', b'\xa0\xf1\x00\x01'),
+                (0x51a52, b'\x00\xf1\xfa\x01', b'\x00\xf1\x00\x01'),
+                ],
+            }
+        checked_patches = lumis_patches.get(self.asf.cdx_ver, ())
+        for addr, expected, replacement in checked_patches:
+            self._replace_bytes_checked(addr, expected, replacement, 'ASV pressure constraint', accept_existing=True)
+
         patches = cdx_patches.get(self.asf.cdx_ver)
         if patches:
             for addr, data in patches:
@@ -1498,7 +1519,7 @@ class ASFirmwarePatches(CompiledPayloadMixin):
             rec = self.asf.find_var(var)
             self.asf.write_u32(rec + self.asf.G4_MIN, 0)
             self.asf.write_u32(rec + self.asf.G4_MAX, 1250)
-        if patches:
+        if patches or checked_patches:
             return PatchOutcome.ok()
         return PatchOutcome.warn(
             "descriptor ranges updated, but CDX constraints are unknown for %s" %
