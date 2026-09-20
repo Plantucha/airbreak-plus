@@ -1332,6 +1332,11 @@ class ASFirmwarePatches(CompiledPayloadMixin):
         if self.asf.bid.startswith('SX577-0200'):
             self.asf.patch(b'\x00\x20\x70\x47', 0x2882, clobber=True)
             return PatchOutcome.ok()
+        if self.asf.bid.startswith('SX585-0200'):
+            self._replace_bytes_checked(
+                0x28e2, b'\x38\xb5\x04\x00', b'\x00\x20\x70\x47',
+                'power supply check', accept_existing=True)
+            return PatchOutcome.ok()
         return PatchOutcome.skip("unsupported bootloader version %s" % self.asf.bid)
             
     def unlock_ui_limits(self):
