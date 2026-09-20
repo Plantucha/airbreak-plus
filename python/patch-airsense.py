@@ -152,12 +152,14 @@ class ASFirmwarePatches(CompiledPayloadMixin):
     def _payload_version_key(self, region=None):
         region = "CDX" if region is None else region
         return {
-            "BLX": self.asf.bid.replace('-', '_'),
+            "BLX": self.asf.bid,
             "CCX": self.asf.cid.replace('-', '_'),
             "CDX": self.asf.cdx_ver.rsplit('-', 1)[-1],
         }[region]
 
     def _payload_flash_range(self, region=None):
+        if region == "BLX":
+            return self.asf.FLASH_BASE, self.asf.FLASH_BASE + 0x4000
         return self.asf.FLASH_BASE, self.asf.FLASH_BASE + len(self.asf.fw)
 
     def _supports_compiled_payloads(self):
@@ -1290,42 +1292,37 @@ class ASFirmwarePatches(CompiledPayloadMixin):
         return PatchOutcome.ok()
 
     def patch_blx_dump(self):
-        """Add the SX577 bootloader command used by resmed_flash.py --dump."""
-        if not self.asf.bid.startswith('SX577-0200'):
+        """Add the bootloader command used by resmed_flash.py --dump."""
+        hooks = {
+            'SX577-0200': (0x300e, b'\xfd\xf7\x56\xfa'),
+            'SX585-0200': (0x306e, b'\xfd\xf7\x26\xfa'),
+        }
+        if self.asf.bid not in hooks:
             return PatchOutcome.skip("unsupported bootloader version %s" % self.asf.bid)
 
-        cave_off = 0x3de0
-        cave_size = 0x1a0
-        hook_off = 0x300e
-        # SX577 BLX copies file offset 0x300 to SRAM 0x20000000 before execution.
-        runtime = 0x20000000 + cave_off - 0x300
-        hook_runtime = 0x20000000 + hook_off - 0x300
-        repo_dir = self._payload_repo_dir()
-        bin_path = os.path.join(repo_dir, 'build', 'blx_dump.bin')
-        elf_path = os.path.join(repo_dir, 'build', 'blx_dump.elf')
-        if not os.path.exists(bin_path) or not os.path.exists(elf_path):
-            raise ValueError("patch_blx_dump: build/blx_dump artifacts not found (run make binaries)")
-        with open(bin_path, 'rb') as f:
-            data = f.read()
-        if len(data) > cave_size:
-            raise ValueError("patch_blx_dump: payload is %dB, BLX cave is %dB" %
-                             (len(data), cave_size))
-        linked = self._elf_symbol_addr(elf_path, 'start')
-        if linked != runtime:
-            raise ValueError("patch_blx_dump: payload linked at 0x%08X, expected 0x%08X" %
-                             (linked, runtime))
-        if self.asf.read_bytes(cave_off, cave_size) != b'\x00' * cave_size:
-            raise ValueError("patch_blx_dump: BLX payload area is not empty")
-        if self.asf.read_bytes(hook_off, 4) != b'\xfd\xf7\x56\xfa':
-            raise ValueError("patch_blx_dump: unexpected dispatcher call bytes at 0x300E")
+        # Load the payload and its flash/SRAM allocation.
+        data, _, elf_path = self._load_versioned_payload('blx_dump', region='BLX')
+        _, layout = self._load_payload_layout(region='BLX')
+        allocation = layout['blx_dump']
+        entry_point = self._elf_symbol_addr(elf_path, 'start')
 
-        self.asf.patch(data, cave_off, clobber=True)
-        self.asf.patch(self._encode_thumb_bl_addr(hook_runtime, runtime),
-                       hook_off, clobber=True)
+        # Encode the call at its execution address, after BLX relocation to SRAM.
+        hook_offset, original_call = hooks[self.asf.bid]
+        flash_to_ram = allocation['runtime'] - allocation['storage']
+        hook_runtime = self.asf.FLASH_BASE + hook_offset + flash_to_ram
+        patched_call = self._encode_thumb_bl_addr(hook_runtime, entry_point)
+
+        # Check the hook before injection; install it only after payload validation.
+        current_call = self.asf.read_bytes(hook_offset, len(original_call))
+        if current_call not in (original_call, patched_call):
+            raise ValueError("patch_blx_dump: unexpected dispatcher call bytes at 0x%04X" % hook_offset)
+        storage, _ = self._inject_payload('blx_dump', data, region='BLX', empty_byte=0)
+        self.asf.patch(patched_call, hook_offset, clobber=True)
+
         return PatchOutcome.ok(
             None,
-            self._payload_detail('blx_dump', len(data), self.asf.FLASH_BASE + cave_off),
-            self._hook_detail('bootloader command dispatcher call', hook_runtime, runtime))
+            self._payload_detail('blx_dump', len(data), storage),
+            self._hook_detail('bootloader command dispatcher call', hook_runtime, entry_point))
 
     def bypass_psucheck(self):
         # power supply ID (adc_and_object_2826_stuff)

@@ -135,9 +135,9 @@ class CompiledPayloadMixin(object):
         with open(bin_path, "rb") as f:
             return f.read(), ver
 
-    def _load_versioned_payload(self, name):
+    def _load_versioned_payload(self, name, region=None):
         """Load a payload binary and require its matching ELF metadata."""
-        data, ver = self._load_versioned_bin(name, required=True)
+        data, ver = self._load_versioned_bin(name, required=True, region=region)
         elf_path = self._require_versioned_artifact(name, "elf", ver)
         return data, ver, elf_path
 
@@ -206,7 +206,7 @@ class CompiledPayloadMixin(object):
     def _elf_symbol_size(self, elf_path, symbol):
         return elf_symbol_size(elf_path, symbol)
 
-    def _inject_payload(self, name, data, region=None):
+    def _inject_payload(self, name, data, region=None, empty_byte=0xff):
         """Validate and inject one payload at its generated layout address."""
         data = bytes(data)
         ver, layout = self._load_payload_layout(region)
@@ -243,5 +243,11 @@ class CompiledPayloadMixin(object):
 
         off = storage - self.asf.FLASH_BASE
         if bytes(self.asf.fw[off:off + len(data)]) != data:
-            self.asf.patch(data, off, checkempty=True, verbose=False)
+            if bytes(self.asf.fw[off:off + len(data)]) != bytes([empty_byte]) * len(data):
+                raise CompiledPayloadError(
+                    "%s: payload area at 0x%08X is not empty" % (name, storage))
+            if empty_byte == 0xff:
+                self.asf.patch(data, off, checkempty=True, verbose=False)
+            else:
+                self.asf.patch(data, off, clobber=True, verbose=False)
         return storage, off

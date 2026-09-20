@@ -29,7 +29,7 @@ CRC:
 | `O` | `0x55 0x4F` | Abort an active stored-stream transfer and reset the parser |
 | `P` | `0x55 0x50` | Parser reset |
 
-Immediate `O` is distinct from the full `O` frame used by the patched SX577
+Immediate `O` is distinct from the full `O` frame used by the patched SX577/SX585
 bootloader.
 
 ## Frame Types
@@ -43,7 +43,7 @@ bootloader.
 | `L` | host -> device | full | Oximetry adapter input |
 | `L` | device -> host | full | Live stream report |
 | `f` | host -> bootloader | full | Firmware transfer frame |
-| `O` | host <-> patched SX577 bootloader | full | Firmware dump extension |
+| `O` | host <-> patched SX577/SX585 bootloader | full | Firmware dump extension |
 | `O` | host -> device | immediate | Stored-stream abort and parser reset |
 | `P` | host -> device | immediate | Parser reset |
 | `P` | bootloader -> host | full | Flash erase progress |
@@ -597,7 +597,7 @@ the watchdog resets the device.
 
 ## Patched Bootloader Dump Protocol
 
-The Airbreak SX577-0200 bootloader extension uses full `O` frames. Flash
+The Airbreak SX577-0200 and SX585-0200 bootloader extensions use full `O` frames. Flash
 offsets are relative to the start of the 1 MB firmware image.
 
 Request payload:

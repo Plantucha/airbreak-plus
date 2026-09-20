@@ -49,9 +49,9 @@ S10_CODE_VERSIONS := $(call payload_versions,common_code)
 S10_STANDALONE_PAYLOADS := asv_task_wrapper backlight_adapt language_fonts uart_stream_schema vid_spoof
 PAYLOAD_LAYOUT_TSVS := $(foreach v,$(PAYLOAD_LAYOUT_VERSIONS),$(BUILD)/payload_layout_$(v).tsv)
 
-# SX577-0200 BLX is relocated to SRAM and has one fixed, zero-filled code cave.
-BLX_DUMP_RUNTIME := 0x20003AE0
-BLX_DUMP_BIN := $(BUILD)/blx_dump.bin
+BLX_PAYLOAD_VERSIONS := SX577-0200 SX585-0200
+$(foreach v,$(BLX_PAYLOAD_VERSIONS),$(eval PAYLOADS_$(v) := blx_dump))
+BLX_DUMP_BIN := $(foreach v,$(BLX_PAYLOAD_VERSIONS),$(BUILD)/blx_dump_$(v).bin)
 PAYLOAD_TARGETS := $(PAYLOAD_STAMPS) $(PAYLOAD_LAYOUT_TSVS) $(BLX_DUMP_BIN)
 
 BUILD_VARIANTS = \
@@ -110,19 +110,22 @@ binaries: $(PAYLOAD_TARGETS)
 $(BUILD)/blx_dump.o: $(SRC)/blx_dump.c | $(BUILD)
 	$(CC) $(CFLAGS) -mno-unaligned-access -c -o $@ $<
 
-$(BUILD)/blx_dump_stubs.o: $(SRC)/blx_dump_stubs.S | $(BUILD)
+$(BUILD)/blx_%_stubs.o: $(SRC)/blx_%_stubs.S | $(BUILD)
 	$(AS) $(ASFLAGS) -c -o $@ $<
 
-$(BUILD)/blx_dump.elf: $(BUILD)/blx_dump.o $(BUILD)/blx_dump_stubs.o | $(BUILD)
-	$(LD) --nostdlib --no-dynamic-linker \
-		--Ttext $(BLX_DUMP_RUNTIME) --entry start --sort-section=name \
-		-o $@ $^
+define BLX_DUMP_template
+$(BUILD)/blx_dump_$(1).probe.elf: $(BUILD)/blx_dump.o $(BUILD)/blx_$(1)_stubs.o | $(BUILD)
+	$$(LD) --nostdlib --no-dynamic-linker \
+		--Ttext 0x20000000 --entry start --sort-section=name -o $$@ $$^
 
-$(BUILD)/blx_dump.bin: $(BUILD)/blx_dump.elf
-	$(OBJCOPY) -Obinary $< $@
-	@size=$$(stat -c %s $@); [ $$size -le 416 ] || { \
-		echo "$@: payload is $${size}B, BLX cave is 416B" >&2; exit 1; }
-	@printf '  %-8s %-30s [%s]\n' PAYLOAD blx_dump SX577-0200
+$(BUILD)/blx_dump_$(1).elf: $(BUILD)/blx_dump.o $(BUILD)/blx_$(1)_stubs.o $(BUILD)/payload_layout_$(1).tsv | $(BUILD)
+	@set -e; addr=$$$$(awk '$$$$1 == "blx_dump" { print $$$$2; found=1; exit } END { if (!found) exit 1 }' $(BUILD)/payload_layout_$(1).tsv); \
+	$$(LD) --nostdlib --no-dynamic-linker \
+		--Ttext $$$$addr --entry start --sort-section=name \
+		-o $$@ $$(filter %.o,$$^)
+endef
+
+$(foreach v,$(BLX_PAYLOAD_VERSIONS),$(eval $(call BLX_DUMP_template,$(v))))
 
 define PAYLOAD_STAMP_template
 $(BUILD)/payload_$(1).stamp: $(call payload_bins,$(1)) Makefile | $(BUILD)
@@ -148,7 +151,7 @@ $$(BUILD)/payload_sizes_$(1).tsv: $$(PAYLOAD_PROBE_BINS_$(1)) Makefile | $$(BUIL
 		base=$$$${bin##*/}; \
 		name=$$$${base%.probe.bin}; \
 		name=$$$${name%_$(1)}; \
-		printf '%s\t%s\tcdx\n' "$$$$name" "$$$$(stat -c %s "$$$$bin")" >> $$@.tmp; \
+		printf '%s\t%s\t$(if $(filter $(1),$(BLX_PAYLOAD_VERSIONS)),blx,cdx)\n' "$$$$name" "$$$$(stat -c %s "$$$$bin")" >> $$@.tmp; \
 	done
 	@mv $$@.tmp $$@
 
@@ -162,7 +165,7 @@ $$(BUILD)/payload_layout_$(1).tsv: \
 	@mv $$(BUILD)/payload_layout_$(1).tsv.tmp $$(BUILD)/payload_layout_$(1).tsv
 endef
 
-$(foreach v,$(PAYLOAD_LAYOUT_VERSIONS),$(eval $(call PAYLOAD_LAYOUT_template,$(v))))
+$(foreach v,$(PAYLOAD_LAYOUT_VERSIONS) $(BLX_PAYLOAD_VERSIONS),$(eval $(call PAYLOAD_LAYOUT_template,$(v))))
 
 $(BUILD)/s10_%_stubs.o: $(SRC)/s10_%_stubs.S | $(BUILD)
 	$(AS) $(ASFLAGS) -c -o $@ $<

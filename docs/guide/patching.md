@@ -122,7 +122,7 @@ export PATCH_VAUTO_WRAPPER=1
 
 | Patch | What it does | Switch |
 |-------|-------------|--------|
-| UART firmware dump | Adds the SX577 bootloader command used by `resmed_flash.py --dump` | `--patch-blx-dump` |
+| UART firmware dump | Adds the SX577-0200 / SX585-0200 bootloader command used by `resmed_flash.py --dump` | `--patch-blx-dump` |
 | UART metadata | Reports live-stream layouts and custom-settings menu metadata through `G C` | `--patch-uart-stream-schema` |
 | Replacement LCD | Adds the ILI9325/ILI9328 LCD driver | `--patch-fw-lcd` or `PATCH_S10_LCD=1` |
 

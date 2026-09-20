@@ -82,7 +82,8 @@ BLOCK_MAPS = {
     },
 }
 
-SUPPORTED_BIDS = {'SX577-0200', 'SX525-0300', 'SX525-0400'}
+DUMP_SUPPORTED_BIDS = {'SX577-0200', 'SX585-0200'}
+SUPPORTED_BIDS = DUMP_SUPPORTED_BIDS | {'SX525-0300', 'SX525-0400'}
 
 FULL_IMAGE_SIZE = 0x100000
 DUMP_CHUNK_SIZE = 240
@@ -676,8 +677,9 @@ def dump_firmware(ser, output_path, args):
     device_bid = connect_device(ser, args.baud, wait=not args.no_wait)
     if not device_bid:
         raise RuntimeError("device connection failed")
-    if device_bid != 'SX577-0200':
-        raise RuntimeError("firmware dump requires SX577-0200, got %s" % device_bid)
+    if device_bid not in DUMP_SUPPORTED_BIDS:
+        raise RuntimeError("firmware dump requires %s, got %s" %
+                           (' or '.join(sorted(DUMP_SUPPORTED_BIDS)), device_bid))
     platform = _platform(device_bid)
     default_baud = platform['default_baud']
     if not args.no_enter:
@@ -976,7 +978,7 @@ Examples:
     parser.add_argument('--tcp-mode', choices=['raw', 'transparent'], default='transparent',
                         help='TCP mode: transparent (AirBridge, default), raw (dumb proxy)')
     parser.add_argument('-f', '--file', help='Firmware file to flash')
-    parser.add_argument('--dump', metavar='FILE', help='Dump the full firmware image (patched SX577 BLX required)')
+    parser.add_argument('--dump', metavar='FILE', help='Dump the full firmware image (patched SX577/SX585 BLX required)')
     parser.add_argument('--block', action='append', help='Target block (repeatable): config, firmware, all, bootloader')
     parser.add_argument('--baud', default='auto', help='Transfer baud: auto, 57600, 115200, 460800')
     parser.add_argument('--fix-crc', action='store_true', help='Recalculate and patch CRC')
