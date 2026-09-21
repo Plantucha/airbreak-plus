@@ -45,7 +45,7 @@
       box-shadow: 0 18px 60px rgba(0,0,0,.4);
     }
     label{font-size:12px;color:#bdbdbd}
-    input[type="text"]{
+    input[type="text"], select{
       width:220px;
       background:#0d0d0d;
       border:1px solid rgba(80,80,80,.6);
@@ -257,6 +257,7 @@
     }
     .rowItem.selected{
       background: var(--c-selected);
+      border-bottom-color: var(--c-accent);
     }
     .rowItem .value{
       font-weight:800;
@@ -270,6 +271,12 @@
     }
     .valueWrap{
       display:flex; align-items:center; gap:8px;
+    }
+
+    @media (max-width: 800px){
+      .layout{grid-template-columns:minmax(0,1fr)}
+      .rowBlock{min-width:0;max-width:100%}
+      input[type="text"], select{max-width:100%}
     }
 
     dialog{
@@ -302,6 +309,14 @@
 
         <div class="sep"></div>
 
+        <div class="row">
+          <label for="firmwarePalette">Firmware palette</label>
+          <select id="firmwarePalette">
+            <option value="0">0 - Standard</option>
+            <option value="1">1 - For Her</option>
+          </select>
+        </div>
+
         <div class="row" style="align-items:center; gap:12px;">
           <label for="gamma">Preview gamma</label>
           <input id="gamma" type="range"
@@ -318,7 +333,7 @@
 
         <div class="row">
           <div class="rowBlock">
-            <label>Selected item (blue highlight)</label>
+            <label>Selected item</label>
             <input id="hexSelected" type="text" value="0099cc00"/>
           </div>
           <input id="colorSelected" type="color"/>
@@ -362,6 +377,22 @@
             <input id="hexBlack" type="text" value="00000000"/>
           </div>
           <input id="colorBlack" type="color"/>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="rowBlock">
+            <label for="hexAccent">Accent shades (+0x2C, +0x38)</label>
+            <input id="hexAccent" type="text" value="00395300"/>
+          </div>
+          <input id="colorAccent" type="color" aria-label="Accent shades"/>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="rowBlock">
+            <label for="hexLight">Light gray (+0x3C)</label>
+            <input id="hexLight" type="text" value="d0d0d000"/>
+          </div>
+          <input id="colorLight" type="color" aria-label="Light gray"/>
         </div>
 
         <div class="sep"></div>
@@ -484,7 +515,7 @@
 
 
           <div style="flex:1;min-width:320px">
-            <label>Generated TCL dict entry (paste into <span class="kbd">variable themes { ... }</span>)</label>
+            <label for="out">Tcl commands</label>
             <textarea id="out" spellcheck="false"></textarea>
           </div>
         </div>
@@ -902,6 +933,8 @@
           document.getElementById("hexMid").value      = p.mid;
           document.getElementById("hexLow").value      = p.low;
           document.getElementById("hexBlack").value    = p.black;
+          document.getElementById("hexAccent").value   = p.accent || ($("firmwarePalette").value === "1" ? "4c274e00" : "00395300");
+          document.getElementById("hexLight").value    = p.light || "d0d0d000";
 
           syncColorPickersFromHex();
           render();
@@ -919,7 +952,7 @@
       s = (s || "").trim().toLowerCase();
       if (s.startsWith("#")) s = s.slice(1);
       //if (/^[0-9a-f]{6}$/.test(s)) return s + "00";
-      if (/^[0-9a-f]{8}$/.test(s)) return s;
+      if (/^[0-9a-f]{6}00$/.test(s)) return s;
       return null;
     }
     function hex4B_to_css(hex8){
@@ -935,6 +968,7 @@
 
     function setThemeCSSVars(colors){
       const g = currentGamma;
+      document.documentElement.style.setProperty("--c-accent", applyGamma(colors.accent, g));
 
       document.documentElement.style.setProperty(
       "--c-selected", applyGamma(colors.selected, g)
@@ -957,16 +991,19 @@
     }
 
 
-    function buildThemeEntry(name, colors) {
+    function buildThemeEntry(name, colors, palette) {
       const lines = [];
-      lines.push(`${name} {`);
+      lines.push(`dict set ::theme::themes ${name} {`);
       lines.push(`    selected ${colors.selected}`);
       lines.push(`    whites   ${colors.whites}`);
       lines.push(`    bright   ${colors.bright}`);
       lines.push(`    mid      ${colors.mid}`);
       lines.push(`    low      ${colors.low}`);
       lines.push(`    black    ${colors.black}`);
+      lines.push(`    accent   ${colors.accent}`);
+      lines.push(`    light    ${colors.light}`);
       lines.push("}");
+      lines.push(`theme::apply ${name} ${palette}`);
       return lines.join("\n");
     }
 
@@ -978,19 +1015,25 @@
       const mid      = normalizeHex4B($("hexMid").value);
       const low      = normalizeHex4B($("hexLow").value);
       const black    = normalizeHex4B($("hexBlack").value);
+      const accent   = normalizeHex4B($("hexAccent").value);
+      const light    = normalizeHex4B($("hexLight").value);
+      const palette  = $("firmwarePalette").value;
 
       const bad = [];
+      if (!/^[A-Za-z0-9_-]+$/.test(name)) bad.push("Theme name");
       if (!selected) bad.push("Selected");
       if (!whites) bad.push("Whites");
       if (!bright) bad.push("Bright grays");
       if (!mid) bad.push("Mid grays");
       if (!low) bad.push("Low grays");
       if (!black) bad.push("Blacks");
+      if (!accent) bad.push("Accent shades");
+      if (!light) bad.push("Light gray");
       if (bad.length){
         //alert("Invalid hex for: " + bad.join(", ") + "\nUse rrggbb00, rrggbb, or #rrggbb.");
         return null;
       }
-      return { name, colors:{selected,whites,bright,mid,low,black} };
+      return { name, palette, colors:{selected,whites,bright,mid,low,black,accent,light} };
     }
 
     function syncColorPickersFromHex(){
@@ -1000,6 +1043,8 @@
       $("colorMid").value      = hex4B_to_css($("hexMid").value);
       $("colorLow").value      = hex4B_to_css($("hexLow").value);
       $("colorBlack").value    = hex4B_to_css($("hexBlack").value);
+      $("colorAccent").value   = hex4B_to_css($("hexAccent").value);
+      $("colorLight").value    = hex4B_to_css($("hexLight").value);
     }
 
     function applyGamma(hex, gamma) {
@@ -1041,9 +1086,12 @@
 
     function render(){
       const st = readUI();
-      if (!st) return;
+      if (!st) {
+        $("out").value = "";
+        return;
+      }
       setThemeCSSVars(st.colors);
-      $("out").value = buildThemeEntry(st.name, st.colors);
+      $("out").value = buildThemeEntry(st.name, st.colors, st.palette);
     }
 
     function bind(hexId, colorId){
@@ -1068,6 +1116,10 @@
     bind("hexMid","colorMid");
     bind("hexLow","colorLow");
     bind("hexBlack","colorBlack");
+    bind("hexAccent","colorAccent");
+    bind("hexLight","colorLight");
+    $("firmwarePalette").addEventListener("change", render);
+    $("themeName").addEventListener("input", render);
 
 
 
@@ -1075,6 +1127,7 @@
 
     $("btnCopy").addEventListener("click", async () => {
       if (!$("out").value.trim()) render();
+      if (!$("out").value.trim()) return;
       try{
         await navigator.clipboard.writeText($("out").value);
         alert("Copied.");
@@ -1100,6 +1153,8 @@
         $("hexMid").value      = p.mid;
         $("hexLow").value      = p.low;
         $("hexBlack").value    = p.black;
+        $("hexAccent").value   = p.accent || ($("firmwarePalette").value === "1" ? "4c274e00" : "00395300");
+        $("hexLight").value    = p.light || "d0d0d000";
         syncColorPickersFromHex();
         render();
         dlg.close();

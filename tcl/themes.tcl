@@ -8,10 +8,22 @@ namespace eval theme {
     # Address layout (per-version)
     # --------------------------------------------------------
     variable entry_len 4
+    variable palette_size 0x54
     variable cdx_ver ""
     variable base_addr
     variable end_addr
+    # Offsets within one palette. Together these groups cover all 21 entries.
     variable groups
+    array set groups {
+        selected {0x24}
+        whites {0x00 0x1c 0x28 0x40 0x44 0x48}
+        bright {0x04 0x0c 0x20}
+        mid {0x08}
+        low {0x10 0x14 0x30 0x4c}
+        black {0x18 0x34 0x50}
+        accent {0x2c 0x38}
+        light {0x3c}
+    }
 
     # --------------------------------------------------------
     # Detect CDX version and set palette addresses
@@ -27,71 +39,80 @@ namespace eval theme {
         switch -exact -- $cdx_ver {
             SX567-0401 - SX567-0306 {
                 set base_addr 0xf26f8
-                set end_addr  0xf279c
-                array set groups {
-                    selected {0xf271c}
-                    whites {
-                        0xf26f8 0xf2714 0xf2720
-                        0xf2738 0xf273c 0xf2740
-                        0xf274c 0xf2768 0xf2774
-                        0xf278c 0xf2790 0xf2794
-                    }
-                    bright {
-                        0xf26fc 0xf2704 0xf2750
-                        0xf2758 0xf276c
-                    }
-                    mid {
-                        0xf2700 0xf2754
-                    }
-                    low {
-                        0xf2708 0xf270c 0xf2728
-                        0xf2744 0xf275c 0xf2760
-                        0xf277c 0xf2798
-                    }
-                    black {
-                        0xf2710 0xf272c 0xf2748
-                        0xf2764 0xf2780 0xf279c
-                    }
-                }
             }
             SX567-0402 {
                 set base_addr 0xf2970
-                set end_addr  0xf2a14
-                array set groups {
-                    selected {0xf2994}
-                    whites {
-                        0xf2970 0xf298c 0xf2998
-                        0xf29b0 0xf29b4 0xf29b8
-                        0xf29c4 0xf29e0 0xf29ec
-                        0xf2a04 0xf2a08 0xf2a0c
-                    }
-                    bright {
-                        0xf2974 0xf297c 0xf29c8
-                        0xf29d0 0xf29e4
-                    }
-                    mid {
-                        0xf2978 0xf29cc
-                    }
-                    low {
-                        0xf2980 0xf2984 0xf29a0
-                        0xf29bc 0xf29d4 0xf29d8
-                        0xf29f4 0xf2a10
-                    }
-                    black {
-                        0xf2988 0xf29a4 0xf29c0
-                        0xf29dc 0xf29f8 0xf2a14
-                    }
-                }
             }
             default {
                 error "theme: unsupported CDX version \"$cdx_ver\""
             }
         }
+        set end_addr [expr {$base_addr + 0x50}]
     }
 
     proc _ensure_version {} {
         variable cdx_ver
         if {$cdx_ver eq ""} { _detect_version }
+    }
+
+    # Palette 0 is the standard theme; palette 1 is the alternate firmware theme.
+    proc _palette_base {palette} {
+        _ensure_version
+        variable base_addr
+        variable palette_size
+        if {$palette ni {0 1}} { error "theme: palette must be 0 or 1" }
+        return [expr {$base_addr + $palette * $palette_size}]
+    }
+
+    # Resolve and validate all writes before entering the flash guard.
+    # Flat definitions use addresses in palette 0, relocated to the chosen palette.
+    proc _writes {defs palette {group_list {}}} {
+        variable groups
+        variable base_addr
+        variable palette_size
+        set target [_palette_base $palette]
+        set allowed {}
+        foreach group $group_list {
+            if {![info exists groups($group)]} { error "unknown color group \"$group\"" }
+            lappend allowed {*}$groups($group)
+        }
+        if {[llength $defs] % 2} { error "theme: expected color/value pairs" }
+        set writes {}
+        foreach {key color} $defs {
+            if {![regexp {^[0-9a-fA-F]{6}00$} $color]} {
+                error "theme: invalid RGB color \"$color\"; expected rrggbb00"
+            }
+            if {[string match 0x* $key]} {
+                if {![string is integer -strict $key]} { error "theme: invalid address $key" }
+                set offset [expr {$key - $base_addr}]
+                if {$offset < 0 || $offset >= $palette_size || $offset % 4} {
+                    error "theme: address $key is outside palette 0"
+                }
+                set offsets [list $offset]
+            } else {
+                if {![info exists groups($key)]} { error "unknown color group \"$key\"" }
+                set offsets $groups($key)
+            }
+            foreach offset $offsets {
+                set offset [expr {$offset}]
+                if {[llength $group_list]} {
+                    set include 0
+                    foreach permitted $allowed {
+                        if {$offset == $permitted} { set include 1; break }
+                    }
+                    if {!$include} { continue }
+                }
+                lappend writes [expr {$target + $offset}] $color
+            }
+        }
+        return $writes
+    }
+
+    proc _apply {defs palette {group_list {}}} {
+        set writes [_writes $defs $palette $group_list]
+        patch::with_guard {
+            foreach {addr color} $writes { patch::hexstr $addr $color }
+        }
     }
 
 
@@ -107,6 +128,8 @@ namespace eval theme {
             mid      64646400
             low      40404000
             black    00000000
+            accent   00395300
+            light    d0d0d000
         }
 
         default_low_gamma {
@@ -291,6 +314,8 @@ namespace eval theme {
             mid      64646400
             low      40404000
             black    00000000
+            accent   00395300
+            light    d0d0d000
         }
 
         default_low_gamma {
@@ -471,8 +496,7 @@ namespace eval theme {
     # Apply dispatcher
     # --------------------------------------------------------
 
-    proc apply {name} {
-        _ensure_version
+    proc apply {name {palette 0}} {
         variable themes
 
         if {![dict exists $themes $name]} {
@@ -482,13 +506,13 @@ namespace eval theme {
         set theme [dict get $themes $name]
 
         if {[string match 0x* [lindex $theme 0]]} {
-            apply_flat $name
+            apply_flat $name $palette
         } else {
-            apply_grouped $name
+            apply_grouped $name $palette
         }
     }
 
-    proc apply_flat {name} {
+    proc apply_flat {name {palette 0}} {
         variable themes
 
         if {![dict exists $themes $name]} {
@@ -497,17 +521,13 @@ namespace eval theme {
 
         set defs [dict get $themes $name]
 
-        patch::with_guard {
-            foreach {addr value} $defs {
-                patch::hexstr $addr $value
-            }
-        }
+        _apply $defs $palette
 
         return $name
     }
 
 
-    proc apply_grouped {name} {
+    proc apply_grouped {name {palette 0}} {
         variable themes
         variable groups
 
@@ -517,58 +537,26 @@ namespace eval theme {
 
         set theme [dict get $themes $name]
 
-        patch::with_guard {
-            foreach {group color} $theme {
-                if {![info exists groups($group)]} {
-                    error "unknown color group \"$group\""
-                }
-                foreach addr $groups($group) {
-                    patch::hexstr $addr $color
-                }
-            }
-        }
+        _apply $theme $palette
 
         return $name
     }
 
 
 
-    proc patch_group {group givencolor} {
-        _ensure_version
-        variable groups
-
-        if {![info exists groups($group)]} {
-            error "unknown color group \"$group\""
-        }
-
-        patch::with_guard {
-            foreach addr $groups($group) {
-                patch::hexstr $addr $givencolor
-            }
-        }
+    proc patch_group {group givencolor {palette 0}} {
+        _apply [list $group $givencolor] $palette
 
         return $group
     }
 
-    proc patch_groups {group_color_pairs} {
-        _ensure_version
-        variable groups
-
-        patch::with_guard {
-            foreach {group color} $group_color_pairs {
-                if {![info exists groups($group)]} {
-                    error "unknown color group \"$group\""
-                }
-                foreach addr $groups($group) {
-                    patch::hexstr $addr $color
-                }
-            }
-        }
+    proc patch_groups {group_color_pairs {palette 0}} {
+        _apply $group_color_pairs $palette
 
         return $group_color_pairs
     }
 
-    proc apply_groups {name group_list} {
+    proc apply_groups {name group_list {palette 0}} {
         variable themes
         variable groups
 
@@ -578,26 +566,14 @@ namespace eval theme {
 
         set defs [dict get $themes $name]
 
-        patch::with_guard {
-            foreach group $group_list {
-                if {![info exists groups($group)]} {
-                    error "unknown color group \"$group\""
-                }
-                foreach addr $groups($group) {
-                    set idx [lsearch -exact $defs $addr]
-                    if {$idx >= 0} {
-                        patch::hexstr $addr [lindex $defs [expr {$idx + 1}]]
-                    }
-                }
-            }
-        }
+        if {[llength $group_list]} { _apply $defs $palette $group_list }
 
         return $name
     }
 
 
     # Convenience aliases
-    proc default {}     { apply default }
+    proc default {{palette 0}} { apply default $palette }
 
     # --------------------------------------------------------
     # Internal helper: extract 4 bytes from bulk read
@@ -616,8 +592,10 @@ namespace eval theme {
     # Detect currently applied theme
     # --------------------------------------------------------
 
-    proc current {{arg ""}} {
-        _ensure_version
+    proc current {{palette 0} {arg ""}} {
+        # Retain the original `current -v` spelling for palette 0.
+        if {$palette eq "-v" && $arg eq ""} { set palette 0; set arg -v }
+        set target [_palette_base $palette]
         variable themes
         variable groups
         variable base_addr
@@ -628,18 +606,18 @@ namespace eval theme {
         if {$arg eq "-v"} {
             set verbose 1
         } elseif {$arg ne ""} {
-            error "usage: theme::current ?-v?"
+            error "usage: theme::current ?palette? ?-v?"
         }
 
         set len [expr {$end_addr - $base_addr + $entry_len}]
-        set blob [patch::read $base_addr $len]
+        set blob [patch::read $target $len]
 
         set current {}
 
         foreach group [array names groups] {
             set vals {}
-            foreach addr $groups($group) {
-                lappend vals [_read_u32 $blob $base_addr $addr]
+            foreach offset $groups($group) {
+                lappend vals [_read_u32 $blob $target [expr {$target + $offset}]]
             }
             set uniq [lsort -unique $vals]
             if {[llength $uniq] == 1} {
@@ -670,7 +648,7 @@ namespace eval theme {
         }
 
         if {$verbose} {
-            echo "Current theme: $detected"
+            echo "Palette $palette theme: $detected"
             echo "Current colors by group:"
             foreach group [lsort [array names groups]] {
                 echo [format "  %-9s : %s" $group [dict get $current $group]]
@@ -698,19 +676,19 @@ namespace eval theme {
         echo "  theme::usage"
         echo "      Show this help and current theme state"
         echo ""
-        echo "  theme::current \[-v\]"
+        echo "  theme::current ?palette? \[-v\]"
         echo "      Detect currently applied theme"
         echo ""
-        echo "  theme::apply <theme>"
+        echo "  theme::apply <theme> ?palette?"
         echo "      Apply full theme by name"
         echo ""
-        echo "  theme::apply_groups <theme> <group1> ?group2 ...?"
+        echo "  theme::apply_groups <theme> {group1 group2 ...} ?palette?"
         echo "      Apply only selected color groups from a theme"
         echo ""
-        echo "  theme::patch_group <group> <color>"
+        echo "  theme::patch_group <group> <color> ?palette?"
         echo "      Patch a single color group with a raw color value"
         echo ""
-        echo "  theme::patch_groups { <group> <color> ... }"
+        echo "  theme::patch_groups { <group> <color> ... } ?palette?"
         echo "      Patch multiple groups with explicit colors"
         echo ""
 
@@ -720,6 +698,9 @@ namespace eval theme {
         }
 
         echo ""
+        echo "Palette: 0 = standard (default), 1 = alternate (For Her)."
+        echo "Omitted color groups retain their current values."
+        echo ""
         echo "Available themes:"
         foreach {name _} $themes {
             echo "  $name"
@@ -728,6 +709,7 @@ namespace eval theme {
         echo ""
         echo "Examples:"
         echo "  theme::apply default_blackout"
+        echo "  theme::apply default_blackout 1"
         echo "  theme::apply_groups night_vision { whites low }"
         echo "  theme::patch_group whites d6d6d600"
         echo "  theme::patch_groups { whites d6d6d600 low 1c1c1c00 }"
@@ -742,4 +724,3 @@ if {[info level] == 0} {
     echo "[info script] loaded."
     echo {    theme::usage for instructions}
 }
-
