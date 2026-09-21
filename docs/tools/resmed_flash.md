@@ -131,6 +131,7 @@ resmed_flash.py -p tcp:airbridge-host --info
 | `-p`, `--port PORT` | Serial port or `tcp:HOST[:PORT]` | Required |
 | `--tcp-mode MODE` | `raw` or `transparent` | `transparent` |
 | `--baud BAUD` | `auto`, `57600`, `115200`, or `460800` | `auto` |
+| `--completion-timeout SECONDS` | Wait for the device's final transfer status; S9 verification retains a minimum 15-second budget | `3` |
 | `--no-enter` | Use an already-running bootloader | Off |
 | `--no-wait` | Fail immediately if the device is unavailable | Off |
 | `--timing` | Print transfer timing statistics | Off |
@@ -141,6 +142,12 @@ resmed_flash.py -p tcp:airbridge-host --info
 Identity, validation, progress, and transfer summaries are printed to the terminal.
 `--dump FILE` writes a binary firmware image.
 
+An `unconfirmed` result means the device did not provide a conclusive response;
+it does not necessarily mean flashing failed. Check the device before retrying.
+For delayed responses over TCP, increase `--completion-timeout SECONDS`.
+
+Application startup is checked separately unless `--no-reset` is selected.
+
 ## Exit Status
 
 | Status | Meaning |
@@ -148,6 +155,7 @@ Identity, validation, progress, and transfer summaries are printed to the termin
 | `0` | Operation completed |
 | `1` | Connection, validation, or transfer failure |
 | `2` | Invalid command-line syntax |
+| `3` | Flash result or application startup could not be confirmed |
 
 ## Examples
 

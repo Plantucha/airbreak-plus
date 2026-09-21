@@ -93,15 +93,18 @@ class TcpSerial:
             return 0
 
     def read(self, size=1):
+        if size == 0:
+            return b''
         try:
             data = self._sock.recv(size)
-            return data if data else b''
         except socket.timeout:
             return b''
-        except (ConnectionResetError, OSError):
-            return b''
+        if not data:
+            raise ConnectionError('TCP peer closed the connection')
+        return data
 
     def flush(self):
+        # TCP acceptance/ACKs do not establish that the bridge drained its UART.
         pass
 
     def reset_input_buffer(self):
