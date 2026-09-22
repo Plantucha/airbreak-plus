@@ -307,9 +307,7 @@ namespace eval patch {
         set data [::read $f]
         ::close $f
 
-        binary scan $data c* raw
-        set buf {}
-        foreach b $raw { lappend buf [expr {$b & 0xFF}] }
+        binary scan $data cu* buf
 
         set entry [dict create size $sector_size path $path buf $buf dirty 0]
         dict set _sector_cache $sector_start $entry
@@ -335,11 +333,7 @@ namespace eval patch {
 
             set f [::open $path wb]
             fconfigure $f -translation binary
-            set bin ""
-            foreach b $buf {
-                append bin [binary format c [expr {$b & 0xFF}]]
-            }
-            ::puts -nonewline $f $bin
+            ::puts -nonewline $f [binary format c* $buf]
             ::close $f
 
             echo [format "erasing sector @0x%08X (%d bytes)" $s $size]
@@ -657,31 +651,21 @@ namespace eval patch {
         0x6E17 0x7E36 0x4E55 0x5E74 0x2E93 0x3EB2 0x0ED1 0x1EF0
     }
 
-    # Compute CRC-16/CCITT-FALSE over a region of flash.
-    # Dumps to a temp file for performance — avoids byte-at-a-time
-    # read_memory overhead on large regions
+    # Use the sector cache so pending patches and their CRC are written together.
     proc _crc16_region {addr len} {
         variable _CRC16_TABLE
 
-        if {$len <= 0} { return 0xFFFF }
-
-        set tmp "/tmp/_patch_crc_[pid]_[clock clicks].bin"
-
-        dump_image $tmp $addr $len
-
-        set f [::open $tmp rb]
-        fconfigure $f -translation binary
-        set data [::read $f $len]
-        ::close $f
-
-        file delete -force $tmp
-
-        binary scan $data cu* bytes
-
         set crc 0xFFFF
-        foreach byte $bytes {
-            set idx [expr {(($crc >> 8) ^ $byte) & 0xFF}]
-            set crc [expr {(($crc << 8) & 0xFFFF) ^ [lindex $_CRC16_TABLE $idx]}]
+        foreach sector [_sectors_for_range $addr $len] {
+            lassign $sector start size
+            set entry [_cache_get $start $size]
+            set first [expr {$addr > $start ? $addr - $start : 0}]
+            set end [expr {$addr + $len - $start}]
+            set last [expr {$end < $size ? $end - 1 : $size - 1}]
+            foreach byte [lrange [dict get $entry buf] $first $last] {
+                set idx [expr {(($crc >> 8) ^ $byte) & 0xFF}]
+                set crc [expr {(($crc << 8) & 0xFFFF) ^ [lindex $_CRC16_TABLE $idx]}]
+            }
         }
 
         return $crc
@@ -727,8 +711,6 @@ namespace eval patch {
 
         _guard_enter
         try {
-            # CRC reads physical flash, including patches queued by with_guard.
-            _flush_sector_cache
             echo "Updating CRC-16 checksums ($::_CHIPNAME)..."
             set idx 0
 
@@ -743,10 +725,14 @@ namespace eval patch {
                 echo [format "  block %d @0x%08X (%d bytes) -> CRC 0x%04X @ 0x%08X" \
                     $idx $addr $payload_len $crc $crc_addr]
 
-                # CRC is stored big-endian (high byte first)
-                set hi [expr {($crc >> 8) & 0xFF}]
-                set lo [expr {$crc & 0xFF}]
-                bytes $crc_addr [list $hi $lo]
+                # Avoid erasing a whole sector when its CRC is already correct.
+                lassign [lindex [_sectors_for_range $crc_addr 2] 0] start size
+                set buf [dict get [_cache_get $start $size] buf]
+                set offset [expr {$crc_addr - $start}]
+                set stored [expr {([lindex $buf $offset] << 8) | [lindex $buf [expr {$offset + 1}]]}]
+                if {$stored != $crc} {
+                    write_u16 $crc_addr $crc -be
+                }
             }
 
             echo "CRC update complete."
