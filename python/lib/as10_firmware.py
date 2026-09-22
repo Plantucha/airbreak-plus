@@ -540,9 +540,10 @@ class ASFirmware(object):
         self.pcd = self.read_bytes(self.ccx_off + 0x20, 7).split(b'\x00', 1)[0].decode()
         self.pna = self.read_bytes(self.ccx_off + 0x30, 0x1f).split(b'\x00', 1)[0].decode()
         cid_values = [self.read_u32(self.globals_offset(0) + i * 4) for i in range(7)]
+        # Match the runtime CID formatter: MID-VID-RID-PVD-VIR-RIR-PVR.
         self.cid = "CX%03d-%03d-%03d-%03d-%03d-%03d-%03d" % (
-            cid_values[1], cid_values[0], cid_values[3], cid_values[2],
-            cid_values[5], cid_values[4], cid_values[6])
+            cid_values[1], cid_values[2], cid_values[3], cid_values[0],
+            cid_values[5], cid_values[6], cid_values[4])
         self.cdx_sid = self.read_bytes(self.cdx_off, 0x20).split(b'\x00', 1)[0].decode()
         self.cdx_ver = self.cdx_sid[:10]
         if not re.match(r'^SX[0-9]{3}-[0-9]{4}$', self.cdx_ver):

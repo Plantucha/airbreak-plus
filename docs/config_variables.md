@@ -100,7 +100,7 @@ g[15], shifting the later object IDs.
 ## g[0] -- device identity
 
 ```
-+0x00: u32[7]  CID components
++0x00: u32[7]  PVD, MID, VID, RID, PVR, VIR, RIR
 +0x1C: u32     front-panel profile
 +0x20: char[]  product code (e.g. "37101")
 +0x30: char[]  product name (e.g. "AirSense 10 AutoSet")
@@ -111,18 +111,20 @@ They are stored in a different order from the displayed identifier:
 
 ```
 CX%03u-%03u-%03u-%03u-%03u-%03u-%03u
-  +04   +00   +0C   +08   +14   +10   +18
+  +04   +08   +0C   +00   +14   +18   +10
 ```
 
 | CID field | g[0] offset | Meaning |
 |-----------|-------------|---------|
-| 1 | +0x04 | Metadata ID. Matches the default value of `MID`. |
-| 2 | +0x00 | Communication metadata version. This changes with the metadata generation, for example 24, 25, and 26 across known SX567 releases. |
-| 3 | +0x0C | Region ID. Matches the default value of `RID`. |
-| 4 | +0x08 | Variant ID. Matches the default value of `VID` and selects the corresponding `MetaData_M<mid>_V<vid>` definition. |
-| 5 | +0x14 | Communication metadata revision component 1. |
-| 6 | +0x10 | Communication metadata revision component 2. |
-| 7 | +0x18 | Communication metadata revision component 3. |
+| 1 | +0x04 | `MID`: metadata ID. |
+| 2 | +0x08 | `VID`: variant ID, selecting the corresponding `MetaData_M<mid>_V<vid>` definition. |
+| 3 | +0x0C | `RID`: region ID. |
+| 4 | +0x00 | `PVD`: communication metadata version, for example 24, 25, and 26 across known SX567 releases. |
+| 5 | +0x14 | `VIR`: communication metadata revision component 1. |
+| 6 | +0x18 | `RIR`: communication metadata revision component 2. |
+| 7 | +0x10 | `PVR`: communication metadata revision component 3. |
+
+Initialization copies these words into the corresponding runtime variables.
 
 Example (SX567 0402, AirSense 10 AutoSet product code 37101):
 
@@ -132,8 +134,8 @@ product_code="37101"  product="AirSense 10 AutoSet"
 CID=CX036-026-015-026-102-101-101
 ```
 
-The first four components identify metadata family 36, metadata version 26,
-region 15, and device variant 26. The final three values form the communication
+The first four components identify metadata family 36, device variant 26,
+region 15, and metadata version 26. The final three values form the communication
 metadata compatibility/revision tuple carried by `COMMS_ID`.
 
 The low byte of the front-panel profile at `+0x1C` selects the installed input

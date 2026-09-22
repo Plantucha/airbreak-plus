@@ -1234,7 +1234,7 @@ class NameLookup:
 class DeviceIdentity:
     """globals[0]: Device identity and config header.
 
-    +0x00: u32[7]  CID components (reordered: CX g[1]-g[0]-g[3]-g[2]-g[5]-g[4]-g[6])
+    +0x00: u32[7]  PVD, MID, VID, RID, PVR, VIR, RIR
     +0x1C: u32     front-panel profile
     +0x20: char[]  product code (e.g. '37101')
     +0x30: char[]  product name (e.g. 'AirSense 10 AutoSet')
@@ -1249,8 +1249,9 @@ class DeviceIdentity:
         raw_prod = flash.cstr(addr + 0x30)
         self.product = raw_prod.decode('ascii', errors='replace') if raw_prod else ""
         v = self.cid_vals
+        # Match the runtime CID formatter: MID-VID-RID-PVD-VIR-RIR-PVR.
         self.cid = "CX%03d-%03d-%03d-%03d-%03d-%03d-%03d" % (
-            v[1], v[0], v[3], v[2], v[5], v[4], v[6])
+            v[1], v[2], v[3], v[0], v[5], v[6], v[4])
         if self.product_code or self.product:
             print(f"[+] globals[0]: {self.product_code} / {self.product} ({self.cid})")
 
