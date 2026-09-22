@@ -9,10 +9,15 @@
 #   Detects platform from $::_CHIPNAME:
 #     stm32f1x  — S9   (density detection for ancient models) 
 #     stm32f4x  — S10  (mixed sector layout)
+#     stm32h7x  - Air11 (two banks, 128 KiB sectors)
 #
 #   CRC fixup (patch::fix_crc) is only supported on:
 #     stm32f1x XL-density (DEV_ID 0x430)
 #     stm32f4x
+#     stm32h7x
+#
+#   Air11 uses iwdg_set_sw from as11.cfg. Writes leave the target halted;
+#   run patch::fix_crc before explicitly starting it with reset run.
 #
 # Addressing:
 #   - Values < 0x08000000 are treated as OFFSETS from flash base
@@ -63,7 +68,7 @@
 # CRC:
 #   patch::fix_crc
 #     Recompute CRC-16/CCITT-FALSE for all firmware regions and write
-#     the checksum words back to flash.  Detects S9/S10 automatically.
+#     the checksum words back to flash. Detects S9/Air10/Air11 automatically.
 #
 # Examples:
 #   patch::hexstr 0x5014 e10500003200
@@ -80,7 +85,7 @@ namespace eval patch {
     variable FLASH_BASE 0x08000000
     variable _sector_cache [dict create]
     variable _guard_depth 0
-    variable _guard_iwdg_was_enabled 0
+    variable _guard_iwdg_was_hw 0
 
     # ------------------------------------------------------------
     # Address helpers
@@ -139,6 +144,9 @@ namespace eval patch {
                 {0x08020000 0x20000}
             }
         }
+        stm32h7x {
+            set FLASH_PAGE_SIZE 0x20000
+        }
         default {
             error "patch: unsupported _CHIPNAME '$::_CHIPNAME'"
         }
@@ -155,7 +163,7 @@ namespace eval patch {
         set end [expr {$addr + $len}]
         set cur $addr
 
-        # uniform flash (stm32f1x)
+        # Uniform pages/sectors (stm32f1x, stm32h7x).
         if {$FLASH_PAGE_SIZE != 0} {
             set first [expr {
                 $FLASH_BASE +
@@ -198,24 +206,38 @@ namespace eval patch {
     # ------------------------------------------------------------
     # watchdog handling
     # ------------------------------------------------------------
-    proc _iwdg_is_enabled {} {
-        # USER option byte: bit0 = IWDG_SW (0 = HW watchdog enabled)
-        set r [$::_CHIPNAME options_read 0]
-        if {![regexp {0x([0-9A-Fa-f]{2})} $r -> hex]} {
-            error "cannot parse USER option byte: $r"
+    proc _iwdg_is_hw {} {
+        switch -exact -- $::_CHIPNAME {
+            stm32f1x {
+                # USER option byte: WDG_SW, bit 0.
+                return [expr {([lindex [read_memory 0x1FFFF802 16 1] 0] & 1) == 0}]
+            }
+            stm32f4x {
+                # FLASH_OPTCR: WDG_SW, bit 5.
+                return [expr {([lindex [read_memory 0x40023C14 32 1] 0] & 0x20) == 0}]
+            }
+            stm32h7x {
+                # FLASH_OPTSR_CUR: IWDG1_SW, bit 4.
+                return [expr {([lindex [read_memory 0x5200201C 32 1] 0] & 0x10) == 0}]
+            }
         }
-        scan $hex %x opt
-        return [expr {(($opt & 1) == 0)}]
     }
 
-    proc _iwdg_disable {} {
-        $::_CHIPNAME options_write 0 0x2c
-        reset halt
-    }
-
-    proc _iwdg_enable {} {
-        $::_CHIPNAME options_write 0 0xcc
-        reset
+    # Change the startup mode only; the guard applies it with reset halt.
+    proc _iwdg_set_sw {sw} {
+        switch -exact -- $::_CHIPNAME {
+            stm32f1x {
+                stm32f1x options_write 0 [expr {$sw ? "SWWDG" : "HWWDG"}]
+            }
+            stm32f4x {
+                # Preserve the other USER options (bits 2..7).
+                set options [expr {[lindex [read_memory 0x40023C14 32 1] 0] & 0xfc}]
+                stm32f2x options_write 0 [expr {($options & ~0x20) | ($sw ? 0x20 : 0)}]
+            }
+            stm32h7x {
+                ::iwdg_set_sw $sw
+            }
+        }
     }
 
     # ------------------------------------------------------------
@@ -223,35 +245,39 @@ namespace eval patch {
     # ------------------------------------------------------------
     proc _guard_enter {} {
         variable _guard_depth
-        variable _guard_iwdg_was_enabled
+        variable _guard_iwdg_was_hw
 
         if {$_guard_depth > 0} {
             incr _guard_depth
             return
         }
 
-        set _guard_depth 1
         reset halt
 
-        set _guard_iwdg_was_enabled [_iwdg_is_enabled]
-        if {$_guard_iwdg_was_enabled} {
-            _iwdg_disable
+        # Target configs freeze IWDG while halted. The flash loader runs, so
+        # use software-start mode and reset before executing it.
+        set _guard_iwdg_was_hw [_iwdg_is_hw]
+        if {$_guard_iwdg_was_hw} {
+            _iwdg_set_sw 1
+            reset halt
         }
+        set _guard_depth 1
     }
 
     proc _guard_exit {} {
         variable _guard_depth
-        variable _guard_iwdg_was_enabled
+        variable _guard_iwdg_was_hw
 
         incr _guard_depth -1
         if {$_guard_depth > 0} { return }
 
         _flush_sector_cache
 
-        if {$_guard_iwdg_was_enabled} {
-            _iwdg_enable
+        if {$_guard_iwdg_was_hw} {
+            _iwdg_set_sw 0
+            reset halt
         }
-        set _guard_iwdg_was_enabled 0
+        set _guard_iwdg_was_hw 0
     }
 
     proc with_guard {body} {
@@ -662,7 +688,7 @@ namespace eval patch {
     }
 
     # Recompute and write CRC-16 checksums for all firmware regions.
-    # Detects S9 / S10 from $::_CHIPNAME.
+    # Detects S9 / Air10 / Air11 from $::_CHIPNAME.
     proc fix_crc {} {
         variable _F1_DEV_ID
 
@@ -686,6 +712,14 @@ namespace eval patch {
                     {0x08040000 0xc0000}
                 }
             }
+            stm32h7x {
+                # Air11: FGBL, CONF, APPL.
+                set blocks {
+                    {0x08000000 0x20000}
+                    {0x08020000 0x20000}
+                    {0x08040000 0x1C0000}
+                }
+            }
             default {
                 error "patch::fix_crc: unsupported _CHIPNAME '$::_CHIPNAME'"
             }
@@ -693,6 +727,8 @@ namespace eval patch {
 
         _guard_enter
         try {
+            # CRC reads physical flash, including patches queued by with_guard.
+            _flush_sector_cache
             echo "Updating CRC-16 checksums ($::_CHIPNAME)..."
             set idx 0
 
