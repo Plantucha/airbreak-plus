@@ -205,10 +205,10 @@ var_id	uart	edf_signal	resmed_name	notes
 0x00CB	NSE			Background-corrected and normalized snore-path signal; raw / 100 feeds the snore-index calculation
 0x00CC	SNB			Snore-path background calibration in BGL; raw / 44 scales the nominal background, default 44
 0x00CD	SNZ			Snore-path zero offset in BGL; subtracted before background correction, default 0
-0x00CE	PVD			
-0x00CF	PVR			
-0x00D0	RIR			
-0x00D1	VIR			
+0x00CE	PVD			Communication metadata version; initialized from g[0]+0x00 and reported as CID field 4
+0x00CF	PVR			Communication metadata revision component; initialized from g[0]+0x10 and reported as CID field 7
+0x00D0	RIR			Communication metadata revision component; initialized from g[0]+0x18 and reported as CID field 6
+0x00D1	VIR			Communication metadata revision component; initialized from g[0]+0x14 and reported as CID field 5
 0x00D2	CCP			Persistent 8-bit BGL field (0..255)
 0x00D3	CCS			Persistent 8-bit BGL field (0..255)
 0x00D4	MDA			EEPROM diagnostic block index 0..7; selects a 64-byte block within reserved logical sector 502 on SX567-0402
@@ -448,7 +448,7 @@ var_id	uart	edf_signal	resmed_name	notes
 0x01BE	ZMD			
 0x01BF	ZOV			
 0x01C0	ZMU			
-0x01C1	MPB			
+0x01C1	MPB			Blower power reserve in mW; subtracted from the supply budget before allocating humidifier power; default 30000 in AirSense and 35000 in AirCurve
 0x01C2	ZFE			
 0x01C3	S10			Task10Ms stack high-water usage; raw / 10 = % of allocated stack
 0x01C4	S20			Task20Ms stack high-water usage; raw / 10 = % of allocated stack
@@ -520,10 +520,10 @@ var_id	uart	edf_signal	resmed_name	notes
 0x0206	ZRS			
 0x0207	RYS			
 0x0208	EMS			
-0x0209	TSS			
+0x0209	TSS			Therapy-screen page mask: bit 0=round pressure display, bit 1=pressure bar, bit 2=ventilation metrics, bit 3=timing and spontaneous-cycle metrics
 0x020A	ZPC			
 0x020B	ZOX			
-0x020C	ZPK			
+0x020C	ZPK			SPM message-condition bitfield on SX567: b0=no SD card at startup, b1=calculating targets, b2=90W supply required, b3=motor life exceeded, b4=humidifier warming, b5=humidifier ready, b6=humidifier cooling; set bits select SPM values 1..7
 0x020D	MOP	Mode	OPERATING_MODE	Therapy Mode
 0x020E	ROP		RUNNING_MODE	Modes: 0000=Standby, 0001=Normal, 0002=Power Recovery, 0003=Power Save, 0004=Calibration, 0005=Upgrade; ROP=0004 requests calibration mode; Run Mode Request
 0x020F	ZRM		PROD_RUN_MODE	Modes: 0000=Reset, 0001=Standby, 0002=Backup, 0003=Reset Compliance, 0004=Therapy, 0005=Mask Fit, 0006=Calibration, 0007=System Error, 0008=Power Save, 0009=Learn Target, 000A=Upgrade, 000B=Upgrade Prep; ZRM=0006 indicates calibration mode; Run Mode
@@ -585,7 +585,7 @@ var_id	uart	edf_signal	resmed_name	notes
 0x0247	CSR		CSR_EVENT_TYPE	CSR Event Type
 0x0248	MST		MASK_STATUS	Mask Status
 0x0249	HTC			
-0x024A	IMF			
+0x024A	IMF			Cellular-module capability: 0=absent, 1=present; controls cellular settings/status visibility and reserves 3500 mW from the supply budget
 0x024B	BOL			
 0x024C	CAL		CALIBRATION	Calibration service selector; values: 0000=idle, 0001=pressure controller, 0002=flow-sensor identity via FID/FSN, 0005=LCD test, 0006=pressure and front-panel test, 0007=pressure and rotary test, 0008=no-op placeholder, 000A=SD status via SDT, 000B=EEPROM/SD maintenance via ETR, 000C=short raw USART2 request/reply via RSS, 000D=raw USART2 TX and RTC backup-battery test, 0010=SD read/write test via CDS, 0012=raw USART2 TX/RX and RTC backup-battery test; active when ZRM=0006; Calibration Service Select
 0x024D	MDC			EEPROM diagnostic command: 0=idle, 1=read selected MDA block into MDB, 2=write MDB to selected block; clears after processing
@@ -596,19 +596,19 @@ var_id	uart	edf_signal	resmed_name	notes
 0x0252	PBR			CAL 000D/0012 USART2 baud selector: 0000=9600, 0001=14400, 0002=19200, 0003=28800, 0004=38400, 0005=57600; Calibration Serial Baud Rate
 0x0253	CDS			CAL 0010 SD read/write test result: 0001=pass, 0002=failure or idle; test file is mmc:0:\TestReading.bin
 0x0254	SDC			
-0x0255	SCS			
+0x0255	SCS			Startup missing-SD-card warning enable; value 1 allows the initial card check to set ZPK bit 0 and display SPM=1, No SD card detected, press OK to continue
 0x0256	TUD			Used-hours display toggle stored in UGL; callback 28 controls PHM and HOU visibility
 0x0257	MQD			Mask Fit
 0x0258	ZRH			Climate-control status derived from the newest SESSION/STR record; 1 when SYC is zero, otherwise 0
 0x0259	KEY			
 0x025A	UTY			
-0x025B	CTY			
+0x025B	CTY			GUI color-palette index: 0=standard, 1=For Her; sampled during GUI initialization
 0x025C	ZBO			
 0x025D	HUC			
 0x025E	HUS			
 0x025F	WUP			
 0x0260	HON			
-0x0261	CEN			
+0x0261	CEN			Central-apnea/FOT classification enable; value 1 enables the corresponding therapy input
 0x0262	CDT			
 0x0263	ZCU			
 0x0264	ZMR			
@@ -623,8 +623,8 @@ var_id	uart	edf_signal	resmed_name	notes
 0x026D	ZBR			
 0x026E	RMM			
 0x026F	ZRA			
-0x0270	CYI			
-0x0271	TRI			
+0x0270	CYI			Runtime cycle-event indicator; values 2=Ti Min, 3=Ti Max, 4=Timed; produced from therapy feedback, separate from VCS sensitivity
+0x0271	TRI			Runtime trigger-event indicator; value 4=Timed; permitted values 0, 1, 4; produced from therapy feedback, separate from VTS sensitivity
 0x0272	UPM			
 0x0273	UPS			
 0x0274	UPK			
@@ -659,7 +659,7 @@ var_id	uart	edf_signal	resmed_name	notes
 0x0291	SEP			Period
 0x0292	SRC			
 0x0293	TMM			
-0x0294	BVP			
+0x0294	BVP			On-therapy GUI presentation: 0=Sleep Report, 1=Monitoring; selects the page title and corresponding home-menu label/icon, both opening the same therapy view
 0x0295	ZLB			Checked by the immediate O frame; when nonzero, ZRO is set to 1 before the UART parser is reset
 0x0296	ZLE			
 0x0297	ZTE			
@@ -678,13 +678,13 @@ var_id	uart	edf_signal	resmed_name	notes
 0x02A4	ZHA			
 0x02A5	RUM			
 0x02A6	ZOA			
-0x02A7	ZKA			
-0x02A8	SPM			
+0x02A7	ZKA			SPM message acknowledgement; value 1 suppresses the current ZPK condition until that condition clears
+0x02A8	SPM			Current informational GUI message on SX567: 0=none, 1=no SD card, 2=calculating targets, 3=connect a 90W supply, 4=motor life exceeded, 5=humidifier warming, 6=humidifier ready, 7=humidifier cooling; selected from ZPK and acknowledged through ZKA
 0x02A9	ZSA			
 0x02AA	ZEA			
 0x02AB	ZUM			
 0x02AC	ZMS			
-0x02AD	ZLM			
+0x02AD	ZLM			Blocked-tube condition latch; set on activation and cleared on reset; ACT enables the one-shot DLA marker and therapy-day guard in the recoverable-error path
 0x02AE	AIR			myAir
 0x02AF	MAM			
 0x02B0	DLA			
