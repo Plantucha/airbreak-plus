@@ -22,6 +22,13 @@
 # --patch-motor-nagscreen y
 # --patch-timezone-write y
 
+# Optional startup logo: 0 Off, 1 AirSense 11, 2 AirCurve 11, 3 Lumis 11, 4 ResMed.
+# Omitting the number selects 4; omitting the option leaves the logo unchanged.
+# --patch-startup-logo 4
+
+# Optional graphics beside Trigger/Cycle sensitivity choices.
+# --patch-sensitivity-split-screen y
+
 # Download an HTTP resource to upgrade storage through the cellular modem.
 # --patch-cellular-download n
 

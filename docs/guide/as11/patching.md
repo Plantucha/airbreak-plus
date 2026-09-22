@@ -95,6 +95,8 @@ instead of producing that reduced result.
 | Defaults | Changes the initial values of selected settings without replacing values already saved on the device | `--patch-defaults` |
 | Header clock | Shows local time in the dashboard and therapy-screen headers when enabled in Configuration; default Off | `--patch-header-clock` |
 | Screen keep-awake | Uses a three-finger hold to toggle whether inactivity turns off the display | `--patch-screen-keep-awake` |
+| Startup logo (optional) | Selects the logo shown when the device starts | `--patch-startup-logo [0..4]` |
+| Sensitivity split screen (optional) | Shows a graphic beside Trigger/Cycle sensitivity choices in supported modes | `--patch-sensitivity-split-screen` |
 | Motor nag removal | Removes the design-life warning while preserving the runtime counter | `--patch-motor-nagscreen` |
 
 ### Miscellaneous
@@ -108,7 +110,7 @@ See [Features](features.md) for additional behavior details.
 
 ## Selecting Patches
 
-Use `y` to enable a patch or `n` to disable it. For example, to enable only
+Most switches use `y` to enable a patch or `n` to disable it. For example, to enable only
 feature unlocks and expanded SD-card recording:
 
 ```bash
@@ -121,6 +123,16 @@ python3 python/patch-airsense-s11.py \
 
 When building through Make, options can also be passed with `AIR11_PATCH_ARGS`.
 See [patch options](../../patch_options.md) for examples and saved preferences.
+
+Startup logo takes a number instead of `y/n`: `0` Off, `1` AirSense 11,
+`2` AirCurve 11, `3` Lumis 11, or `4` ResMed. Using `--patch-startup-logo`
+without a number selects ResMed; omitting the switch preserves the stock logo.
+
+For example, add both optional patches to the standard build:
+
+```bash
+make as11 AIR11_PATCH_ARGS='--patch-startup-logo 4 --patch-sensitivity-split-screen y'
+```
 
 ## Bootloader Service
 

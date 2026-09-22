@@ -1943,6 +1943,25 @@ class S11FirmwarePatches(CompiledPayloadMixin):
             return PatchOutcome.warn("language configuration not found")
         return PatchOutcome.ok()
 
+    def startup_logo(self, logo):
+        """Select the startup bitmap through the SCY descriptor default."""
+        rows = self.asf.find_descriptors("SCY", ("g5",))
+        if not rows:
+            return PatchOutcome.skip("SCY descriptor unavailable")
+        self.write_default_value(rows[0], logo)
+        print("  Startup logo: %d" % logo)
+        return PatchOutcome.ok()
+
+    def sensitivity_split_screen(self):
+        """Show the native graphic beside Trigger/Cycle sensitivity choices."""
+        rows = self.asf.find_descriptors("CPS", ("g5",))
+        if not rows:
+            return PatchOutcome.skip("CPS descriptor unavailable")
+        row = rows[0]
+        self.write_default_value(row, 1)
+        self.asf.write_descriptor_fields(row, {"option_mask": row["option_mask"] | 2})
+        return PatchOutcome.ok()
+
     def therapy_screen_style(self):
         """Enable persistent, RPC-writable therapy-screen selection."""
         rows = self.asf.find_descriptors("TSS", ("g5",))
@@ -3019,6 +3038,21 @@ PATCH_LIST = [
         "function": "screen_keep_awake",
     },
     {
+        "arg": "patch-startup-logo",
+        "desc": "Select startup logo: 0 Off, 1 AirSense 11, 2 AirCurve 11, 3 Lumis 11, 4 ResMed (default when selected).",
+        "default": False,
+        "function": "startup_logo",
+        "value_type": int,
+        "choices": range(5),
+        "const": 4,
+    },
+    {
+        "arg": "patch-sensitivity-split-screen",
+        "desc": "Show graphics beside supported Trigger/Cycle sensitivity selectors.",
+        "default": False,
+        "function": "sensitivity_split_screen",
+    },
+    {
         "arg": "patch-asv-backup-rate",
         "desc": "Add ASV/ASVAuto backup-rate suppression and control.",
         "default": True,
@@ -3102,6 +3136,11 @@ class TeeStream:
 
 
 def add_patch_switch(parser, patch):
+    if patch.get("value_type"):
+        parser.add_argument("--" + patch["arg"], type=patch["value_type"],
+                            nargs="?", const=patch["const"], choices=patch["choices"],
+                            default=None, help=patch["desc"])
+        return
     parser.add_argument(
         "--" + patch["arg"],
         metavar="Y/n" if patch["default"] else "y/N",
@@ -3159,11 +3198,11 @@ def print_patch_output(text, stream=None):
         print(("  " + line) if line else "", file=stream)
 
 
-def apply_reported_patch(option, method, args, detail_log=None):
+def apply_reported_patch(option, method, args, detail_log=None, method_args=()):
     output = io.StringIO()
     try:
         with redirect_stdout(output):
-            outcome = method()
+            outcome = method(*method_args)
         if not isinstance(outcome, PatchOutcome):
             outcome = PatchOutcome.ok()
     except PatchVersionUnavailable as exc:
@@ -3216,14 +3255,20 @@ def run_patcher(args, detail_log=None):
 
     print("\n=== Patches")
     for patch in PATCH_LIST:
-        enabled = getattr(args, patch["arg"].replace("-", "_"))
+        value = getattr(args, patch["arg"].replace("-", "_"))
+        enabled = value
+        method_args = ()
+        if patch.get("value_type"):
+            # Zero is a valid patch parameter, not a disabled switch.
+            enabled = True if value is not None else None
+            method_args = (patch["const"] if value is None else value,)
         if enabled is None:
             if args.all_patches is None:
                 enabled = patch["default"]
             else:
                 enabled = args.all_patches
         if enabled:
-            outcome = apply_reported_patch(patch["arg"], getattr(patches, patch["function"]), args, detail_log)
+            outcome = apply_reported_patch(patch["arg"], getattr(patches, patch["function"]), args, detail_log, method_args)
             patches.record_patch_outcome(patch["arg"], outcome)
 
 

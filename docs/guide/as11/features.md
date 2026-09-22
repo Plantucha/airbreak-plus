@@ -52,6 +52,20 @@ The clock patch shows local time in the home and therapy-screen headers.
 Enable `Clock` in the clinical menu's Configuration section. The default is
 `Off`.
 
+## Startup Logo (Optional)
+
+Choose the startup logo when building the image: AirSense 11, AirCurve 11,
+Lumis 11, ResMed, or none. The first startup after flashing can still show the
+previous logo; the next startup uses the new selection. If splash-screen
+display has been disabled on the device, it remains disabled.
+
+## Sensitivity Split Screen (Optional)
+
+Adds a graphic beside the choice list when editing Trigger or Cycle in the
+clinical therapy settings. Trigger uses this layout in CPAP, S, ST, iVAPS,
+and PAC; Cycle in S, ST, and iVAPS. VAuto keeps its existing editors.
+The patch changes presentation, not sensitivity values or therapy behavior.
+
 ## Custom Settings
 
 The custom-settings patch adds the `Backup Rate` and `Clock` menu controls
