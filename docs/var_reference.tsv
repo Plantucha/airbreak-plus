@@ -85,8 +85,8 @@ var_id	uart	edf_signal	resmed_name	notes
 0x0053	AV9		ALV_MIN_VENT_95	
 0x0054	AVA		ALV_MIN_VENT_MAX	
 0x0055	AAV		ACHV_ALV_MIN_VENT	Va [L/min] (0.0 .. 30.0 step 0.1)
-0x0056	CLI	OAI	CAI_SESSION	Central AI
-0x0057	OPI	CAI	OAI_SESSION	Obstructive AI
+0x0056	CLI	OAI	CAI_SESSION	Obstructive apnea index; derived from CAC
+0x0057	OPI	CAI	OAI_SESSION	Central apnea index; derived from OAC
 0x0058	UAI	UAI	UAI_SESSION	Unknown AI
 0x0059	HMS	S.HumLevel	HUMIDITY_SET	Humidity Level
 0x005A	HTS	S.Temp	HEAT_TB_SET	Tube Temp
@@ -288,8 +288,8 @@ var_id	uart	edf_signal	resmed_name	notes
 0x011E	LPF			
 0x011F	ZMP			Calibrated pressure from the source exposed as PRS; raw / 50 = cmH2O
 0x0120	BPA			
-0x0121	CAC			
-0x0122	OAC			
+0x0121	CAC			Obstructive apnea count; incremented for AET=3; source for CLI
+0x0122	OAC			Central apnea count; incremented for AET=2; source for OPI
 0x0123	SDT			CAL 000A SD status bitmask: 0001=card present, 0002=write-protected
 0x0124	NBF			
 0x0125	CGT			
