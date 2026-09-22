@@ -1,14 +1,14 @@
 array	tag	name	edf_name	gui_label	var_id_14_8_3_0	var_id_15_8_4_0	var_id_16_8_5_0	var_id_17_8_6_0	notes
-g1	AAS				0x0000	0x0000	0x0000	0x0000	INACT; maxlen=40
-g1	ABS				0x0001	0x0001	0x0001	0x0001	INACT; maxlen=64
-g1	ADU					0x0002	0x0002	0x0002	maxlen=192
-g1	AEU					0x0003	0x0003	0x0003	maxlen=192
-g1	AHD				0x0002	0x0004	0x0004	0x0004	INACT; maxlen=64
-g1	ASN				0x0003	0x0005	0x0005	0x0005	INACT; maxlen=64
-g1	AUI				0x0004	0x0006	0x0006	0x0006	INACT; maxlen=64
+g1	AAS				0x0000	0x0000	0x0000	0x0000	INACT; maxlen=40; alarm-board application identifier
+g1	ABS				0x0001	0x0001	0x0001	0x0001	INACT; maxlen=64; alarm-board bootloader identifier
+g1	ADU					0x0002	0x0002	0x0002	maxlen=192; alarmDiagnosticEvents delivery URI
+g1	AEU					0x0003	0x0003	0x0003	maxlen=192; alarmEvents delivery URI
+g1	AHD				0x0002	0x0004	0x0004	0x0004	INACT; maxlen=64; alarm-board hardware identifier
+g1	ASN				0x0003	0x0005	0x0005	0x0005	INACT; maxlen=64; alarm-board serial number
+g1	AUI				0x0004	0x0006	0x0006	0x0006	INACT; maxlen=64; alarm-board universal identifier
 g1	SP3				0x0005	0x0007	0x0007	0x0007	maxlen=25
 g1	AVU				0x0006	0x0008	0x0008	0x0008	maxlen=150
-g1	IAR					0x0009	0x0009	0x0009	maxlen=192
+g1	IAR					0x0009	0x0009	0x0009	maxlen=192; atmosphericPressure10min delivery URI
 g1	DBM	Message					0x000A	0x000A	maxlen=72; TLP
 g1	BTV	BluetoothApplicationIdentifier			0x0007	0x000A	0x000B	0x000B	maxlen=32
 g1	BBV	BluetoothBootloaderIdentifier			0x0008	0x000B	0x000C	0x000C	maxlen=32
@@ -17,14 +17,14 @@ g1	BP0				0x000A	0x000D	0x000E	0x000E	maxlen=65; TLP; authenticated BLE peer key
 g1	BFI				0x000B	0x000E	0x000F	0x000F	maxlen=13; TLP; local Bluetooth controller address
 g1	BMF				0x000C	0x000F	0x0010	0x0010	maxlen=13
 g1	BTN	BluetoothName			0x000D	0x0010	0x0011	0x0011	maxlen=20
-g1	BPK				0x000E	0x0011	0x0012	0x0012	maxlen=4
+g1	BPK				0x000E	0x0011	0x0012	0x0012	maxlen=4; four-digit decimal BLE pairing code used by SRP authentication
 g1	BPM	BluetoothProductModel			0x000F	0x0012	0x0013	0x0013	maxlen=50
 g1	BPP	BluetoothProductProvider			0x0010	0x0013	0x0014	0x0014	maxlen=50
 g1	BID	BootloaderIdentifier			0x0011	0x0014	0x0015	0x0015	maxlen=64
 g1	CMD	CamlData			0x0012	0x0015	0x0016	0x0016	maxlen=2000
-g1	CAU						0x0017	0x0017	maxlen=192
+g1	CAU						0x0017	0x0017	maxlen=192; CellularDataUsage delivery URI
 g1	CDP	CellularDataPreamble			0x0013	0x0016	0x0018	0x0018	maxlen=64
-g1	CEU						0x0019	0x0019	maxlen=192
+g1	CEU						0x0019	0x0019	maxlen=192; CellularActivityEvents delivery URI
 g1	CCD	SIMID			0x0014	0x0017	0x001A	0x001A	maxlen=20
 g1	CIE	IMEI			0x0015	0x0018	0x001B	0x001B	maxlen=15
 g1	CIM	IMSI			0x0016	0x0019	0x001C	0x001C	maxlen=15
@@ -33,7 +33,7 @@ g1	CPP	CellularProductProvider			0x0018	0x001B	0x001E	0x001E	maxlen=50
 g1	CSI	CellularApplicationIdentifier			0x0019	0x001C	0x001F	0x001F	maxlen=100
 g1	CLA	AccessPointName			0x001A	0x001D	0x0020	0x0020	maxlen=128
 g1	CLU	ServiceHost			0x001B	0x001E	0x0021	0x0021	maxlen=192
-g1	PUR				0x001C	0x001F	0x0022	0x0022	maxlen=192
+g1	PUR				0x001C	0x001F	0x0022	0x0022	maxlen=192; ConfigurationProfilesCollection delivery URI; fromdatetime parameter derived from DPD
 g1	CID	ConfigurationIdentifier			0x001D	0x0020	0x0023	0x0023	maxlen=64
 g1	CP3				0x001E	0x0021	0x0024	0x0024	maxlen=25
 g1	CP1				0x001F	0x0022	0x0025	0x0025	maxlen=12
@@ -51,7 +51,7 @@ g1	DEL				0x0028	0x002D	0x0030	0x0030	maxlen=32
 g1	DER				0x0029	0x002E	0x0031	0x0031	maxlen=32
 g1	DOT				0x002A	0x002F	0x0032	0x0032	maxlen=32
 g1	DTT				0x002B	0x0030	0x0033	0x0033	maxlen=32
-g1	URI				0x002C	0x0031	0x0034	0x0034	maxlen=192
+g1	URI				0x002C	0x0031	0x0034	0x0034	maxlen=192; shared stored-data delivery URI: /v2/cloud/data/flowgenerators
 g1	DGE				0x002D	0x0032	0x0035	0x0035	maxlen=32
 g1	IPT				0x002E	0x0033	0x0036	0x0036	maxlen=32
 g1	MLT				0x002F	0x0034	0x0037	0x0037	maxlen=32
@@ -83,17 +83,17 @@ g1	GSD				0x0048	0x004D	0x0050	0x0050	maxlen=32
 g1	HPI				0x0049	0x004E	0x0051	0x0051	maxlen=32
 g1	HSN				0x004A	0x004F	0x0052	0x0052	maxlen=18
 g1	HVI				0x004B	0x0050	0x0053	0x0053	maxlen=16
-g1	IUR				0x004C	0x0051	0x0054	0x0054	maxlen=192
+g1	IUR				0x004C	0x0051	0x0054	0x0054	maxlen=192; InspiratoryPressure0p5Hz delivery URI; fromdatetime parameter derived from IPT
 g1	LAB				0x004D	0x0052	0x0055	0x0055	maxlen=64; TLP; previous ABS value used for identity-change detection
 g1	LAI				0x004E	0x0053	0x0056	0x0056	maxlen=64; TLP; previous AAS value used for identity-change detection
 g1	LFB				0x004F	0x0054	0x0057	0x0057	maxlen=64; TLP; previous BootloaderIdentifier used for identity-change detection
 g1	LFS				0x0050	0x0055	0x0058	0x0058	maxlen=64; TLP; previous ApplicationIdentifier used for identity-change detection
 g1	LCT				0x0051	0x0056	0x0059	0x0059	maxlen=128
-g1	LUR				0x0052	0x0057	0x005A	0x005A	maxlen=192
+g1	LUR				0x0052	0x0057	0x005A	0x005A	maxlen=192; Leak0p5Hz delivery URI; fromdatetime parameter derived from MLT
 g1	MD0				0x0053	0x0058	0x005B	0x005B	maxlen=1368
 g1	MD1				0x0054	0x0059	0x005C	0x005C	maxlen=1368
 g1	MSM				0x0055	0x005A	0x005D	0x005D	maxlen=30
-g1	MUR				0x0056	0x005B	0x005E	0x005E	maxlen=192
+g1	MUR				0x0056	0x005B	0x005E	0x005E	maxlen=192; MaskPressure6p25Hz delivery URI; fromdatetime parameter derived from MPT
 g1	QCD				0x0057	0x005C	0x005F	0x005F	maxlen=8
 g1	QCO				0x0058	0x005D	0x0060	0x0060	maxlen=16
 g1	QCV				0x0059	0x005E	0x0061	0x0061	maxlen=8
@@ -111,10 +111,10 @@ g1	PCD	ProductCode			0x0064	0x0069	0x006C	0x006C	maxlen=10
 g1	PGI	ProductGeographicIdentifier			0x0065	0x006A	0x006D	0x006D	maxlen=60
 g1	PNA	ProductName			0x0066	0x006B	0x006E	0x006E	maxlen=32
 g1	PVI	ProfileVariantIdentifier			0x0067	0x006C	0x006F	0x006F	maxlen=36
-g1	RUR				0x0068	0x006D	0x0070	0x0070	maxlen=192
+g1	RUR				0x0068	0x006D	0x0070	0x0070	maxlen=192; RespiratoryFlow6p25Hz delivery URI; fromdatetime parameter derived from DRT
 g1	SRN	SerialNumber			0x0069	0x006E	0x0071	0x0071	maxlen=18
 g1	SVC				0x006A	0x006F	0x0072	0x0072	maxlen=3
-g1	SPU							0x0073	maxlen=192; StoredDataDeliveryControl Endpoint
+g1	SPU							0x0073	maxlen=192; SettingProfilesCollection delivery URI: /iot/api/devices/{GUD}/v1/settings
 g1	SID	ApplicationIdentifier			0x006B	0x0070	0x0073	0x0074	maxlen=64
 g1	SP1				0x006C	0x0071	0x0074	0x0075	maxlen=12
 g1	GUD	UniversalIdentifier			0x006D	0x0072	0x0075	0x0076	maxlen=36
@@ -263,14 +263,14 @@ g2	PC2				0x00EE	0x00FC	0x0103	0x0104	0..1000 step 1
 g2	PC3				0x00EF	0x00FD	0x0104	0x0105	0..1000 step 1
 g2	PC4				0x00F0	0x00FE	0x0105	0x0106	0..1000 step 1
 g2	CLP	ServicePort			0x00F1	0x00FF	0x0106	0x0107	1..65535 step 1
-g2	L19				0x00F2	0x0100	0x0107	0x0108	0..100 step 1
+g2	L19				0x00F2	0x0100	0x0107	0x0108	0..100 step 1; combined UART4/USART2/USART3 interrupt CPU usage, including DMA1 streams 2..7 (%; raw / 100)
 g2	CED	LastEraseDataDateTime			0x00F3	0x0101	0x0108	0x0109	0..2147483647 step 1
 g2	CAF				0x00F4	0x0102	0x0109	0x010A	0..24836 step 1
 g2	CCC				0x00F5	0x0103	0x010A	0x010B	0..2147483647 step 1
 g2	PUI				0x00F6	0x0104	0x010B	0x010C	1..64 step 1
 g2	IPC	Cpap-SetPressure	S.C.Press	Pressure	0x00F7	0x0105	0x010C	0x010D	4..20 step 0.2; modes=CPAP
 g2	CSP	CpapSetPressure			0x00F8	0x0106	0x010D	0x010E	0..40 step 0.2
-g2	ZPR				0x00F9	0x0107	0x010E	0x010F	20..10000 step 20
+g2	ZPR				0x00F9	0x0107	0x010E	0x010F	20..10000 step 20; CPU-usage sampling interval (ms)
 g2	CP2				0x00FA	0x0108	0x010F	0x0110	0..2147483647 step 1
 g2	CRW				0x00FB	0x0109	0x0110	0x0111	0..2147483647 step 1
 g2	CSD		CSR		0x00FC	0x010A	0x0111	0x0112	0..1440 step 1
@@ -453,13 +453,13 @@ g2	IE9	Summary-IeRatio-95	IERatio.95		0x01A3	0x01B2	0x01BD	0x01C0	active_vids=7,
 g2	IEA	Summary-IeRatio-100	IERatio.Max		0x01A4	0x01B3	0x01BE	0x01C1	active_vids=7,10; 0..400 step 1
 g2	IEM	Summary-IeRatio-50	IERatio.50		0x01A5	0x01B4	0x01BF	0x01C2	active_vids=7,10; 0..400 step 1
 g2	KPT	ButtonRegMap			0x01A6	0x01B5	0x01C0	0x01C3	0..255 step 1
-g2	PIN					0x01B6	0x01C1	0x01C4	0..240 step 0.1
+g2	PIN					0x01B6	0x01C1	0x01C4	0..240 step 0.1; single report-day AHI copied from AHI (events/hour; raw / 10); current day or previous-day fallback
 g2	LBT				0x01A7	0x01B7	0x01C2	0x01C5	0..2147483647 step 1
 g2	LDT	LastDataPostDateTime			0x01A8	0x01B8	0x01C3	0x01C6	-2147483647..2147483647 step 1
 g2	ZFE				0x01A9	0x01B9	0x01C4	0x01C7	0..24836 step 1; therapy-day key rate-limiting HoseBlocked reports
-g2	PLL					0x01BA	0x01C5	0x01C8	0..3 step 0.02
+g2	PLL					0x01BA	0x01C5	0x01C8	0..3 step 0.02; single report-day leak copied from LK7 (L/s; raw / 50); stock 8.6.0 source percentile is 70
 g2	LMS	LastMachineServiceDateTime			0x01AA	0x01BB	0x01C6	0x01C9	0..2147483647 step 1
-g2	OUD					0x01BC	0x01C7	0x01CA	0..1440 step 1
+g2	OUD					0x01BC	0x01C7	0x01CA	0..1440 step 1; single report-day usage copied from PPD (minutes); current day or previous-day fallback
 g2	LI9				0x01AB	0x01BD	0x01C8	0x01CB	0..50 step 0.2; previous therapy-day inspiratory-pressure 95th percentile
 g2	LPD				0x01AC	0x01BE	0x01C9	0x01CC	0..1440 step 1; previous therapy-day duration, minutes
 g2	DSC				0x01AD	0x01BF	0x01CA	0x01CD	0..24836 step 1; TLP; current day stored after Soundcheck and used for run-frequency gating
@@ -480,27 +480,27 @@ g2	LHM				0x01BB	0x01CD	0x01D8	0x01DB	0..315360000 step 1
 g2	LMA				0x01BC	0x01CE	0x01D9	0x01DC	0..10 step 1
 g2	LSD				0x01CE				0..1440 step 1
 g2	LMT	LowMinuteVentAlarmThreshold			0x01BD	0x01CF	0x01DA	0x01DD	INACT; 1..10 step 0.5
-g2	LAH				0x01BE	0x01D0	0x01DB	0x01DE	0..240 step 0.1
-g2	LAS				0x01BF	0x01D1	0x01DC	0x01DF	0..240 step 0.1
+g2	LAH				0x01BE	0x01D0	0x01DB	0x01DE	0..240 step 0.1; selected-period arithmetic mean of available daily AHI, with equal day weights (events/hour; raw / 10)
+g2	LAS				0x01BF	0x01D1	0x01DC	0x01DF	0..240 step 0.1; selected-period arithmetic mean of available daily apnea index ASC, with equal day weights (events/hour; raw / 10)
 g2	LVA				0x01C0	0x01D2	0x01DD	0x01E0	0..30 step 0.125
-g2	LCI				0x01C1	0x01D3	0x01DE	0x01E1	0..240 step 0.1
-g2	LD4				0x01C2	0x01D4	0x01DF	0x01E2	0..365 step 1
-g2	LDU				0x01C3	0x01D5	0x01E0	0x01E3	0..365 step 1
-g2	LPE				0x01C4	0x01D6	0x01E1	0x01E4	0..30 step 0.2
-g2	LIT				0x01C5	0x01D7	0x01E2	0x01E5	0..10 step 1
-g2	LPI				0x01C6	0x01D8	0x01E3	0x01E6	0..50 step 0.2
-g2	LIE				0x01C7	0x01D9	0x01E4	0x01E7	0..400 step 1
-g2	LLK				0x01C8	0x01DA	0x01E5	0x01E8	0..2 step 0.02
-g2	LMV				0x01C9	0x01DB	0x01E6	0x01E9	0..30 step 0.125
-g2	LOS				0x01CA	0x01DC	0x01E7	0x01EA	0..240 step 0.1
-g2	LAU					0x01DD	0x01E8	0x01EB	0..1440 step 1
-g2	LSU					0x01DE	0x01E9	0x01EC	0..525600 step 1
-g2	LRR				0x01CB	0x01DF	0x01EA	0x01ED	0..90 step 1
-g2	LCR				0x01CC	0x01E0	0x01EB	0x01EE	0..100 step 1
-g2	LTR				0x01CD	0x01E1	0x01EC	0x01EF	0..100 step 1
-g2	LTM				0x01CF	0x01E2	0x01ED	0x01F0	0..30 step 0.125
-g2	LTD				0x01D0	0x01E3	0x01EE	0x01F1	0..365 step 1
-g2	LTV				0x01D1	0x01E4	0x01EF	0x01F2	0..4 step 1
+g2	LCI				0x01C1	0x01D3	0x01DE	0x01E1	0..240 step 0.1; selected-period arithmetic mean of available daily obstructive apnea index CSC, with equal day weights (events/hour; raw / 10)
+g2	LD4				0x01C2	0x01D4	0x01DF	0x01E2	0..365 step 1; count of therapy days with at least 240 minutes of PPD usage in the selected report period
+g2	LDU				0x01C3	0x01D5	0x01E0	0x01E3	0..365 step 1; count of therapy days with positive PPD usage in the selected report period
+g2	LPE				0x01C4	0x01D6	0x01E1	0x01E4	0..30 step 0.2; selected-period arithmetic mean of available daily expiratory-pressure p95 values PE9 (cmH2O; raw / 50)
+g2	LIT				0x01C5	0x01D7	0x01E2	0x01E5	0..10 step 1; selected-period arithmetic mean of available daily median inspiratory durations ISM (seconds; raw / 50); 8.6.0 destination rounds to whole seconds, ties downward
+g2	LPI				0x01C6	0x01D8	0x01E3	0x01E6	0..50 step 0.2; selected-period arithmetic mean of available daily inspiratory-pressure p95 values PI9 (cmH2O; raw / 50)
+g2	LIE				0x01C7	0x01D9	0x01E4	0x01E7	0..400 step 1; selected-period arithmetic mean of available daily median I:E ratios IEM; raw 100 represents 1:1
+g2	LLK				0x01C8	0x01DA	0x01E5	0x01E8	0..2 step 0.02; selected-period arithmetic mean of available daily leak p95 values LK9 (L/s; raw / 50)
+g2	LMV				0x01C9	0x01DB	0x01E6	0x01E9	0..30 step 0.125; selected-period arithmetic mean of available daily median minute ventilation VTM (L/min; raw / 8)
+g2	LOS				0x01CA	0x01DC	0x01E7	0x01EA	0..240 step 0.1; selected-period arithmetic mean of available daily central apnea index OSC, with equal day weights (events/hour; raw / 10)
+g2	LAU					0x01DD	0x01E8	0x01EB	0..1440 step 1; mean usage minutes per used therapy day in the selected report period; integer-truncated LSU / LDU
+g2	LSU					0x01DE	0x01E9	0x01EC	0..525600 step 1; sum of positive daily PPD usage in the selected report period (minutes)
+g2	LRR				0x01CB	0x01DF	0x01EA	0x01ED	0..90 step 1; selected-period arithmetic mean of available daily median respiratory rate RRM (breaths/min; raw / 5)
+g2	LCR				0x01CC	0x01E0	0x01EB	0x01EE	0..100 step 1; selected-period arithmetic mean of available daily spontaneous-cycle percentages VCR, with equal day weights (%; raw / 2)
+g2	LTR				0x01CD	0x01E1	0x01EC	0x01EF	0..100 step 1; selected-period arithmetic mean of available daily spontaneous-trigger percentages VSR, with equal day weights (%; raw / 2)
+g2	LTM				0x01CF	0x01E2	0x01ED	0x01F0	0..30 step 0.125; selected-period arithmetic mean of available daily median target minute ventilation VAM (L/min; raw / 8)
+g2	LTD				0x01D0	0x01E3	0x01EE	0x01F1	0..365 step 1; therapy-day span of the selected report, capped by period length and available history
+g2	LTV				0x01D1	0x01E4	0x01EF	0x01F2	0..4 step 1; selected-period arithmetic mean of available daily median tidal volume TVM (L; raw / 50)
 g2	SMA				0x01D2	0x01E5	0x01F0	0x01F3	0..100 step 1
 g2	MFL				0x01D3	0x01E6	0x01F1	0x01F4	-4..4 step 0.01
 g2	MKP	MaskPressure	Press.40ms		0x01D4	0x01E7	0x01F2	0x01F5	0..40 step 0.2
@@ -509,15 +509,15 @@ g2	PM9	Summary-MeanMaskPressure-95	MaskPress.95		0x01D6	0x01E9	0x01F4	0x01F7	0..
 g2	MUI				0x01D7	0x01EA	0x01F5	0x01F8	1..64 step 1
 g2	MSP	Summary-MeanMaskPressure-50	MaskPress.50		0x01D8	0x01EB	0x01F6	0x01F9	0..40 step 0.2
 g2	MK1	MaskPressure-100hz			0x01D9	0x01EC	0x01F7	0x01FA	0..40 step 0.2
-g2	MAL				0x01DA	0x01ED	0x01F8	0x01FB	-2147483647..2147483647 step 1
+g2	MAL				0x01DA	0x01ED	0x01F8	0x01FB	-2147483647..2147483647 step 1; maximum duration of an outermost interrupt-disabled critical section (TIM5 ticks)
 g2	MCP				0x01DB	0x01EE	0x01F9	0x01FC	25..30 step 0.2
 g2	IVP				0x01DC	0x01EF	0x01FA	0x01FD	20..20 step 0.2
-g2	ZPU				0x01DD	0x01F0	0x01FB	0x01FE	0..100 step 1
+g2	ZPU				0x01DD	0x01F0	0x01FB	0x01FE	0..100 step 1; peak observed L03 CPU-usage aggregate (%; raw / 100)
 g2	MPA	AutoSet-MaxPressure	S.A.MaxPress	Max Pressure	0x01DE	0x01F1	0x01FC	0x01FF	active_vids=3; 4..20 step 0.2; modes=AutoSet
 g2	MRD	MaxRampDownTime		Max Ramp Down	0x01DF	0x01F2	0x01FD	0x0200	INACT; -2147483647..2147483647 step 5
 g2	MRT	MaxRampTime		Max Ramp Time	0x01E0	0x01F3	0x01FE	0x0201	INACT; 5..45 step 5
 g2	XMP				0x01E1	0x01F4	0x01FF	0x0202	4..30 step 1
-g2	MTK				0x01E2	0x01F5	0x0200	0x0203	-2147483647..2147483647 step 1
+g2	MTK				0x01E2	0x01F5	0x0200	0x0203	-2147483647..2147483647 step 1; maximum TIM2 interrupt execution time, excluding nested measurements (TIM5 ticks)
 g2	MCA				0x01E3	0x01F6	0x0201	0x0204	0..2147483647 step 1
 g2	MIT				0x01E4	0x01F7	0x0202	0x0205	0..2147483647 step 1
 g2	A1M				0x01E5	0x01F8	0x0203	0x0206	INACT; 0..30 step 0.125
@@ -552,7 +552,7 @@ g2	ZS5				0x0201	0x0214	0x021F	0x0222	0..2147483647 step 1
 g2	OSC	Summary-CentralApneaIndex	CAI		0x0202	0x0215	0x0220	0x0223	active_vids=3,7; 0..240 step 0.1
 g2	OAC				0x0203	0x0216	0x0221	0x0224	0..4095 step 1
 g2	RR1				0x0204	0x0217	0x0222	0x0225	0..90 step 5
-g2	L17				0x0205	0x0218	0x0223	0x0226	0..100 step 1
+g2	L17				0x0205	0x0218	0x0223	0x0226	0..100 step 1; CPU usage of the deferred high-rate loop dispatched through the software-triggered EXTI86 interrupt (%; raw / 100)
 g2	OUC				0x0206	0x0219	0x0224	0x0227	0..2147483647 step 1
 g2	OPP	SetPressureWithoutCAD			0x0207	0x021A	0x0225	0x0228	0..30 step 0.2
 g2	OAT				0x0208	0x021B	0x0226	0x0229	-1..2147483647 step 1; TLP; recognized oximeter table index, -1 means none or unknown
@@ -567,8 +567,8 @@ g2	PA4	PAC-RiseTime		Rise Time	0x0210	0x0223	0x022E	0x0231	INACT; 0.15..0.9 step
 g2	PA0	PAC-StartPressure		Start Pressure	0x0211	0x0224	0x022F	0x0232	INACT; 2..25 step 0.2; modes=PAC
 g2	PA5	PAC-SetInspiratoryTime		Ti	0x0212	0x0225	0x0230	0x0233	INACT; 0.3..4 step 0.1; modes=PAC
 g2	PHR	TOTAL_USED_HOURS_NAME			0x0213	0x0226	0x0231	0x0234	0..87600 step 1
-g2	PUD				0x0214	0x0227	0x0232	0x0235	0..1440 step 1
-g2	PUS				0x0215	0x0228	0x0233	0x0236	0..1440 step 1
+g2	PUD				0x0214	0x0227	0x0232	0x0235	0..1440 step 1; current/latest mask-use interval duration, computed from integer minute offsets; retained at mask-off
+g2	PUS				0x0215	0x0228	0x0233	0x0236	0..1440 step 1; current/latest mask-use interval start as a minute offset from local-noon therapy-day start; retained at mask-off
 g2	TCH	PhantomTouch			0x0216	0x0229	0x0234	0x0237	0..2147483647 step 1
 g2	HCL	HumidifierPlateCurrent			0x0217	0x022A	0x0235	0x0238	0..3500 step 1
 g2	PPC				0x0218	0x022B	0x0236	0x0239	0..3750 step 1
@@ -659,8 +659,8 @@ g2	SLT				0x026A	0x027F	0x028A	0x028D	0..2147483647 step 1
 g2	PR2	AdcPressureMonitoring			0x026B	0x0280	0x028B	0x028E	0..4095 step 1
 g2	PS1	PressureMonitorGain			0x026C	0x0281	0x028C	0x028F	0.00976562..1.000977 step 0.00024414
 g2	PZ1	PressureMonitorOffset			0x026D	0x0282	0x028D	0x0290	0..4096 step 1
-g2	SMD					0x0283	0x028E	0x0291	0..24836 step 1
-g2	SMT					0x0284	0x028F	0x0292	0..2147483647 step 1
+g2	SMD					0x0283	0x028E	0x0291	0..24836 step 1; Summary snapshot of settings-change date SAD (days since 1970-01-01); copied while ZTE=1, retained otherwise
+g2	SMT					0x0284	0x028F	0x0292	0..2147483647 step 1; Summary snapshot of settings-change time SAT (milliseconds of day); copied with SMD while ZTE=1, retained otherwise
 g2	SHC	SettingsHistoryChangeCount			0x026E	0x0285	0x0290	0x0293	0..2147483647 step 1
 g2	SHU				0x026F	0x0286	0x0291	0x0294	0..2147483647 step 1
 g2	SAD				0x0270	0x0287	0x0292	0x0295	0..24836 step 1
@@ -685,7 +685,7 @@ g2	SR5	SnoreTreatmentPressure-50hz			0x0280	0x0297	0x02A2	0x02A7	0..20 step 0.2
 g2	ZS8				0x0281	0x0298	0x02A3	0x02A8	0..2147483647 step 1
 g2	MCS				0x0282	0x0299	0x02A4	0x02A9	0..2147483647 step 1
 g2	SSC	SoundcheckTestCount			0x0283	0x029A	0x02A5	0x02AA	1..255 step 1
-g2	L20				0x0284	0x029B	0x02A6	0x02AB	0..100 step 1
+g2	L20				0x0284	0x029B	0x02A6	0x02AB	0..100 step 1; combined SPI5 and DMA1 stream 0/1 interrupt CPU usage (%; raw / 100)
 g2	SAO	SpO2	SpO2.1s	SpO2	0x0285	0x029C	0x02A7	0x02AC	0..100 step 1; SA2 oximeter signal
 g2	SO9	Summary-SpO2-95	SpO2.95	SpO2	0x0286	0x029D	0x02A8	0x02AD	0..100 step 1; STR oximeter summary percentile
 g2	SOX	Summary-SpO2-100	SpO2.Max	SpO2	0x0287	0x029E	0x02A9	0x02AE	0..100 step 1; STR oximeter summary maximum
@@ -713,7 +713,7 @@ g2	XA7	ST-SetMaxInspiratoryTime	S.ST.TiMax	Ti Max	0x029B	0x02B3	0x02BE	0x02C3	ac
 g2	XA8	ST-SetMinInspiratoryTime	S.ST.TiMin	Ti Min	0x029C	0x02B4	0x02BF	0x02C4	active_vids=10; 0.1..4 step 0.1; modes=ST
 g2	PUN				0x029D	0x02B5	0x02C0	0x02C5	0..255 step 1
 g2	PPD		Duration		0x029E	0x02B6	0x02C1	0x02C6	0..1440 step 1
-g2	SNC				0x029F	0x02B7	0x02C2	0x02C7	0..2147483647 step 1
+g2	SNC				0x029F	0x02B7	0x02C2	0x02C7	0..2147483647 step 1; Summary publication/change notification counter used as the SD summary-sync revision cursor; increment saturates at the descriptor maximum
 g2	SSV				0x02A0	0x02B8	0x02C3	0x02C8	-2147483647..2147483647 step 1
 g2	ZRE				0x02A1	0x02B9	0x02C4	0x02C9	0..2147483647 step 1
 g2	SCL				0x02A2	0x02BA	0x02C5	0x02CA	0..3750 step 1; 2625 for 65W, 3638 for 90W, minus 208 when TxLink2Connected is nonzero; passed through PsTransferLocal
@@ -738,37 +738,37 @@ g2	TVP	TargetMinuteVentilation			0x02B3	0x02CC	0x02D7	0x02DC	active_vids=12; 0..
 g2	VA9	Summary-TargetMinuteVentilation-95	TgtVent.95		0x02B4	0x02CD	0x02D8	0x02DD	active_vids=12; 0..30 step 0.125
 g2	VAA	Summary-TargetMinuteVentilation-100	TgtVent.Max		0x02B5	0x02CE	0x02D9	0x02DE	active_vids=12; 0..30 step 0.125
 g2	VAM	Summary-TargetMinuteVentilation-50	TgtVent.50		0x02B6	0x02CF	0x02DA	0x02DF	active_vids=12; 0..30 step 0.125
-g2	ZT5				0x02B7	0x02D0	0x02DB	0x02E0	0..65535 step 1
+g2	ZT5				0x02B7	0x02D0	0x02DB	0x02E0	0..65535 step 1; 100 ms task progress counter; sampled and cleared by the health monitor
 g2	S11				0x02B8	0x02D1	0x02DC	0x02E1	maximum observed Task100Ms stack use (%); 0..100 step 0.1
-g2	L07				0x02B9	0x02D2	0x02DD	0x02E2	0..100 step 1
-g2	ZT2				0x02BA	0x02D3	0x02DE	0x02E3	0..65535 step 1
+g2	L07				0x02B9	0x02D2	0x02DD	0x02E2	0..100 step 1; 100 ms task CPU usage (%; raw / 100)
+g2	ZT2				0x02BA	0x02D3	0x02DE	0x02E3	0..65535 step 1; 10 ms task progress counter; sampled and cleared by the health monitor
 g2	S10				0x02BB	0x02D4	0x02DF	0x02E4	maximum observed Task10Ms stack use (%); 0..100 step 0.1
-g2	L04				0x02BC	0x02D5	0x02E0	0x02E5	0..100 step 1
-g2	ZMN				0x02BD	0x02D6	0x02E1	0x02E6	0..65535 step 1
-g2	ZT7				0x02BE	0x02D7	0x02E2	0x02E7	0..65535 step 1
-g2	ZT6				0x02BF	0x02D8	0x02E3	0x02E8	0..65535 step 1
-g2	ZT3				0x02C0	0x02D9	0x02E4	0x02E9	0..65535 step 1
+g2	L04				0x02BC	0x02D5	0x02E0	0x02E5	0..100 step 1; 10 ms task CPU usage (%; raw / 100)
+g2	ZMN				0x02BD	0x02D6	0x02E1	0x02E6	0..65535 step 1; 60 s scheduler execution counter
+g2	ZT7				0x02BE	0x02D7	0x02E2	0x02E7	0..65535 step 1; 1 s scheduler execution counter
+g2	ZT6				0x02BF	0x02D8	0x02E3	0x02E8	0..65535 step 1; 200 ms scheduler execution counter
+g2	ZT3				0x02C0	0x02D9	0x02E4	0x02E9	0..65535 step 1; 20 ms task progress counter; sampled and cleared by the health monitor
 g2	S20				0x02C1	0x02DA	0x02E5	0x02EA	maximum observed Task20Ms stack use (%); 0..100 step 0.1
-g2	L05				0x02C2	0x02DB	0x02E6	0x02EB	0..100 step 1
-g2	S44				0x02C3	0x02DC	0x02E7	0x02EC	0..100 step 1
-g2	ZT4				0x02C4	0x02DD	0x02E8	0x02ED	0..65535 step 1
+g2	L05				0x02C2	0x02DB	0x02E6	0x02EB	0..100 step 1; 20 ms task CPU usage (%; raw / 100)
+g2	S44				0x02C3	0x02DC	0x02E7	0x02EC	0..100 step 1; maximum observed health-monitor task stack use (%; raw / 10)
+g2	ZT4				0x02C4	0x02DD	0x02E8	0x02ED	0..65535 step 1; 40 ms task progress counter; sampled and cleared by the health monitor
 g2	S40				0x02C5	0x02DE	0x02E9	0x02EE	maximum observed Task40Ms stack use (%); 0..100 step 0.1
-g2	L06				0x02C6	0x02DF	0x02EA	0x02EF	0..100 step 1
+g2	L06				0x02C6	0x02DF	0x02EA	0x02EF	0..100 step 1; 40 ms task CPU usage (%; raw / 100)
 g2	ZT1				0x02C7	0x02E0	0x02EB	0x02F0	0..65535 step 1
 g2	SCC				0x02C8	0x02E1	0x02EC	0x02F1	maximum observed TskCellular stack use (%); 0..100 step 0.1
-g2	L22				0x02C9	0x02E2	0x02ED	0x02F2	0..100 step 1
-g2	L16				0x02CA	0x02E3	0x02EE	0x02F3	0..100 step 1
+g2	L22				0x02C9	0x02E2	0x02ED	0x02F2	0..100 step 1; TskCellular CPU usage (%; raw / 100)
+g2	L16				0x02CA	0x02E3	0x02EE	0x02F3	0..100 step 1; health-monitor task CPU usage (%; raw / 100)
 g2	SMC				0x02CB	0x02E4	0x02EF	0x02F4	maximum observed TskPolledL stack use (%); 0..100 step 0.1
 g2	ZTM				0x02CC	0x02E5	0x02F0	0x02F5	0..65535 step 1
-g2	L08				0x02CD	0x02E6	0x02F1	0x02F6	0..100 step 1
-g2	L15				0x02CE	0x02E7	0x02F2	0x02F7	0..100 step 1
-g2	L13				0x02CF	0x02E8	0x02F3	0x02F8	0..100 step 1
-g2	L21				0x02D0	0x02E9	0x02F4	0x02F9	0..100 step 1
-g2	L12				0x02D1	0x02EA	0x02F5	0x02FA	0..100 step 1
-g2	L11				0x02D2	0x02EB	0x02F6	0x02FB	0..100 step 1
-g2	L23				0x02D3	0x02EC	0x02F7	0x02FC	0..100 step 1
-g2	L24				0x02D4	0x02ED	0x02F8	0x02FD	0..100 step 1
-g2	L14				0x02D5	0x02EE	0x02F9	0x02FE	0..100 step 1
+g2	L08				0x02CD	0x02E6	0x02F1	0x02F6	0..100 step 1; RTOS tick-processing task CPU usage (%; raw / 100)
+g2	L15				0x02CE	0x02E7	0x02F2	0x02F7	0..100 step 1; combined CPU usage of task IDs without a dedicated measurement slot (%; raw / 100)
+g2	L13				0x02CF	0x02E8	0x02F3	0x02F8	0..100 step 1; TskPolledL CPU usage (%; raw / 100)
+g2	L21				0x02D0	0x02E9	0x02F4	0x02F9	0..100 step 1; polled-task scheduler CPU usage (%; raw / 100)
+g2	L12				0x02D1	0x02EA	0x02F5	0x02FA	0..100 step 1; TskPolledE CPU usage (%; raw / 100)
+g2	L11				0x02D2	0x02EB	0x02F6	0x02FB	0..100 step 1; TskPolledM0 CPU usage (%; raw / 100)
+g2	L23				0x02D3	0x02EC	0x02F7	0x02FC	0..100 step 1; TskPolledM1 CPU usage (%; raw / 100)
+g2	L24				0x02D4	0x02ED	0x02F8	0x02FD	0..100 step 1; TskPolledM2 CPU usage (%; raw / 100)
+g2	L14				0x02D5	0x02EE	0x02F9	0x02FE	0..100 step 1; TskPolled CPU usage (%; raw / 100)
 g2	SPS				0x02D6	0x02EF	0x02FA	0x02FF	0..100 step 1
 g2	SPL				0x02D7	0x02F0	0x02FB	0x0300	maximum observed TskPolled stack use (%); 0..100 step 0.1
 g2	SEE				0x02D8	0x02F1	0x02FC	0x0301	maximum observed TskPolledE stack use (%); 0..100 step 0.1
@@ -788,11 +788,11 @@ g2	TBC				0x02E5	0x02FE	0x0309	0x030E	0..65535 step 1
 g2	SBD				0x02E6	0x02FF	0x030A	0x030F	0..65535 step 1
 g2	ZS7				0x02E7	0x0300	0x030B	0x0310	0..2147483647 step 1
 g2	TZO	TimeZoneOffset		Time Zone Offset	0x02E8	0x0301	0x030C	0x0311	-720..840 step 60
-g2	L03				0x02E9	0x0302	0x030D	0x0312	0..100 step 1
-g2	L02				0x02EA	0x0303	0x030E	0x0313	0..100 step 1
+g2	L03				0x02E9	0x0302	0x030D	0x0312	0..100 step 1; CPU-usage aggregate excluding polled/fallback tasks (L02) and TIM2 (L18); raw / 100 gives percent
+g2	L02				0x02EA	0x0303	0x030E	0x0313	0..100 step 1; combined polled/fallback-task CPU usage: L11..L15 and L21..L24 (%; raw / 100)
 g2	TCT				0x02EB	0x0304	0x030F	0x0314	0..2147483647 step 1
 g2	TPS				0x02EC	0x0305	0x0310	0x0315	0..60000 step 1
-g2	L18				0x02ED	0x0306	0x0311	0x0316	0..100 step 1
+g2	L18				0x02ED	0x0306	0x0311	0x0316	0..100 step 1; TIM2 high-rate-loop interrupt CPU usage (%; raw / 100)
 g2	XB2	Timed-TargetExpiratoryPressure	S.T.EPAP	EPAP	0x02EE	0x0307	0x0312	0x0317	active_vids=10; 2..25 step 0.2; modes=Timed
 g2	XBA	Timed-FallTime		Fall Time	0x02EF	0x0308			INACT; 0.1..0.7 step 0.1; modes=Timed; not in 16.8.5.0
 g2	XB8				0x02F0	0x0309	0x0313	0x0318	active_vids=10; 0..200 step 1; modes=Timed
@@ -819,15 +819,15 @@ g2	TVA	Summary-TidalVolume-100	TidVol.Max		0x0304	0x031D	0x0327	0x032C	0..4 step
 g2	TVM	Summary-TidalVolume-50	TidVol.50		0x0305	0x031E	0x0328	0x032D	0..4 step 1
 g2	ZSS				0x0306	0x031F	0x0329	0x032E	0..2147483647 step 1
 g3	AST				0x0307	0x0320	0x032A	0x032F	bits=5 fixed=0x00000000 editable=0x0000001f
-g3	SDS				0x0308	0x0321	0x032B	0x0330	bits=7 fixed=0x00000000 editable=0x0000007f
-g3	SYC				0x0309	0x0322	0x032C	0x0331	bits=7 fixed=0x00000000 editable=0x0000007f
-g3	SY1				0x030A	0x0323	0x032D	0x0332	bits=7 fixed=0x00000000 editable=0x0000007f
-g3	ZOX				0x030B	0x0324	0x032E	0x0333	bits=11 fixed=0x00000000 editable=0x000007ff
+g3	SDS				0x0308	0x0321	0x032B	0x0330	bits=7 fixed=0x00000000 editable=0x0000007f; SD volume status: b0=present, b1=write-protected, b2=error, b3=formatting, b4=open, b5=journal active, b6=low space
+g3	SYC				0x0309	0x0322	0x032C	0x0331	bits=7 fixed=0x00000000 editable=0x0000007f; internal humidifier fault mask; immediate and pre-escalation conditions feed SY1
+g3	SY1				0x030A	0x0323	0x032D	0x0332	bits=7 fixed=0x00000000 editable=0x0000007f; reportable humidifier faults: b0=delayed plate overtemperature, b1/b2/b4/b6 mirror SYC, b3/b5 are escalated SYC conditions; feeds events and MUT
+g3	ZOX				0x030B	0x0324	0x032E	0x0333	bits=11 fixed=0x00000000 editable=0x000007ff; retained GUI climate-fault mask; b0..b10 map to SY1.b1, SY1.b2, SY2.b1, SY1.b3, SY1.b5, SY2.b0, SY1.b0, SY1.b6, SY1.b4, SY2.b3, SY2.b2
 g3	CLS	CurrentLEDState			0x030C	0x0325	0x032F	0x0334	bits=4 fixed=0x00000000 editable=0x0000000f
 g3	FIF				0x030D	0x0326	0x0330	0x0335	bits=30 fixed=0x00000000 editable=0x3fffffff
 g3	ZF1				0x030E	0x0327	0x0331	0x0336	bits=2 fixed=0x00000000 editable=0x00000003
-g3	SYH				0x030F	0x0328	0x0332	0x0337	bits=6 fixed=0x00000000 editable=0x0000003f
-g3	SY2				0x0310	0x0329	0x0333	0x0338	bits=4 fixed=0x00000000 editable=0x0000000f
+g3	SYH				0x030F	0x0328	0x0332	0x0337	bits=6 fixed=0x00000000 editable=0x0000003f; internal heated-tube fault mask; includes detector, temperature and pre-escalation conditions; selected bits feed SY2
+g3	SY2				0x0310	0x0329	0x0333	0x0338	bits=4 fixed=0x00000000 editable=0x0000000f; reportable heated-tube faults: b0/b2 are escalated SYH conditions, b1/b3 mirror SYH; feeds events and HUT
 g3	ZOY				0x0311	0x032A	0x0334	0x0339	bits=1 fixed=0x00000000 editable=0x00000001
 g3	LNC	LanguageConfiguration		Language	0x0312	0x032B	0x0335	0x033A	bits=27 fixed=0x000000a3 editable=0x07ffffff; options: English, French, German, Italian, Spanish EU, Spanish US, Portuguese EU, Portuguese US, Dutch, Swedish, Danish, Norwegian, Finnish, Russian, Turkish, Polish, Czech, Greek, Estonian, Chinese Traditional, Chinese Simplified, Japanese, Korean, Croatian, Hungarian, Romanian
 g3	REM			Restore Defaults / Erase Data	0x0313	0x032C	0x0336	0x033B	bits=3 fixed=0x00000000 editable=0x00000007; bit0=SleepData bit1=Settings bit2=Logs
@@ -880,23 +880,23 @@ g5	BCR				0x033C	0x0355	0x0363	0x0369	2 opts mask=0x00000003
 g5	BDS				0x033D	0x0356	0x0364	0x036A	2 opts mask=0x00000003
 g5	BNP	BluetoothPassthrough		Bluetooth	0x033E	0x0357	0x0365	0x036B	2 opts mask=0x00000003; options: Off, On
 g5	BRS				0x033F	0x0358	0x0366	0x036C	2 opts mask=0x00000003
-g5	BSC				0x0340	0x0359	0x0367	0x036D	2 opts mask=0x00000003
+g5	BSC				0x0340	0x0359	0x0367	0x036D	2 opts mask=0x00000003; BLE session-established flag: 0=not established/reset, 1=established; used by pairing navigation
 g5	BTU				0x0341	0x035A	0x0368	0x036E	2 opts mask=0x00000003; completed-upgrade latch; nonzero blocks a new upgrade
-g5	ZLE				0x0342	0x035B	0x0369	0x036F	2 opts mask=0x00000003
+g5	ZLE				0x0342	0x035B	0x0369	0x036F	2 opts mask=0x00000003; mask-on therapy-data recording gate: 1 at qualified mask-on start, 0 at mask-off; gates periodic recordings and respiratory-event admission
 g5	CEN				0x0343	0x035C	0x036A	0x0370	active_vids=3,7; 2 opts mask=0x00000003
 g5	CAL				0x0344	0x035D	0x036B	0x0371	15 opts mask=0x00007fff
 g5	MEN	CALEnable			0x0345	0x035E	0x036C	0x0372	2 opts mask=0x00000003
 g5	CMM	CalManufacturingMode			0x0346	0x035F	0x036D	0x0373	2 opts mask=0x00000003
 g5	CST	CALStatus			0x0347	0x0360	0x036E	0x0374	7 opts mask=0x0000007f
-g5	ZCC				0x0348	0x0361	0x036F	0x0375	6 opts mask=0x0000003f
+g5	ZCC				0x0348	0x0361	0x036F	0x0375	6 opts mask=0x0000003f; SD processing result: 0=Unknown, 1=Processing, 2=SettingError, 3=FileError, 4=Error, 5=Success
 g5	ZSD				0x0349	0x0362	0x0370	0x0376	2 opts mask=0x00000003
-g5	ZCU				0x034A	0x0363	0x0371	0x0377	2 opts mask=0x00000003
-g5	CDT				0x034B	0x0364	0x0372	0x0378	2 opts mask=0x00000003
+g5	ZCU				0x034A	0x0363	0x0371	0x0377	2 opts mask=0x00000003; SD logging reinitialization request: 0=Yes, 1=No; logging poll acknowledges 0 by setting 1 and resetting its state
+g5	CDT				0x034B	0x0364	0x0372	0x0378	2 opts mask=0x00000003; SD datalog readiness: 0=Unusable, 1=Datalog; required by EDF recording and summary synchronization
 g5	CCA	CareCheckInAvailable		Care Check-In	0x034C	0x0365	0x0373	0x0379	2 opts mask=0x00000003; options: Off, On
 g5	CCT				0x034D	0x0366	0x0374	0x037A	5 opts mask=0x00000002; Care Check-in product family; options=Off,AirSense,AirCurve,Lumis,HFT
 g5	SCP				0x034E	0x0367	0x0375	0x037B	3 opts mask=0x00000007
 g5	CDM	DataMode			0x034F	0x0368	0x0376	0x037C	2 opts mask=0x00000003
-g5	CDR				0x0350	0x0369	0x0377	0x037D	2 opts mask=0x00000003
+g5	CDR				0x0350	0x0369	0x0377	0x037D	2 opts mask=0x00000003; centile-history reset/write pass busy flag; cleared after all outstanding gatherers finish; data reset waits for 0
 g5	ZHA				0x0351	0x036A	0x0378	0x037E	2 opts mask=0x00000003
 g5	CCO	ClimateControl	S.ClimateControl	Climate Control	0x0352	0x036B	0x0379	0x037F	2 opts mask=0x00000003; options: Auto, Manual
 g5	CRA				0x0353	0x036C	0x037A	0x0380	3 opts mask=0x00000007
@@ -966,7 +966,7 @@ g5	IRF	IsFileSystemReady			0x038B	0x03A9	0x03B9	0x03BF	3 opts mask=0x00000007; 1
 g5	QFC	FlightMode		Airplane Mode	0x038C	0x03AA	0x03BA	0x03C0	2 opts mask=0x00000003; options: Off, On
 g5	ZLM				0x038D	0x03AB	0x03BB	0x03C1	active_vids=3; 2 opts mask=0x00000003
 g5	FON				0x038E	0x03AC	0x03BC	0x03C2	10 opts mask=0x0000000f
-g5	ZUM				0x038F	0x03AD	0x03BD	0x03C3	2 opts mask=0x00000003
+g5	ZUM				0x038F	0x03AD	0x03BD	0x03C3	2 opts mask=0x00000003; UI context: 0=ordinary, 1=clinical; selects navigation and palette; clinical-entry gesture toggles it and inactivity clears it
 g5	CMC				0x0390	0x03AE	0x03BE	0x03C4	2 opts mask=0x00000003
 g5	SC2				0x03AE				7 opts mask=0x0000007f
 g5	SDM						0x03BF	0x03C5	3 opts mask=0x00000007
@@ -994,7 +994,7 @@ g5	HTB				0x03A3	0x03C2	0x03D3	0x03D9	3 opts mask=0x00000007
 g5	SNS				0x03C2				2 opts mask=0x00000003
 g5	HTP	HeatedTubePower			0x03A4	0x03C3	0x03D4	0x03DA	2 opts mask=0x00000003
 g5	HTX	HeatedTubeSettingEnable	S.TempEnable		0x03A5	0x03C4	0x03D5	0x03DB	3 opts mask=0x00000007
-g5	HUT			ClimateLine	0x03A6	0x03C5	0x03D6	0x03DC	2 opts mask=0x00000003; options: Off, On
+g5	HUT			ClimateLine	0x03A6	0x03C5	0x03D6	0x03DC	2 opts mask=0x00000003; options: Off, On; ClimateLine menu fault indicator: value is SY2!=0, visibility follows HTB!=0
 g5	HTC				0x03A7	0x03C6	0x03D7	0x03DD	9 opts mask=0x000001ff
 g5	HLA	HighLeakAlarmEnable		High Leak	0x03A8	0x03C7	0x03D8	0x03DE	INACT; 2 opts mask=0x00000000; options: Off, On
 g5	HPM					0x03C8	0x03D9	0x03DF	2 opts mask=0x00000003
@@ -1012,12 +1012,12 @@ g5	HUE				0x03B4	0x03D3	0x03E4	0x03EA	8 opts mask=0x000000ff
 g5	HON				0x03B5	0x03D4	0x03E5	0x03EB	2 opts mask=0x00000003
 g5	HPW	HumidifierPower			0x03B6	0x03D5	0x03E6	0x03EC	2 opts mask=0x00000003
 g5	HMX	HumidifierSettingEnable	S.HumEnable		0x03B7	0x03D6	0x03E7	0x03ED	2 opts mask=0x00000003
-g5	MUT			Humidifier	0x03B8	0x03D7	0x03E8	0x03EE	2 opts mask=0x00000003; options: Off, On
+g5	MUT			Humidifier	0x03B8	0x03D7	0x03E8	0x03EE	2 opts mask=0x00000003; options: Off, On; humidifier menu fault indicator: value is SY1!=0, visibility follows HUM!=0
 g5	HUS				0x03B9	0x03D8	0x03E9	0x03EF	10 opts mask=0x000003ff
 g5	TC0				0x03BA	0x03D9	0x03EA	0x03F0	3 opts mask=0x00000007
 g5	IMF				0x03BB	0x03DA	0x03EB	0x03F1	2 opts mask=0x00000003
 g5	ZBR				0x03BC	0x03DB	0x03EC	0x03F2	2 opts mask=0x00000003
-g5	BDA						0x03ED	0x03F3	2 opts mask=0x00000003
+g5	BDA						0x03ED	0x03F3	2 opts mask=0x00000003; myAir download-prompt answer: 0=OK, DOWNLOADED, 1=NO THANKS (default); selects the subsequent prompt branch
 g5	IAS				0x03BD	0x03DC	0x03EE	0x03F4	2 opts mask=0x00000003
 g5	ZPW				0x03BF	0x03DD	0x03EF	0x03F5	2 opts mask=0x00000003
 g5	ZRP	IsRamping			0x03C0	0x03DE	0x03F0	0x03F6	2 opts mask=0x00000003
@@ -1088,7 +1088,7 @@ g5	ZEA				0x03FF	0x041C	0x042E	0x0434	2 opts mask=0x00000003
 g5	PSM				0x0400	0x041D	0x042F	0x0435	10 opts mask=0x000003ff
 g5	KEY	PhantomKey			0x0401	0x041E	0x0430	0x0436	12 opts mask=0x00000e6f
 g5	PKP				0x0402	0x041F	0x0431	0x0437	2 opts mask=0x00000003
-g5	PTF				0x0403	0x0420	0x0432	0x0438	2 opts mask=0x00000003
+g5	PTF				0x0403	0x0420	0x0432	0x0438	2 opts mask=0x00000003; persisted Care Check-In routing latch: 0=show prompt, 1=take bypass branch and clear to 0; default 1
 g5	ZPV				0x0404	0x0421	0x0433	0x0439	2 opts mask=0x00000003
 g5	P90				0x0405	0x0422	0x0434	0x043A	2 opts mask=0x00000001; options: No, Yes; product requires 90W for insufficient-power warning
 g5	ZRM	FGState			0x0406	0x0423	0x0435	0x043B	12 opts mask=0x000007ff
@@ -1145,7 +1145,7 @@ g5	SLS	LanguageSelection		Language Selection	0x0434	0x0455	0x0467	0x046D	2 opts 
 g5	DMS				0x0435	0x0456	0x0468	0x046E	2 opts mask=0x00000003
 g5	SOS	OobxOnStartup			0x0436	0x0457	0x0469	0x046F	2 opts mask=0x00000003
 g5	ABU				0x0437	0x0458	0x046A	0x0470	2 opts mask=0x00000003; alarm-board state resynchronization latch after main firmware upgrade
-g5	SVI				0x0438	0x0459	0x046B	0x0471	2 opts mask=0x00000003
+g5	SVI				0x0438	0x0459	0x046B	0x0471	2 opts mask=0x00000003; Sleep View mask-help origin latch; HELP sets 1 to select return navigation; cleared after leaving the mask-fit UI outside therapy
 g5	SVP					0x045A	0x046C	0x0472	6 opts mask=0x0000003f
 g5	SMN				0x0439	0x045B	0x046D	0x0473	2 opts mask=0x00000003
 g5	SVN				0x043A	0x045C	0x046E	0x0474	2 opts mask=0x00000003
@@ -1191,7 +1191,7 @@ g5	TDS	TestDriveState			0x045D	0x0481	0x0494	0x049B	2 opts mask=0x00000003
 g5	TRT				0x045E	0x0482	0x0495	0x049C	2 opts mask=0x00000003
 g5	TDT	TestDriveType			0x045F	0x0483	0x0496	0x049D	2 opts mask=0x00000003
 g5	TLF	TherapyLEDAlwaysOn		Therapy LED	0x0460	0x0484	0x0497	0x049E	INACT; 2 opts mask=0x00000000; options: Off, On
-g5	ZTE				0x0461	0x0485	0x0498	0x049F	2 opts mask=0x00000003
+g5	ZTE				0x0461	0x0485	0x0498	0x049F	2 opts mask=0x00000003; 1 when FGState is Therapy or LearnTargets, 0 otherwise; enables periodic Summary refresh and requests a final refresh on transition to 0
 g5	THS	StatusEvent			0x0462	0x0486	0x0499	0x04A0	10 opts mask=0x000000ff
 g5	CSM					0x0487	0x049A	0x04A1	3 opts mask=0x00000007
 g5	TUB				0x0463	0x0488	0x049B	0x04A2	3 opts mask=0x00000007; TLP; 0=uninitialized; 1 when TherapyRunMeter is below 7201 seconds; 2 otherwise
