@@ -159,6 +159,7 @@ DEFAULT_SETTINGS = (
 
 # Standalone enum masks that are useful but not tied to therapy profiles.
 UNLOCKED_ENUM_SETTING_NAMES = (
+    "AET",  # Respiratory event types: include apnea subtypes, RERA and CSR
     "HeightDisplayUnit",
     "ZRM",  # FGState: include LearnTargets
 )
