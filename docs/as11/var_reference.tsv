@@ -204,8 +204,8 @@ g2	BIP				0x00B7	0x00C5	0x00C8	0x00C9	0..50 step 0.2
 g2	BML				0x00B8	0x00C6	0x00C9	0x00CA	0..2 step 0.02
 g2	BMR				0x00B9	0x00C7	0x00CA	0x00CB	0..40 step 0.2; biquad-filtered mask pressure from MKP (cmH2O; raw / 50)
 g2	BRF				0x00BA	0x00C8	0x00CB	0x00CC	-2..3 step 0.01; biquad-filtered patient flow from RFL (L/s; raw / 500)
-g2	ZBM						0x00CC	0x00CD	0..2147483647 step 1; last dynamic-message presentation time, epoch minutes
-g2	TOC						0x00CD	0x00CE	0..2147483647 step 1
+g2	ZBM						0x00CC	0x00CD	0..2147483647 step 1; last dynamic-message presentation time, minutes since 1970-01-01
+g2	TOC						0x00CD	0x00CE	0..2147483647 step 1; dynamic-message CANCEL count; >=5 requests opt-out confirmation; reset by cancelling that confirmation or re-enabling messages, not by normal OK
 g2	MKI	InspiratoryPressure-TwoSecond	Press.2s		0x00BB	0x00C9	0x00CE	0x00CF	0..50 step 0.2
 g2	BFT	BlowerFlow-100hz			0x00BC	0x00CA	0x00CF	0x00D0	-4..4 step 0.01
 g2	BFL				0x00BD	0x00CB	0x00D0	0x00D1	-4..4 step 0.01
@@ -224,7 +224,7 @@ g2	BLC				0x00C9	0x00D7	0x00DC	0x00DD	0..2147483647 step 1
 g2	BRC				0x00CA	0x00D8	0x00DD	0x00DE	0..2147483647 step 1
 g2	BXC				0x00CB	0x00D9	0x00DE	0x00DF	0..2147483647 step 1
 g2	BTC				0x00CC	0x00DA	0x00DF	0x00E0	0..2147483647 step 1
-g2	BUC				0x00CD	0x00DB	0x00E0	0x00E1	0..5 step 1
+g2	BUC				0x00CD	0x00DB	0x00E0	0x00E1	0..5 step 1; reset to 0 on accepted PacificBT upgrade handoff
 g2	BCD				0x00CE	0x00DC	0x00E1	0x00E2	1..65535 step 1
 g2	BLE				0x00CF	0x00DD	0x00E2	0x00E3	0..65535 step 1
 g2	MV5				0x00D0	0x00DE	0x00E3	0x00E4	0..30 step 0.125; modes=Spont,ST,Timed,VAuto,ASV,ASVAuto,iVAPS,PAC
@@ -247,8 +247,8 @@ g2	PCS				0x00E0	0x00EE	0x00F3	0x00F4	0..3000 step 1; humidifier-plate current r
 g2	TCS				0x00E1	0x00EF	0x00F4	0x00F5	0..3000 step 1; heated-tube current request derived from heating-power demand, before current-budget allocation
 g2	CAI						0x00F5	0x00F6	1..64 step 1
 g2	DDD	DownloadBytesDelta			0x00E2	0x00F0	0x00F6	0x00F7	0..2147483647 step 1
-g2	DTD				0x00E3	0x00F1	0x00F7	0x00F8	0..2147483647 step 1; cumulative cellular downloaded bytes
-g2	DTU				0x00E4	0x00F2	0x00F8	0x00F9	0..2147483647 step 1; cumulative cellular uploaded bytes
+g2	DTD				0x00E3	0x00F1	0x00F7	0x00F8	0..2147483647 step 1; cellular downloaded bytes accumulated from DDD, modulo 2^31
+g2	DTU				0x00E4	0x00F2	0x00F8	0x00F9	0..2147483647 step 1; cellular uploaded bytes accumulated from DUD, modulo 2^31
 g2	DUD	UploadBytesDelta			0x00E5	0x00F3	0x00F9	0x00FA	0..2147483647 step 1
 g2	CEI						0x00FA	0x00FB	1..64 step 1
 g2	QS2				0x00E6	0x00F4	0x00FB	0x00FC	0..7 step 1
@@ -264,7 +264,7 @@ g2	PC3				0x00EF	0x00FD	0x0104	0x0105	0..1000 step 1; intercept of the minimum-p
 g2	PC4				0x00F0	0x00FE	0x0105	0x0106	0..1000 step 1; slope of the minimum-plate-temperature line versus normalized feed-forward power, applied as PC4 / 10
 g2	CLP	ServicePort			0x00F1	0x00FF	0x0106	0x0107	1..65535 step 1
 g2	L19				0x00F2	0x0100	0x0107	0x0108	0..100 step 1; combined UART4/USART2/USART3 interrupt CPU usage, including DMA1 streams 2..7 (%; raw / 100)
-g2	CED	LastEraseDataDateTime			0x00F3	0x0101	0x0108	0x0109	0..2147483647 step 1
+g2	CED	LastEraseDataDateTime			0x00F3	0x0101	0x0108	0x0109	0..2147483647 step 1; SleepData erase completion timestamp; raw seconds since 2000-01-01
 g2	CAF				0x00F4	0x0102	0x0109	0x010A	0..24836 step 1
 g2	CCC				0x00F5	0x0103	0x010A	0x010B	0..2147483647 step 1
 g2	PUI				0x00F6	0x0104	0x010B	0x010C	1..64 step 1
@@ -303,7 +303,7 @@ g2	ZS1				0x0116	0x0124	0x012B	0x012C	0..2147483647 step 1
 g2	DRD				0x0117	0x0125	0x012C	0x012D	0..2147483647 step 1
 g2	DIT				0x0118	0x0126	0x012D	0x012E	0..2147483647 step 1
 g2	DMC						0x012E	0x012F	0..2147483647 step 1
-g2	DME	MessageExpiryDate					0x012F	0x0130	0..2147483647 step 1; dynamic messaging
+g2	DME	MessageExpiryDate					0x012F	0x0130	0..2147483647 step 1; dynamic-message expiry; raw seconds since 2000-01-01; MyAir message expires when current time exceeds this value
 g2	EAI				0x0119	0x0127	0x0130	0x0131	1..2147483647 step 1
 g2	EIC	CepstrumAverageCount			0x011A	0x0128	0x0131	0x0132	1..2147483647 step 1
 g2	ESC				0x011B	0x0129	0x0132	0x0133	-2147483647..2147483647 step 1
@@ -330,15 +330,15 @@ g2	MKF	MaskPressure-TwoSecond	MaskPress.2s		0x012F	0x013D	0x0146	0x0147	0..40 st
 g2	FBD				0x0130	0x013E	0x0147	0x0148	0..24836 step 1; TLP; current day stored once when therapy data first becomes active
 g2	FES				0x0131	0x013F	0x0148	0x0149	-2147483647..2147483647 step 1
 g2	FTS				0x0132	0x0140	0x0149	0x014A	0..24836 step 1; TLP; earliest day used as summary-reader lower bound
-g2	FE0				0x0133	0x0141	0x014A	0x014B	0..2147483647 step 1; SETTINGS 64 KiB erase count
+g2	FE0				0x0133	0x0141	0x014A	0x014B	0..2147483647 step 1; SETTINGS 64 KiB erase-request count; incremented before the erase
 g2	FM0				0x0134	0x0142	0x014B	0x014C	0..2147483647 step 1; SETTINGS maximum FTL erase generation
-g2	FW0				0x0135	0x0143	0x014C	0x014D	0..2147483647 step 1; SETTINGS write-request count for requests >=2048 B
-g2	FE1				0x0136	0x0144	0x014D	0x014E	0..2147483647 step 1; DATALOG 64 KiB erase count
+g2	FW0				0x0135	0x0143	0x014C	0x014D	0..2147483647 step 1; SETTINGS write-request count for requests >=2048 B; incremented before programming
+g2	FE1				0x0136	0x0144	0x014D	0x014E	0..2147483647 step 1; DATALOG 64 KiB erase-request count; incremented before the erase
 g2	FM1				0x0137	0x0145	0x014E	0x014F	0..2147483647 step 1; DATALOG maximum FTL erase generation
-g2	FW1				0x0138	0x0146	0x014F	0x0150	0..2147483647 step 1; DATALOG write-request count for requests >=2048 B
-g2	FE2				0x0139	0x0147	0x0150	0x0151	0..2147483647 step 1; UPGRADE 64 KiB erase count
+g2	FW1				0x0138	0x0146	0x014F	0x0150	0..2147483647 step 1; DATALOG write-request count for requests >=2048 B; incremented before programming
+g2	FE2				0x0139	0x0147	0x0150	0x0151	0..2147483647 step 1; UPGRADE 64 KiB erase-request count; incremented before the erase
 g2	FM2				0x013A	0x0148	0x0151	0x0152	0..2147483647 step 1; UPGRADE maximum FTL erase generation
-g2	FWC				0x013B	0x0149	0x0152	0x0153	0..2147483647 step 1; UPGRADE write-request count for requests >=2048 B
+g2	FWC				0x013B	0x0149	0x0152	0x0153	0..2147483647 step 1; UPGRADE write-request count for requests >=2048 B; incremented before programming
 g2	FLP				0x013C	0x014A	0x0153	0x0154	0..20 step 0.2
 g2	FL5	FlowLimitationTreatmentPressure-50hz			0x013D	0x014B	0x0154	0x0155	0..20 step 0.2
 g2	FLG	FlowGain			0x013E	0x014C	0x0155	0x0156	0.499878..2 step 0.0002442
@@ -409,7 +409,7 @@ g2	HUP	HumidifierPWM			0x0177	0x0186	0x0191	0x0194	0..100 step 0.1
 g2	HME				0x0178	0x0187	0x0192	0x0195	1..8 step 1
 g2	HMS	HumidifierLevel	S.HumLevel		0x0179	0x0188	0x0193	0x0196	1..8 step 1
 g2	HYC				0x017A	0x0189	0x0194	0x0197	0..4095 step 1; hypopnea event counter used by Summary-HypopneaIndex
-g2	ILS				0x017B	0x018A	0x0195	0x0198	4..20 step 1; learned inspiratory pressure
+g2	ILS				0x017B	0x018A	0x0195	0x0198	4..20 step 1; cmH2O; learned Mask Fit pressure for AutoSet/For Her/VAuto/ASVAuto; copied from PI9 when PPD >=180 minutes; SleepData erase restores default 10
 g2	IPS				0x017C	0x018B	0x0196	0x0199	0..2147483647 step 1
 g2	INP	InspiratoryPressure			0x017D	0x018C	0x0197	0x019A	0..50 step 0.2
 g2	INH	InspiratoryPressure-50hz			0x017E	0x018D	0x0198	0x019B	0..50 step 0.2
@@ -456,12 +456,12 @@ g2	KPT	ButtonRegMap			0x01A6	0x01B5	0x01C0	0x01C3	0..255 step 1
 g2	PIN					0x01B6	0x01C1	0x01C4	0..240 step 0.1; single report-day AHI copied from AHI (events/hour; raw / 10); current day or previous-day fallback
 g2	LBT				0x01A7	0x01B7	0x01C2	0x01C5	0..2147483647 step 1; monotonic timestamp of the latest breath trigger (10 ms ticks)
 g2	LDT	LastDataPostDateTime			0x01A8	0x01B8	0x01C3	0x01C6	-2147483647..2147483647 step 1
-g2	ZFE				0x01A9	0x01B9	0x01C4	0x01C7	0..24836 step 1; therapy-day key rate-limiting HoseBlocked reports
+g2	ZFE				0x01A9	0x01B9	0x01C4	0x01C7	0..24836 step 1; last HoseBlocked assertion's therapy-day key; with ZLM descriptor active, reporting requires current key minus saved key = 1
 g2	PLL					0x01BA	0x01C5	0x01C8	0..3 step 0.02; single report-day leak copied from LK7 (L/s; raw / 50); stock 8.6.0 source percentile is 70
 g2	LMS	LastMachineServiceDateTime			0x01AA	0x01BB	0x01C6	0x01C9	0..2147483647 step 1
 g2	OUD					0x01BC	0x01C7	0x01CA	0..1440 step 1; single report-day usage copied from PPD (minutes); current day or previous-day fallback
-g2	LI9				0x01AB	0x01BD	0x01C8	0x01CB	0..50 step 0.2; previous therapy-day inspiratory-pressure 95th percentile
-g2	LPD				0x01AC	0x01BE	0x01C9	0x01CC	0..1440 step 1; previous therapy-day duration, minutes
+g2	LI9				0x01AB	0x01BD	0x01C8	0x01CB	0..50 step 0.2; cmH2O; previous therapy-day PI9; used on entry to ZLM limp mode from AutoSet/For Her/VAuto when positive and LPD >=180, with a 10 cmH2O floor
+g2	LPD				0x01AC	0x01BE	0x01C9	0x01CC	0..1440 step 1; previous therapy-day PPD, minutes; >=180 qualifies LI9 for limp-mode pressure selection
 g2	DSC				0x01AD	0x01BF	0x01CA	0x01CD	0..24836 step 1; TLP; current day stored after Soundcheck and used for run-frequency gating
 g2	LK7	Summary-Leak-75	Leak.70		0x01AE	0x01C0	0x01CB	0x01CE	0..2 step 0.02
 g2	LK9	Summary-Leak-95	Leak.95		0x01AF	0x01C1	0x01CC	0x01CF	0..2 step 0.02
@@ -575,25 +575,25 @@ g2	PPC				0x0218	0x022B	0x0236	0x0239	0..3750 step 1; probe-derived humidifier-p
 g2	PPS				0x0219	0x022C	0x0237	0x023A	0..60000 step 1; humidifier-plate heating-power request; normalized demand multiplied by 60000
 g2	PVD	DataVersionIdentifier			0x021A	0x022D	0x0238	0x023B	1..999 step 1
 g2	PDD				0x021B	0x022E	0x0239	0x023C	-2147483647..2147483647 step 1
-g2	PAH				0x021C	0x022F	0x023A	0x023D	0..240 step 0.1
-g2	PAS				0x021D	0x0230	0x023B	0x023E	0..240 step 0.1
+g2	PAH				0x021C	0x022F	0x023A	0x023D	0..240 step 0.1; 8.3: summary-publication copy of AHI (apnea-hypopnea index); removed from PDL in 8.4
+g2	PAS				0x021D	0x0230	0x023B	0x023E	0..240 step 0.1; 8.3: summary-publication copy of ASC (apnea index); removed from PDL in 8.4
 g2	PAV				0x021E	0x0231	0x023C	0x023F	0..30 step 0.125
-g2	PCI				0x0220	0x0232	0x023D	0x0240	0..240 step 0.1
-g2	PPE				0x0221	0x0233	0x023E	0x0241	0..30 step 0.2
-g2	PIS				0x0222	0x0234	0x023F	0x0242	0..10 step 1
-g2	PPI				0x0223	0x0235	0x0240	0x0243	0..50 step 0.2
-g2	PIE				0x0224	0x0236	0x0241	0x0244	0..200 step 1
-g2	PL7				0x0225	0x0237	0x0242	0x0245	0..3 step 0.02
-g2	PL9				0x0226	0x0238	0x0243	0x0246	0..3 step 0.02
-g2	PMT				0x0227	0x0239	0x0244	0x0247	0..30 step 0.125
-g2	PVT				0x0228	0x023A	0x0245	0x0248	0..30 step 0.125
-g2	POS				0x0229	0x023B	0x0246	0x0249	0..240 step 0.1
-g2	PRR				0x022A	0x023C	0x0247	0x024A	0..90 step 1
-g2	PVC				0x022B	0x023D	0x0248	0x024B	0..100 step 1
-g2	PVS				0x022C	0x023E	0x0249	0x024C	0..100 step 1
-g2	PST				0x022D	0x023F	0x024A	0x024D	0..2147483647 step 1
-g2	PSS				0x022E	0x0240	0x024B	0x024E	0..1440 step 1
-g2	PAT				0x021F	0x0241	0x024C	0x024F	0..4 step 1
+g2	PCI				0x0220	0x0232	0x023D	0x0240	0..240 step 0.1; 8.3: summary-publication copy of CSC (obstructive apnea index); removed from PDL in 8.4
+g2	PPE				0x0221	0x0233	0x023E	0x0241	0..30 step 0.2; 8.3: summary-publication copy of PE9 (expiratory pressure, 95th percentile, cmH2O); removed from PDL in 8.4
+g2	PIS				0x0222	0x0234	0x023F	0x0242	0..10 step 1; 8.3: summary-publication copy of ISM (median inspiratory duration, seconds); removed from PDL in 8.4
+g2	PPI				0x0223	0x0235	0x0240	0x0243	0..50 step 0.2; 8.3: summary-publication copy of PI9 (inspiratory pressure, 95th percentile, cmH2O); removed from PDL in 8.4
+g2	PIE				0x0224	0x0236	0x0241	0x0244	0..200 step 1; 8.3: summary-publication copy of IEM (median I:E ratio, 100=1:1); removed from PDL in 8.4
+g2	PL7				0x0225	0x0237	0x0242	0x0245	0..3 step 0.02; 8.3: summary-publication copy of LK7 (leak, 75th percentile, L/s); removed from PDL in 8.4
+g2	PL9				0x0226	0x0238	0x0243	0x0246	0..3 step 0.02; 8.3: summary-publication copy of LK9 (leak, 95th percentile, L/s); removed from PDL in 8.4
+g2	PMT				0x0227	0x0239	0x0244	0x0247	0..30 step 0.125; 8.3: summary-publication copy of MTT (short-window mean target minute ventilation, L/min); removed from PDL in 8.4
+g2	PVT				0x0228	0x023A	0x0245	0x0248	0..30 step 0.125; 8.3: summary-publication copy of VTM (median minute ventilation, L/min); removed from PDL in 8.4
+g2	POS				0x0229	0x023B	0x0246	0x0249	0..240 step 0.1; 8.3: summary-publication copy of OSC (central apnea index); removed from PDL in 8.4
+g2	PRR				0x022A	0x023C	0x0247	0x024A	0..90 step 1; 8.3: summary-publication copy of RRM (median respiratory rate, breaths/min); removed from PDL in 8.4
+g2	PVC				0x022B	0x023D	0x0248	0x024B	0..100 step 1; 8.3: summary-publication copy of VCR (spontaneous cycle percentage); removed from PDL in 8.4
+g2	PVS				0x022C	0x023E	0x0249	0x024C	0..100 step 1; 8.3: summary-publication copy of VSR (spontaneous trigger percentage); removed from PDL in 8.4
+g2	PST				0x022D	0x023F	0x024A	0x024D	0..2147483647 step 1; 8.3: summary checkpoint publication time, raw seconds since 2000-01-01; removed from PDL in 8.4
+g2	PSS				0x022E	0x0240	0x024B	0x024E	0..1440 step 1; 8.3: summary-publication copy of PPD (therapy-day usage, minutes); removed from PDL in 8.4
+g2	PAT				0x021F	0x0241	0x024C	0x024F	0..4 step 1; 8.3: summary-publication copy of ATI (short-window mean tidal volume, L); removed from PDL in 8.4
 g2	APX				0x022F	0x0242	0x024D	0x0250	-2147483647..2147483647 step 1
 g2	LP3				0x0230	0x0243	0x024E	0x0251	0..100 step 1
 g2	LP2				0x0231	0x0244	0x024F	0x0252	0..100 step 1
@@ -617,18 +617,18 @@ g2	RET					0x0255	0x0260	0x0263	0..2147483647 step 1
 g2	RCR				0x0241	0x0256	0x0261	0x0264	0..100 step 1; spontaneous-cycle percentage over up to 20 recent cycle events
 g2	RTR				0x0242	0x0257	0x0262	0x0265	0..100 step 1; spontaneous-trigger percentage over up to 20 recent trigger events
 g2	RID	RegionIdentifier			0x0243	0x0258	0x0263	0x0266	0..99 step 1
-g2	MDF				0x0244	0x0259	0x0264	0x0267	0..2147483647 step 1; filter reminder elapsed-time state
-g2	MDM				0x0245	0x025A	0x0265	0x0268	0..2147483647 step 1; mask reminder elapsed-time state
-g2	MDT				0x0246	0x025B	0x0266	0x0269	0..2147483647 step 1; tubing reminder elapsed-time state
-g2	MDW				0x0247	0x025C	0x0267	0x026A	0..2147483647 step 1; humidifier reminder elapsed-time state
+g2	MDF				0x0244	0x0259	0x0264	0x0267	0..2147483647 step 1; filter reminder initial mask-on time, milliseconds; 7200000 establishes the reminder base date
+g2	MDM				0x0245	0x025A	0x0265	0x0268	0..2147483647 step 1; mask reminder initial mask-on time, milliseconds; 7200000 establishes the reminder base date
+g2	MDT				0x0246	0x025B	0x0266	0x0269	0..2147483647 step 1; tubing reminder initial mask-on time, milliseconds; 7200000 establishes the reminder base date
+g2	MDW				0x0247	0x025C	0x0267	0x026A	0..2147483647 step 1; humidifier reminder initial mask-on time, milliseconds; 7200000 establishes the reminder base date
 g2	FUC				0x0248	0x025D	0x0268	0x026B	0..2147483647 step 1
 g2	MUC				0x0249	0x025E	0x0269	0x026C	0..2147483647 step 1
 g2	TUC				0x024A	0x025F	0x026A	0x026D	0..2147483647 step 1
 g2	WUC				0x024B	0x0260	0x026B	0x026E	0..2147483647 step 1
-g2	RCF				0x024C	0x0261	0x026C	0x026F	0..2147483647 step 1; filter reminder recurrence count
-g2	RCM				0x024D	0x0262	0x026D	0x0270	0..2147483647 step 1; mask reminder recurrence count
-g2	RCT				0x024E	0x0263	0x026E	0x0271	0..2147483647 step 1; tubing reminder recurrence count
-g2	RCH				0x024F	0x0264	0x026F	0x0272	0..2147483647 step 1; humidifier reminder recurrence count
+g2	RCF				0x024C	0x0261	0x026C	0x026F	0..2147483647 step 1; filter reminder recurrence number; due date = base date + recurrence * period, using 30-day months
+g2	RCM				0x024D	0x0262	0x026D	0x0270	0..2147483647 step 1; mask reminder recurrence number; due date = base date + recurrence * period, using 30-day months
+g2	RCT				0x024E	0x0263	0x026E	0x0271	0..2147483647 step 1; tubing reminder recurrence number; due date = base date + recurrence * period, using 30-day months
+g2	RCH				0x024F	0x0264	0x026F	0x0272	0..2147483647 step 1; humidifier reminder recurrence number; due date = base date + recurrence * period, using 30-day months
 g2	RTF	ReminderFilterDate			0x0250	0x0265	0x0270	0x0273	0..2147483647 step 1
 g2	RTM	ReminderMaskDate			0x0251	0x0266	0x0271	0x0274	0..2147483647 step 1
 g2	RTT	ReminderTubingDate			0x0252	0x0267	0x0272	0x0275	0..2147483647 step 1
@@ -644,16 +644,16 @@ g2	RRM	Summary-RespiratoryRate-50	RespRate.50		0x025B	0x0270	0x027B	0x027E	0..90
 g2	RDC				0x025C	0x0271	0x027C	0x027F	0..4095 step 1; RERA event counter used by Summary-ReraIndex
 g2	RCC	Summary-ReraIndex	RIN		0x025D	0x0272	0x027D	0x0280	active_vids=3; 0..240 step 0.1
 g2	ZS6				0x025E	0x0273	0x027E	0x0281	0..2147483647 step 1
-g2	CUD	LastTherapyUseDateTime			0x025F	0x0274	0x027F	0x0282	0..2147483647 step 1
-g2	SCS				0x0260	0x0275	0x0280	0x0283	0..1440 step 1
-g2	MHU	MachineRunMeter			0x0261	0x0276	0x0281	0x0284	0..315360000 step 1; seconds; backup-SRAM SettingsUnit; modes=CPAP,AutoSet,HerAuto,Spont,ST,Timed,VAuto,ASV,ASVAuto,iVAPS,PAC
-g2	MHR	MotorRunMeter			0x0262	0x0277	0x0282	0x0285	0..315360000 step 1; seconds; backup-SRAM SettingsUnit
-g2	MHS	MotorRunSinceLastServiceMeter			0x0263	0x0278	0x0283	0x0286	0..315360000 step 1; seconds; backup-SRAM SettingsUnit
-g2	ZSE				0x0264	0x0279	0x0284	0x0287	0..2147483647 step 1; saved resettable-error code
-g2	ZDD				0x0265	0x027A	0x0285	0x0288	0..24836 step 1; saved error date, days since epoch
-g2	ZDT				0x0266	0x027B	0x0286	0x0289	0..2147483647 step 1; saved error time, milliseconds since midnight
+g2	CUD	LastTherapyUseDateTime			0x025F	0x0274	0x027F	0x0282	0..2147483647 step 1; checkpoint of the latest qualified therapy-use timestamp; raw seconds since 2000-01-01
+g2	SCS				0x0260	0x0275	0x0280	0x0283	0..1440 step 1; CSR duration baseline restored from the current therapy-day Summary (minutes); CSD adds newly accumulated CSR seconds divided by 60, truncated to whole minutes
+g2	MHU	MachineRunMeter			0x0261	0x0276	0x0281	0x0284	0..315360000 step 1; seconds; checkpoint of a working counter incremented while motor speed >0; backup-SRAM SettingsUnit; modes=CPAP,AutoSet,HerAuto,Spont,ST,Timed,VAuto,ASV,ASVAuto,iVAPS,PAC
+g2	MHR	MotorRunMeter			0x0262	0x0277	0x0282	0x0285	0..315360000 step 1; seconds; checkpoint of a working counter incremented while motor speed >0; backup-SRAM SettingsUnit
+g2	MHS	MotorRunSinceLastServiceMeter			0x0263	0x0278	0x0283	0x0286	0..315360000 step 1; seconds; checkpoint of a working counter incremented while motor speed >0; backup-SRAM SettingsUnit
+g2	ZSE				0x0264	0x0279	0x0284	0x0287	0..2147483647 step 1; saved ZRE resettable-error code; 0=no saved error
+g2	ZDD				0x0265	0x027A	0x0285	0x0288	0..24836 step 1; snapshot RTC date, days since 1970-01-01; refreshed even when ZSE=0
+g2	ZDT				0x0266	0x027B	0x0286	0x0289	0..2147483647 step 1; snapshot RTC time, milliseconds since midnight; refreshed even when ZSE=0
 g2	CPD				0x0267	0x027C	0x0287	0x028A	0..1440 step 1
-g2	PHM	TherapyRunMeter			0x0268	0x027D	0x0288	0x028B	0..315360000 step 1; seconds; backup-SRAM SettingsUnit
+g2	PHM	TherapyRunMeter			0x0268	0x027D	0x0288	0x028B	0..315360000 step 1; seconds; therapy-use checkpoint copied from LHM; backup-SRAM SettingsUnit
 g2	SW0				0x0269	0x027E	0x0289	0x028C	0..2147483647 step 1
 g2	SLT				0x026A	0x027F	0x028A	0x028D	0..2147483647 step 1
 g2	PR2	AdcPressureMonitoring			0x026B	0x0280	0x028B	0x028E	0..4095 step 1
@@ -720,7 +720,7 @@ g2	SCL				0x02A2	0x02BA	0x02C5	0x02CA	0..3750 step 1; 2625 for 65W, 3638 for 90W
 g2	SCM				0x02A3	0x02BB	0x02C6	0x02CB	0..5000 step 1
 g2	SCG				0x02A4	0x02BC	0x02C7	0x02CC	1000..3000 step 1
 g2	ZPM				0x02A5	0x02BD	0x02C8	0x02CD	0..2147483647 step 1
-g2	SET					0x02BE	0x02C9	0x02CE	0..2147483647 step 1; latest system-error time, epoch minutes
+g2	SET					0x02BE	0x02C9	0x02CE	0..2147483647 step 1; error-path timestamp, minutes since 1970-01-01; updated on system-error publication or a nonzero ZRE snapshot
 g2	STK				0x02A6	0x02BF	0x02CA	0x02CF	0..2147483647 step 1; monotonic 100 Hz tick count (10 ms per raw unit); initialized to 1 and incremented by the 10 ms supervisor task
 g2	ZZ2	Spont-TargetExpiratoryPressure	S.S.EPAP	EPAP	0x02A7	0x02C0	0x02CB	0x02D0	active_vids=7,10; 2..25 step 0.2; modes=Spont
 g2	Z17	Spont-FallTime		Fall Time	0x02A8	0x02C1	0x02CC	0x02D1	INACT; 0.1..0.7 step 0.1; modes=Spont
@@ -830,7 +830,7 @@ g3	SYH				0x030F	0x0328	0x0332	0x0337	bits=6 fixed=0x00000000 editable=0x0000003
 g3	SY2				0x0310	0x0329	0x0333	0x0338	bits=4 fixed=0x00000000 editable=0x0000000f; reportable heated-tube faults: b0/b2 are escalated SYH conditions, b1/b3 mirror SYH; feeds events and HUT
 g3	ZOY				0x0311	0x032A	0x0334	0x0339	bits=1 fixed=0x00000000 editable=0x00000001; pending alarm self-test warning in b0; selects RUM=12; GUI defers its presentation during active pressure
 g3	LNC	LanguageConfiguration		Language	0x0312	0x032B	0x0335	0x033A	bits=27 fixed=0x000000a3 editable=0x07ffffff; options: English, French, German, Italian, Spanish EU, Spanish US, Portuguese EU, Portuguese US, Dutch, Swedish, Danish, Norwegian, Finnish, Russian, Turkish, Polish, Czech, Greek, Estonian, Chinese Traditional, Chinese Simplified, Japanese, Korean, Croatian, Hungarian, Romanian
-g3	REM			Restore Defaults / Erase Data	0x0313	0x032C	0x0336	0x033B	bits=3 fixed=0x00000000 editable=0x00000007; bit0=SleepData bit1=Settings bit2=Logs
+g3	REM			Restore Defaults / Erase Data	0x0313	0x032C	0x0336	0x033B	bits=3 fixed=0x00000000 editable=0x00000007; pending erase selection: bit0=SleepData bit1=Settings bit2=Logs; cleared after completion
 g3	ZPC				0x0314	0x032D	0x0337	0x033C	bits=14 fixed=0x00000000 editable=0x00003fff
 g3	OCS				0x0315	0x032E	0x0338	0x033D	bits=3 fixed=0x00000000 editable=0x00000007
 g3	AER	ActiveAlarms			0x0316	0x032F	0x0339	0x033E	INACT; bits=9 fixed=0x00000000 editable=0x00000000
@@ -857,7 +857,7 @@ g5	ACY				0x032A	0x0343	0x034D	0x0352	3 opts mask=0x00000007
 g5	ATT				0x032B	0x0344	0x034E	0x0353	3 opts mask=0x00000007; alarm-board self-test request; 0=None, 1=Indicators, 2=Capacitance; request acknowledgement clears it to None
 g5	ALT				0x032C	0x0345	0x034F	0x0354	4 opts mask=0x0000000f; alarm priority acknowledged by the alarm board; 0=None, 1=LowPriority, 2=MediumPriority, 3=HighPriority
 g5	ATQ				0x032D	0x0346	0x0350	0x0355	4 opts mask=0x0000000f; requested alarm priority; 0=None, 1=LowPriority, 2=MediumPriority, 3=HighPriority
-g5	AUP				0x032E	0x0347	0x0351	0x0356	2 opts mask=0x00000003; alarm-board firmware-upgrade pending latch
+g5	AUP				0x032E	0x0347	0x0351	0x0356	2 opts mask=0x00000003; alarm-board upgrade apply/recovery-pending latch; cleared on finish or recovery connection/timeout
 g5	AUS				0x032F	0x0348	0x0352	0x0357	5 opts mask=0x0000001f
 g5	AVO				0x0330	0x0349	0x0353	0x0358	3 opts mask=0x00000007; alarm volume acknowledged by the alarm board; 0=Low, 1=Medium, 2=High
 g5	AVP				0x0331	0x034A	0x0354	0x0359	4 opts mask=0x0000000f; alarm-volume preview request; 0=Low, 1=Medium, 2=High, 3=None; cleared to None after acknowledgement
@@ -881,7 +881,7 @@ g5	BDS				0x033D	0x0356	0x0364	0x036A	2 opts mask=0x00000003
 g5	BNP	BluetoothPassthrough		Bluetooth	0x033E	0x0357	0x0365	0x036B	2 opts mask=0x00000003; options: Off, On
 g5	BRS				0x033F	0x0358	0x0366	0x036C	2 opts mask=0x00000003
 g5	BSC				0x0340	0x0359	0x0367	0x036D	2 opts mask=0x00000003; BLE session-established flag: 0=not established/reset, 1=established; used by pairing navigation
-g5	BTU				0x0341	0x035A	0x0368	0x036E	2 opts mask=0x00000003; completed-upgrade latch; nonzero blocks a new upgrade
+g5	BTU				0x0341	0x035A	0x0368	0x036E	2 opts mask=0x00000003; set on accepted PacificBT upgrade handoff; value 1 blocks a new transfer
 g5	ZLE				0x0342	0x035B	0x0369	0x036F	2 opts mask=0x00000003; mask-on therapy-data recording gate: 1 at qualified mask-on start, 0 at mask-off; gates periodic recordings and respiratory-event admission
 g5	CEN				0x0343	0x035C	0x036A	0x0370	active_vids=3,6,7; 2 opts mask=0x00000003; central/obstructive apnea classification enable; raw 1 enables the classifier and its pressure-oscillation measurement when the descriptor is active, raw 0 disables them; mode gate: CPAP, AutoSet, For Her, VAuto, Spont with EasyBreathe On and RespiratoryRateEnable Off
 g5	CAL				0x0344	0x035D	0x036B	0x0371	15 opts mask=0x00007fff
@@ -893,7 +893,7 @@ g5	ZSD				0x0349	0x0362	0x0370	0x0376	2 opts mask=0x00000003
 g5	ZCU				0x034A	0x0363	0x0371	0x0377	2 opts mask=0x00000003; SD logging reinitialization request: 0=Yes, 1=No; logging poll acknowledges 0 by setting 1 and resetting its state
 g5	CDT				0x034B	0x0364	0x0372	0x0378	2 opts mask=0x00000003; SD datalog readiness: 0=Unusable, 1=Datalog; required by EDF recording and summary synchronization
 g5	CCA	CareCheckInAvailable		Care Check-In	0x034C	0x0365	0x0373	0x0379	2 opts mask=0x00000003; options: Off, On
-g5	CCT				0x034D	0x0366	0x0374	0x037A	5 opts mask=0x00000002; Care Check-in product family; options=Off,AirSense,AirCurve,Lumis,HFT
+g5	CCT				0x034D	0x0366	0x0374	0x037A	5 opts mask=0x00000002; Care Check-in product family, selecting GUI actions and survey-event schema; options=Off,AirSense,AirCurve,Lumis,HFT
 g5	SCP				0x034E	0x0367	0x0375	0x037B	3 opts mask=0x00000007
 g5	CDM	DataMode			0x034F	0x0368	0x0376	0x037C	2 opts mask=0x00000003
 g5	CDR				0x0350	0x0369	0x0377	0x037D	2 opts mask=0x00000003; centile-history reset/write pass busy flag; cleared after all outstanding gatherers finish; data reset waits for 0
@@ -1105,7 +1105,7 @@ g5	RPE	RampEnablePatientAccess		Ramp	0x0410	0x042D	0x043F	0x0445	INACT; 2 opts m
 g5	RPS				0x0411	0x042E	0x0440	0x0446	2 opts mask=0x00000001
 g5	IRS	IsReadyForShipping			0x0412	0x042F	0x0441	0x0447	3 opts mask=0x00000007
 g5	RQH					0x0430	0x0442	0x0448	2 opts mask=0x00000003
-g5	RFP				0x0413	0x0431	0x0443	0x0449	2 opts mask=0x00000003; recoverable-error clear-pending latch
+g5	RFP				0x0413	0x0431	0x0443	0x0449	2 opts mask=0x00000003; recoverable-error clear-event pending latch; cleared after local event completion
 g5	RYS	RecoverableError			0x0414	0x0432	0x0444	0x044A	4 opts mask=0x0000000f
 g5	ARE				0x0415	0x0433	0x0445	0x044B	10 opts mask=0x000003ff
 g5	RUM				0x0416	0x0434	0x0446	0x044C	13 opts mask=0x00001fff; prioritized GUI fault-message selector from ZOX and ZOY; 0=no message, 12=AlarmSelfTestFailure; acknowledgement clears the selected source bit
@@ -1144,11 +1144,11 @@ g5	CCZ				0x0433	0x0454	0x0466	0x046C	2 opts mask=0x00000003
 g5	SLS	LanguageSelection		Language Selection	0x0434	0x0455	0x0467	0x046D	2 opts mask=0x00000003; options: Off, On
 g5	DMS				0x0435	0x0456	0x0468	0x046E	2 opts mask=0x00000003
 g5	SOS	OobxOnStartup			0x0436	0x0457	0x0469	0x046F	2 opts mask=0x00000003
-g5	ABU				0x0437	0x0458	0x046A	0x0470	2 opts mask=0x00000003; alarm-board state resynchronization latch after main firmware upgrade
+g5	ABU				0x0437	0x0458	0x046A	0x0470	2 opts mask=0x00000003; set by upgrade preparation; suppresses the initial alarm-volume preview on the next alarm-board connection initialization, then clears
 g5	SVI				0x0438	0x0459	0x046B	0x0471	2 opts mask=0x00000003; Sleep View mask-help origin latch; HELP sets 1 to select return navigation; cleared after leaving the mask-fit UI outside therapy
 g5	SVP					0x045A	0x046C	0x0472	6 opts mask=0x0000003f
-g5	SMN				0x0439	0x045B	0x046D	0x0473	2 opts mask=0x00000003
-g5	SVN				0x043A	0x045C	0x046E	0x0474	2 opts mask=0x00000003
+g5	SMN				0x0439	0x045B	0x046D	0x0473	2 opts mask=0x00000003; hides the previous mask-seal result after TRY MASK FIT, showing the next-night update message; cleared on entering Therapy
+g5	SVN				0x043A	0x045C	0x046E	0x0474	2 opts mask=0x00000003; mask-seal result viewed latch; suppresses its warning marker; cleared on entering Therapy
 g5	SST	SmartStart	S.SmartStart	SmartStart	0x043B	0x045D	0x046F	0x0475	2 opts mask=0x00000003; options: Off, On
 g5	SME				0x043C	0x045E	0x0470	0x0476	2 opts mask=0x00000003
 g5	GSP			SmartStop	0x043D	0x045F	0x0471	0x0477	2 opts mask=0x00000003; options: Off, On
@@ -1161,7 +1161,7 @@ g5	SSE	SplashScreenDisplaySelection			0x0443	0x0465	0x0477	0x047D	2 opts mask=0x
 g5	SCY				0x0444	0x0466	0x0478	0x047E	5 opts mask=0x0000001f; startup-logo family selected by SSE; reads the CONF default, not the runtime value; 8.6 also uses this default to select the Air11 or Lumis welcome row; options: Off, AirSense11, AirCurve11, Lumis11, ResMed
 g5	SCX							0x047F	3 opts mask=0x00000007; options: No, Yes, Error; spontaneous-cycle percentage availability
 g5	SPN				0x0445	0x0467	0x0479	0x0480	3 opts mask=0x00000007
-g5	GBE						0x047A	0x0481	2 opts mask=0x00000003; persisted mirror of DynamicMessageToggle; options=Off,On
+g5	GBE						0x047A	0x0481	2 opts mask=0x00000003; previous DynamicMessageToggle value; re-enabling clears TOC/ZBM and changes BMS from 2 to 1; options=Off,On
 g5	SOD				0x0446	0x0468	0x047B	0x0482	3 opts mask=0x00000007
 g5	XAB	ST-CycleSensitivity	S.ST.Cycle	Cycle	0x0447	0x0469	0x047C	0x0483	active_vids=10; 7 opts mask=0x00000000; options: Very Low, Low, Med, High, Very High
 g5	XAX				0x0448	0x046A	0x047D	0x0484	active_vids=10; 7 opts mask=0x00000000; ST-CycleSensitivity GUI mirror for SSY=Percentage; GUI edits commit XAB
@@ -1176,7 +1176,7 @@ g5	SDR				0x044F	0x0472	0x0485	0x048C	2 opts mask=0x00000003
 g5	STC				0x0450	0x0473	0x0486	0x048D	34 opts mask=0xffffffff
 g5	FSE	SystemError			0x0451	0x0474	0x0487	0x048E	23 opts mask=0x007fffff
 g5	SEM				0x0452	0x0475	0x0488	0x048F	5 opts mask=0x0000001f
-g5	XSS				0x0453	0x0476	0x0489	0x0490	2 opts mask=0x00000003; persisted system-error continuity latch
+g5	XSS				0x0453	0x0476	0x0489	0x0490	2 opts mask=0x00000003; persisted system-error/clear-event continuity latch; cleared after local zero-error event completion
 g5	Z12	Spont-CycleSensitivity	S.S.Cycle	Cycle	0x0454	0x0477	0x048A	0x0491	active_vids=7,10; 7 opts mask=0x00000000; options: Very Low, Low, Med, High, Very High
 g5	Z18				0x0455	0x0478	0x048B	0x0492	active_vids=6,7,10; 7 opts mask=0x00000000; Spont-CycleSensitivity GUI mirror for SSY=Percentage; GUI edits commit Z12
 g5	Z19					0x0479	0x048C	0x0493	active_vids=6,7,10; 7 opts mask=0x00000000; Spont-CycleSensitivity GUI mirror for CPS=SplitScreen and SSY=String; GUI edits commit Z12
