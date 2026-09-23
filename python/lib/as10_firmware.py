@@ -133,13 +133,21 @@ class ASFirmware(object):
             return None
         return end - off + 1
 
-    def find_ccx_ff_range_backwards(self, size):
+    def find_ccx_ff_range_backwards(self, size, alignment=1):
+        """Find an erased CCX range, excluding the region CRC."""
+        if size <= 0 or alignment <= 0:
+            raise ValueError("CCX allocation size and alignment must be positive")
         limit = self.ccx_off + self.ccx_size - 2
-        for end in range(limit, self.ccx_off + size - 1, -1):
-            start = end - size
-            if self.fw[start:end] == [0xFF] * size:
+        data = bytes(self.fw)
+        erased = b'\xFF' * size
+        while limit >= self.ccx_off + size:
+            start = data.rfind(erased, self.ccx_off, limit)
+            if start < 0:
+                break
+            if start % alignment == 0:
                 return start
-        raise ValueError("no CCX string space for %d bytes" % size)
+            limit = start - start % alignment + size
+        raise ValueError("no CCX space for %d bytes (alignment %d)" % (size, alignment))
 
     def globals_offset(self, idx):
         """Return file offset for data that globals[idx] points to"""
