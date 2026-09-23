@@ -950,6 +950,7 @@ PMD: field_count=3  fields=MKP,RFL,LYK
 
 3 records x 16 bytes (`APN`, `CSN`, `BRH`). The records point into packed
 var-ID arrays stored near the g[26] payloads. OXH is a separate g[28] object.
+Each channel emits a frame when the raw value of its trigger variable changes.
 
 | Channel | ResMed name | Fields |
 |---------|-------------|--------|
@@ -963,7 +964,8 @@ var-ID arrays stored near the g[26] payloads. OXH is a separate g[28] object.
 | +0x01 | 3 | record name |
 | +0x04 | 4 | config |
 | +0x08 | 4 | var_id array pointer |
-| +0x0C | 4 | rate/scale array pointer |
+| +0x0C | 2 | trigger variable: signed g[4] descriptor index |
+| +0x0E | 2 | -- |
 
 Observed maximum windows:
 
