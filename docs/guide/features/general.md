@@ -37,6 +37,24 @@ Standard pressure controls are expanded to the full 1.0 to 30.0 cmH2O range.
   <img src="../../images/unlocked-pressure-ranges.png" alt="Unlocked ASVAuto pressure ranges" width="240">
 </p>
 
+## Target Humidity
+
+This patch lets users adjust humidification above or below the stock
+85% relative humidity target, in both Auto and Manual Climate Control.
+Lower targets reduce the requested moisture; higher targets increase it.
+Manual humidity levels remain available and work alongside this setting.
+
+With custom settings, **Target RH (%)** appears in clinical **Accessories**:
+70-100%, in steps of 1 percentage point. The setting is saved across restarts
+and is also available over UART as `RCH`. The default is 85%, unless a different
+value is selected when building the image.
+
+Without custom settings, the target stays at the value selected when building.
+Without this patch, the stock 85% target remains unchanged.
+
+The percentage is a target, not a measurement of humidity at the mask.
+Higher targets increase condensation risk; 100% targets saturation.
+
 ## Motor Runtime Warning
 
 The patch removes the "Motor life exceeded" nag screen that stock firmware can

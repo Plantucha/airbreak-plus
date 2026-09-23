@@ -1074,6 +1074,22 @@ class ASFirmwarePatches(CompiledPayloadMixin):
             "at 0x%08X" %
             (high_var, high_vid, high_label, high_addr))
 
+    def custom_patch_settings_target_rh(self):
+        """Expose the climate model target as a persistent percentage."""
+        if not 70 <= self.target_rh_percent <= 100 or self.target_rh_percent != int(self.target_rh_percent):
+            raise ValueError('Target RH menu requires a whole percentage from 70 to 100; '
+                             'disable custom settings to use a different fixed target')
+        var = self.custom_claim_g4_var('RCH', 'target_rh')
+        label = self.redefine_fw_string(-1, {0: 'Target RH (%)'}, 'target_rh_label')
+        dep = self.asf.find_var_table_index(4, 'RGT')
+        self.redefine_g4_var(var, 0x0007, 0, dep, label,
+                             int(self.target_rh_percent), 100, 70, 0, 1, 1,
+                             self.asf.str_id_empty)
+        self.custom_menu_add('accessories', var, self.CUSTOM_MENU_MODE_BITS)
+        vid = self.asf.resolve_var_id(var)
+        addr = self._write_payload_u16('target_rh', 'target_rh_var_id', vid)
+        self._custom_detail('Target RH: %s var_id=0x%04X at 0x%08X' % (var, vid, addr))
+
     def custom_patch_settings_collect_features(self):
         """Return active custom-settings feature functions."""
         feature_patches = (
@@ -1083,6 +1099,7 @@ class ASFirmwarePatches(CompiledPayloadMixin):
             ('graph', self.custom_patch_settings_graph),
             ('squarewave', self.custom_patch_settings_squarewave),
             ('backlight_adapt', self.custom_patch_settings_backlight),
+            ('target_rh', self.custom_patch_settings_target_rh),
         )
         active = self.applied_payloads | self.enabled_custom_settings_features
         return [feature for source, feature in feature_patches if source in active]
@@ -1582,10 +1599,21 @@ class ASFirmwarePatches(CompiledPayloadMixin):
         # vldr s0,[pc,#0x1fc]; bx lr
         if self.asf.read_bytes(getter, 6) != bytes.fromhex('9f ed 7f 0a 70 47'):
             raise ValueError('unexpected target RH getter bytes at 0x%X' % getter)
-        self._replace_bytes_checked(
-            getter + 0x200, struct.pack('<f', 0.85),
-            struct.pack('<f', percent / 100), 'target RH', accept_existing=True)
-        return PatchOutcome.ok('Climate model target RH: %g%% (Auto and Manual)' % percent)
+        data, _, elf_path = self._load_versioned_payload('target_rh')
+        start = self._elf_symbol_addr(elf_path, 'start') & ~1
+        flash, _ = self._inject_payload('target_rh', data)
+        fallback = self._elf_symbol_addr(elf_path, 'target_rh_fallback')
+        self.asf.patch(struct.pack('<f', percent / 100), fallback - self.asf.FLASH_BASE,
+                       clobber=True)
+        # Tail-branch to preserve the caller's LR and the float return in s0.
+        branch = bytearray(self._encode_thumb_bl(getter, start))
+        branch[3] &= ~0x40  # BL -> B.W, same displacement.
+        self._replace_bytes_checked(getter, bytes.fromhex('9f ed 7f 0a'),
+                                    bytes(branch), 'target RH getter')
+        self.target_rh_percent = percent
+        self.applied_payloads.add('target_rh')
+        return PatchOutcome.ok('Climate model target RH: %g%% (Auto and Manual)' % percent,
+                               self._payload_detail('target_rh', len(data), flash))
 
     def patch_defaults(self):
         defaults = (
@@ -2209,11 +2237,15 @@ def str2bool(v):
     raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
-def percentage(v):
+def target_rh_value(v):
+    """Accept a percentage, or a boolean word selecting 85% / no patch."""
     try:
         value = float(v)
     except ValueError:
-        raise argparse.ArgumentTypeError('Percentage from 0 to 100 expected.') from None
+        try:
+            return 85.0 if str2bool(v) else False
+        except argparse.ArgumentTypeError:
+            raise argparse.ArgumentTypeError('Percentage from 0 to 100, y or n expected.') from None
     if not 0 <= value <= 100:
         raise argparse.ArgumentTypeError('Percentage from 0 to 100 expected.')
     return value
@@ -2301,8 +2333,8 @@ PATCH_PHASES = (
         PatchSpec('patch-fw-backlight', 'Improve backlight adaptation to ambient light.',
                   True, 'patch_backlight_adapt'),
         PatchSpec('patch-target-rh',
-                  'Set climate model target RH in percent for Auto and Manual (stock: 85%).',
-                  None, 'patch_target_rh', value_type=percentage),
+                  'Set target RH (default: 85%, y: 85%, n: disabled); custom settings adds a 70-100% menu control.',
+                  85.0, 'patch_target_rh', value_type=target_rh_value),
         PatchSpec('patch-custom-palette', 'Patch the custom color palette.',
                   True, 'custom_palette'),
         PatchSpec('patch-past-date', 'Allow setting past date in the menu and over UART.',
@@ -2410,7 +2442,7 @@ def build_argument_parser():
             '--' + patch.option,
             type=patch.value_type or str2bool,
             default=patch.default,
-            metavar='PERCENT' if patch.value_type else ('Y/n' if patch.default else 'y/N'),
+            metavar='PERCENT|y|n' if patch.value_type else ('Y/n' if patch.default else 'y/N'),
             help=(patch.description.replace('%', '%%') if patch.value_type else
                   '%s (default: %s)' % (patch.description, state)))
 

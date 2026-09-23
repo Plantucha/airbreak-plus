@@ -34,6 +34,7 @@ Settings are assigned when their corresponding patch or payload is active.
 | [Backlight adaptation](guide/features/backlight.md) | LCD / High | LLH | g[4] | CSG |
 | [Backlight adaptation](guide/features/backlight.md) | Buttons / Low | LBL | g[4] | CSG |
 | [Backlight adaptation](guide/features/backlight.md) | Buttons / High | LBH | g[4] | CSG |
+| [Target humidity](guide/features/general.md#target-humidity) | Target RH (%) | RCH | g[4] | CSG |
 
 
 ## Application sequence
