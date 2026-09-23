@@ -132,16 +132,17 @@ _CSL_B = bytes([0x0D, 0x00, 0xFF, 0x7F, 0xFF, 0x7F, 0x00, 0x02, 0x01, 0x00])
 _CSL_C = bytes([0x0D, 0x00, 0xFF, 0x7F, 0xFF, 0x7F, 0x00, 0x00, 0x01, 0x00])
 _EMPTY = bytes([0x00, 0x00, 0xFF, 0x7F, 0xFF, 0x7F, 0x00, 0x00, 0x00, 0x00])
 
-def _eve(var_name, filt_name):
-    return ('eve', var_name, filt_name)
+def _eve(var_name, percentile, gate):
+    # Record bytes +6/+7 are a percentile and sampling gate (1=ZTE, 2=ZLE).
+    return ('eve', var_name, percentile, gate)
 
 def _aev(var_name):
     return ('aev', var_name)
 
-def _ext(var_a, var_b, filt_name):
-    return ('ext', var_a, var_b, filt_name)
+def _ext(var_a, var_b):
+    return ('ext', var_a, var_b)
 
-_EXT_REC = _ext("TBB", "TBC", "SYH")
+_EXT_REC = _ext("TBB", "TBC")
 
 # Complete interleaved field record sequence (116 records)
 SUPERSET_RECORDS = [
@@ -160,12 +161,12 @@ SUPERSET_RECORDS = [
     _CSL_A, _CSL_A, _CSL_A, _CSL_A, _CSL_A, _CSL_A, _CSL_A, _CSL_A,   # [43-56] union tail
     _CSL_A, _CSL_A, _CSL_A, _CSL_A, _CSL_A, _CSL_A,
     # [57-69] EVE block 1 (13 entries)
-    _eve("BPA", "ANT"), _eve("BPA", "CST"),
-    _eve("RFA", "ANT"), _eve("RFA", "CST"),
-    _eve("AFL", "DGT"), _eve("ABH", "DGT"),
-    _eve("HPT", "DGT"), _eve("HTT", "DGT"),
-    _eve("TPA", "DGT"), _eve("PPA", "DGT"),
-    _eve("SAV", "EPA"), _eve("SAV", "WUP"), _eve("SAV", "ZMR"),
+    _eve("BPA", 95, 1), _eve("BPA", 5, 1),
+    _eve("RFA", 95, 1), _eve("RFA", 5, 1),
+    _eve("AFL", 50, 1), _eve("ABH", 50, 1),
+    _eve("HPT", 50, 1), _eve("HTT", 50, 1),
+    _eve("TPA", 50, 1), _eve("PPA", 50, 1),
+    _eve("SAV", 50, 2), _eve("SAV", 95, 2), _eve("SAV", 100, 2),
     # [70] CSL_B (SpO2Thresh)
     _CSL_B,
     # [71] CSL_C (CSR - AS-only)
@@ -173,18 +174,18 @@ SUPERSET_RECORDS = [
     # [72] EXT (SpontCyc%)
     _EXT_REC,
     # [73-103] EVE block 2 (31 entries - base 22 + VA 6 + AV 3)
-    _eve("MAP", "DGT"), _eve("MAP", "ANT"), _eve("MAP", "D03"),
-    _eve("AIP", "EPA"), _eve("AIP", "WUP"), _eve("AIP", "ZMR"),
-    _eve("AEP", "EPA"), _eve("AEP", "WUP"), _eve("AEP", "ZMR"),
-    _eve("LKP", "EPA"), _eve("LKP", "WUP"), _eve("LKP", "VTS"), _eve("LKP", "ZMR"),
-    _eve("MVT", "EPA"), _eve("MVT", "WUP"), _eve("MVT", "ZMR"),
-    _eve("RR1", "EPA"), _eve("RR1", "WUP"), _eve("RR1", "ZMR"),
-    _eve("ATI", "EPA"), _eve("ATI", "WUP"), _eve("ATI", "ZMR"),
+    _eve("MAP", 50, 1), _eve("MAP", 95, 1), _eve("MAP", 100, 1),
+    _eve("AIP", 50, 2), _eve("AIP", 95, 2), _eve("AIP", 100, 2),
+    _eve("AEP", 50, 2), _eve("AEP", 95, 2), _eve("AEP", 100, 2),
+    _eve("LKP", 50, 2), _eve("LKP", 95, 2), _eve("LKP", 70, 2), _eve("LKP", 100, 2),
+    _eve("MVT", 50, 2), _eve("MVT", 95, 2), _eve("MVT", 100, 2),
+    _eve("RR1", 50, 2), _eve("RR1", 95, 2), _eve("RR1", 100, 2),
+    _eve("ATI", 50, 2), _eve("ATI", 95, 2), _eve("ATI", 100, 2),
     # IERatio, Ti
-    _eve("AIE", "EPA"), _eve("AIE", "WUP"), _eve("AIE", "ZMR"),
-    _eve("MIS", "EPA"), _eve("MIS", "WUP"), _eve("MIS", "ZMR"),
+    _eve("AIE", 50, 2), _eve("AIE", 95, 2), _eve("AIE", 100, 2),
+    _eve("MIS", 50, 2), _eve("MIS", 95, 2), _eve("MIS", 100, 2),
     # TgtVent
-    _eve("MTT", "EPA"), _eve("MTT", "WUP"), _eve("MTT", "ZMR"),
+    _eve("MTT", 50, 2), _eve("MTT", 95, 2), _eve("MTT", 100, 2),
     # [104-109] AEV (6 entries)
     _aev("AHC"), _aev("HYC"), _aev("AIC"),
     _aev("CAC"), _aev("OAC"), _aev("UAC"),
@@ -430,13 +431,14 @@ def build_field_record(rec, var_id):
     kind = rec[0]
     if kind == 'eve':
         return bytes([0x0D, 0x02]) + struct.pack(
-            '<HHHH', var_id(rec[1]), 0x7FFF, var_id(rec[2]), 0x0001)
+            '<HHBBH', var_id(rec[1]), 0x7FFF, rec[2], rec[3], 0x0001)
     if kind == 'aev':
         return bytes([0x0D, 0x01]) + struct.pack(
             '<HHHH', var_id(rec[1]), 0x7FFF, 0x0000, 0x0002)
     if kind == 'ext':
+        # Keep the native ratio record's parameter bytes, not a resolved var_id.
         return bytes([0x0D, 0x03]) + struct.pack(
-            '<HHHH', var_id(rec[1]), var_id(rec[2]), var_id(rec[3]), 0x0001)
+            '<HHBBH', var_id(rec[1]), var_id(rec[2]), 0, 2, 0x0001)
 
     raise CCXMergeError(f"Unknown g[12] field record spec {rec!r}")
 
