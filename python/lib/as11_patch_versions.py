@@ -295,6 +295,14 @@ AS11_PATCH_VERSIONS = {
         },
     },
     "8_6_0": {
+        "ble_oxi_fallback": {
+            # OXI main interface and its self+8 connect/disconnect interface.
+            "ble_oxi_gatt_client_on_stack_event": 0x081AEF18,
+            "ble_oxi_gatt_client_queue_connect": 0x081AEF24,
+            "ble_oxi_gatt_client_request_disconnect": 0x081AEF28,
+            "thunk_ble_oxi_gatt_client_queue_connect": 0x081AEF44,
+            "this_adjustor_ble_oxi_gatt_client_request_disconnect": 0x081AEF48,
+        },
         "cellular_download": {
             "task_pointer_slot": 0x3000B070,
             "can_start_vtable_slot": 0x081C62E4,

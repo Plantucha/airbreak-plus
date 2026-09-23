@@ -13,6 +13,15 @@ extern void FeedbackInput_get_ref(int **value, unsigned int slot);
 extern void FeedbackOutput_get_ref(float **value, unsigned int slot);
 extern void *heap_alloc(unsigned int size);
 
+/* Native OXI client methods; callback-interface adjustors use self + 8. */
+extern void ble_oxi_gatt_client_on_stack_event(void *client, const unsigned int *event);
+extern unsigned char ble_stack_event_connection_id(const unsigned int *event);
+extern void ble_oxi_gatt_client_queue_connect(void *client, unsigned int address_lo,
+    unsigned int address_hi, unsigned char address_type, unsigned int context);
+extern void ble_oxi_gatt_client_request_disconnect(void *client);
+extern void ble_oxi_gatt_client_reset_connection_state(void *client);
+extern void callback_notifier_invoke(void *callback, unsigned int event);
+
 /* Native registry and encoder entry points used by Airbreak RPC providers. */
 extern void rpc_profile_json_formatter_registry_ctor(void);
 extern void *rpc_profile_json_formatter_registration_ctor(void *registration);

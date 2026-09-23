@@ -330,6 +330,7 @@ AS11_AIRBREAK_INFO_PAYLOAD = "as11_airbreak_info"
 
 AS11_CELLULAR_DOWNLOAD_PAYLOAD = "as11_cellular_download"
 AS11_SCREEN_KEEP_AWAKE_PAYLOAD = "as11_screen_keep_awake"
+AS11_BLE_OXI_FALLBACK_PAYLOAD = "as11_ble_oxi_fallback"
 
 
 class S11Firmware(object):
@@ -2872,6 +2873,38 @@ class S11FirmwarePatches(CompiledPayloadMixin):
         )
         return PatchOutcome.ok("three-finger hold")
 
+    def ble_oxi_fallback(self):
+        """Retry unbonded pulse oximeters without security after pairing fails."""
+        ver = self._payload_version_key()
+        anchors = self._patch_version_data("ble_oxi_fallback", ver)
+        data, _ = self._load_versioned_bin(AS11_BLE_OXI_FALLBACK_PAYLOAD, required=True)
+        elf_path = self._versioned_artifact_path(AS11_BLE_OXI_FALLBACK_PAYLOAD, "elf", ver)
+        hooks = {
+            "ble_oxi_gatt_client_on_stack_event": "start",
+            "ble_oxi_gatt_client_queue_connect": "ble_oxi_fallback_queue_connect",
+            "ble_oxi_gatt_client_request_disconnect": "ble_oxi_fallback_disconnect",
+            "thunk_ble_oxi_gatt_client_queue_connect": "ble_oxi_fallback_queue_connect_adjustor",
+            "this_adjustor_ble_oxi_gatt_client_request_disconnect": "ble_oxi_fallback_disconnect_adjustor",
+        }
+
+        # Both native interfaces must pass through the request/cancel wrappers
+        # so a new request gets one retry and cancellation cannot reopen a link.
+        replacements = []
+        for stock_name, wrapper_name in hooks.items():
+            slot = self.asf.ptr_to_off(anchors[stock_name])
+            original = self._elf_symbol_addr(elf_path, stock_name)
+            wrapper = self._elf_symbol_addr(elf_path, wrapper_name)
+            if slot is None or self.asf.u32(slot) != (original | 1):
+                raise ValueError("ble_oxi_fallback: %s vtable slot does not match" % stock_name)
+            replacements.append((slot, wrapper | 1))
+
+        flash, _off = self._inject_payload(AS11_BLE_OXI_FALLBACK_PAYLOAD, data)
+        for slot, wrapper in replacements:
+            self.asf.write_u32(slot, wrapper)
+        print("Patching BLE oximeter pairing fallback... build/%s_%s.bin (%dB) at 0x%08X" %
+              (AS11_BLE_OXI_FALLBACK_PAYLOAD, ver, len(data), flash))
+        return PatchOutcome.ok("one unencrypted retry for unbonded PLX peers")
+
     def vid_spoof(self):
         """Set VID from MOP after the stock writeback completes."""
         data, ver = self._load_versioned_bin(AS11_VID_SPOOF_PAYLOAD)
@@ -3087,6 +3120,12 @@ PATCH_LIST = [
         "desc": "Download an HTTP resource to upgrade storage through the cellular modem.",
         "default": False,
         "function": "cellular_download",
+    },
+    {
+        "arg": "patch-ble-oxi-fallback",
+        "desc": "Work around pairing and measurement-status incompatibilities in Bluetooth PLX pulse oximeters (experimental).",
+        "default": False,
+        "function": "ble_oxi_fallback",
     },
     {
         "arg": "patch-timezone-write",

@@ -84,6 +84,7 @@ instead of producing that reduced result.
 |-------|--------------|--------|
 | RPC profile visibility | Exposes supported therapy and feature profile nodes in RPC JSON | `--patch-rpc-json-profile-visibility` |
 | RPC permissions | Applies configured method/VCID and DataItem RPC permissions | `--patch-rpc-permissions` |
+| [PLX oximeter compatibility](features.md#plx-oximeter-compatibility-optional) (optional) | Works around pairing and measurement-status incompatibilities in Bluetooth PLX pulse oximeters | `--patch-ble-oxi-fallback` |
 | Cloud firmware changes | Retains cellular flow-generator updates without installing them | `--patch-cloud-firmware-change` |
 | Time-zone write | Allows the time zone to be changed through RPC or the device menu after therapy history exists | `--patch-timezone-write` |
 

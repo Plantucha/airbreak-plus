@@ -175,6 +175,7 @@ table reserves space for eight objects. It extends the objects accepted by
 | `as11_screen_keep_awake` | toggles automatic screen dimming with a three-finger hold |
 | `as11_asv_backup_rate` | allows automatic backup breaths to be disabled in ASV and ASVAuto |
 | `as11_custom_settings` | lets patches add persistent settings to the clinical menu, optionally restricted to selected therapy modes |
+| `as11_ble_oxi_fallback` | works around pairing and measurement-status incompatibilities in Bluetooth PLX pulse oximeters |
 
 With [custom settings](custom_settings.md), the ASV backup-rate and header-clock
 payloads expose persistent clinical-menu controls. Without custom settings,

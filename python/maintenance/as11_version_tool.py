@@ -149,6 +149,7 @@ class PortCandidates:
     therapy_screen_style: dict[str, int | None]
     asv: AsvCandidates
     ota_compatibility: OtaCompatibilityCandidates
+    ble_oxi_fallback: dict[str, AddressResult] | None
 
 
 @dataclass(frozen=True)
@@ -985,6 +986,26 @@ def resolve_screen_keep_awake_candidates(
     return ScreenKeepAwakeCandidates(sites)
 
 
+def resolve_ble_oxi_fallback_candidates(
+        data: bytes, matcher: AddressMatcher, stubs: dict[str, AddressResult],
+        reference: dict) -> dict[str, AddressResult]:
+    """Locate OXI interface slots from their transferred native methods.
+
+    The C payload's object layout and BGAPI state/event constants still need
+    review on a new release; finding the slots does not validate that ABI.
+    """
+    sites = {}
+    for name, address in reference.items():
+        method = stubs[name]
+        slot, refs = unique_pointer(data, method.address | 1) if method.address is not None else (None, ())
+        if slot is not None:
+            sites[name] = AddressResult(address, slot, method.quality,
+                "unique pointer to transferred OXI method; review client layout", refs)
+        else:
+            sites[name] = matcher.site(address)
+    return sites
+
+
 def resolve_custom_settings_candidates(
         firmware: AS11Firmware,
         matcher: AddressMatcher,
@@ -1634,10 +1655,14 @@ def resolve_port_candidates(
         matcher,
         reference_release,
     )
+    ble_oxi_fallback = (
+        resolve_ble_oxi_fallback_candidates(target_fw.data, matcher, stubs, reference["ble_oxi_fallback"])
+        if "ble_oxi_fallback" in reference else None
+    )
     return PortCandidates(
         stubs, cloud_firmware_change, cellular_download, rpc_dispatcher, mop,
         timezone_write, header_clock, screen_keep_awake, custom_settings, therapy_screen_style, asv,
-        ota_compatibility
+        ota_compatibility, ble_oxi_fallback
     )
 
 
@@ -1960,6 +1985,12 @@ def self_check_candidates(
             ),
         ))
 
+    for name, value in expected_version.get("ble_oxi_fallback", {}).items():
+        result = (candidates.ble_oxi_fallback or {}).get(
+            name, AddressResult(0, None, "missing", "reference has no patch data"))
+        checks.append(compare_candidate("ble_oxi_fallback.%s" % name, value,
+            CandidateValue(result.address, result.quality, result.evidence)))
+
     custom_expected = expected_version.get("custom_settings")
     if custom_expected is not None:
         enum_table = candidates.custom_settings.rpc_enum_symbols
@@ -2252,6 +2283,10 @@ def prepare(args) -> int:
         ("custom_settings", name, result)
         for name, result in custom_site_results.items()
     )
+    address_rows.extend(
+        ("ble_oxi_fallback", name, result)
+        for name, result in (candidates.ble_oxi_fallback or {}).items()
+    )
     address_rows.extend((
         ("custom_settings", "row_constructor", row_ctor_result),
         ("custom_settings", "scheduler_target", scheduler_target_result),
@@ -2412,12 +2447,22 @@ def prepare(args) -> int:
             "    },",
         ]
 
+    oxi_snippet_lines = []
+    if candidates.ble_oxi_fallback is not None:
+        oxi_snippet_lines = [
+            '    "ble_oxi_fallback": {',
+            *('        "%s": %s,' % (name, format_address(result.address))
+              for name, result in candidates.ble_oxi_fallback.items()),
+            '    },',
+        ]
+
     snippets = [
         "# Candidate entry for AS11_PATCH_VERSIONS.",
         "# Verify against the target firmware before copying.",
         "",
         "%r: {" % target_id.appx_key,
         *cellular_snippet_lines,
+        *oxi_snippet_lines,
         *cloud_snippet_lines,
         "    \"rpc_dispatcher\": {",
         "        \"init_entry\": %s," % format_address(

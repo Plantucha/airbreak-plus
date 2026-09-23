@@ -29,6 +29,9 @@
 # Optional graphics beside Trigger/Cycle sensitivity choices.
 # --patch-sensitivity-split-screen y
 
+# Retry unbonded BLE pulse oximeters without encryption after pairing fails.
+# --patch-ble-oxi-fallback n
+
 # Download an HTTP resource to upgrade storage through the cellular modem.
 # --patch-cellular-download n
 

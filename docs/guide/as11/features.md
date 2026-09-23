@@ -99,6 +99,12 @@ Selected device settings can also be made available for remote reading or
 writing. By default, this includes Warmup, which preheats the humidifier before
 therapy.
 
+## PLX Oximeter Compatibility (Optional)
+
+Works around pairing and measurement-status incompatibilities in Bluetooth
+PLX pulse oximeters, such as the ChoiceMMed MD300C208S sold as Medisana PM100
+Connect. This patch is experimental.
+
 ## Cloud Updates (Optional)
 
 An optional cloud-update patch prevents flow-generator updates received from
