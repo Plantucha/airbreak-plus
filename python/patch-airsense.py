@@ -1417,8 +1417,10 @@ class ASFirmwarePatches(CompiledPayloadMixin):
         return PatchOutcome.ok("TSS mask set to 0x%02X" % mask)
 
     def unlock_respiratory_event_reporting(self):
-        """Enable airway classification, event history, and runtime statistics."""
+        """Enable snore signals, airway classification, event history, and statistics."""
         runtime_sources = (
+            # Raw, normalized, and derived snore signals
+            'NOS', 'NSE', 'SNI',
             # Event counters
             'AHC', 'HYC', 'AIC', 'CAC', 'OAC', 'UAC', 'RDC',
             # Per-hour indexes derived from those counters
