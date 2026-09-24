@@ -128,8 +128,10 @@ Decoded globals:
 | `10` | PCC/HPI/HUI hardware-interface vector descriptors |
 | `5` | alternate labels for specialized g[4] descriptors |
 | `7` | packed g[6] byte-slice pool |
-| `11` / `12` / `13` / `26` / `27` / `28` | signal channels |
-| `14` / `15` | NIGHT_PROFILE_PERIODIC and NPA/ALA aperiodic signal groups |
+| `11` / `12` / `26` / `27` / `28` | signal channels |
+| `13` | STR fields and calculation records, including source variables, percentiles and sampling gates |
+| `14` | NPD signals, retained days, file slots, sampling interval and file-size budget parameters |
+| `15` | NPA/ALA signals, retained days, file slots, event limits and extra block-header budgets |
 | `16` | EEPROM-backed variable groups |
 | `17` / `18` | DAC date and TIC time descriptors |
 | `19` | EEPROM stream table |
@@ -274,6 +276,8 @@ dump-tsv FILE [--tables TABLE,...]
 
 Export descriptor tables to `FILE` (`-` for stdout), including resolved
 dependency-chain variable IDs and UART names for g[4] and g[8].
+Separate tables include STR calculation records and NPD/NPA/ALA storage
+parameters alongside the signal lists and PDL rules.
 
 | Option | Meaning | Default |
 |--------|---------|---------|

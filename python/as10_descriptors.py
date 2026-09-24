@@ -1506,8 +1506,9 @@ class SignalChannel:
       +0x0C: u32 reserved
       +0x10: u32 var_id_array_ptr
       +0x14: u32 config_array_ptr
-      +0x18: u32 param (sample count?)
+      +0x18: u32 timer index (g[11]/g[13])
       +0x1C: u32 name_string_ptr
+      +0x20: u32 calculation_array_ptr (g[13] only, 10 bytes per field)
 
     OXH format (globals[28]):
       +0x00: u8  field_count, char[3] name
@@ -1523,6 +1524,7 @@ class SignalChannel:
         self.var_ids = []       # [(vid, uart_name)]
         self.field_names = []   # per-field signal names (e.g. "Flow.40ms")
         self.samples_per_rec = []  # per-field samples per EDF data record
+        self.calculations = []  # g[13] per-field calculation records
         self.param = None
         self.format = None      # 'extended', 'compact', or 'oxh'
 
@@ -1586,7 +1588,39 @@ class SignalChannel:
                 if vid is not None:
                     self.var_ids.append((vid, names.name(vid) if names else None))
 
+        if gidx == 13:
+            self.header_size = 0x24
+            calc_ptr = flash.u32(addr + 0x20)
+            if calc_ptr and flash.is_flash_ptr(calc_ptr):
+                for i in range(self.count):
+                    raw = flash.blob(calc_ptr + i * 10, 10)
+                    if raw is None:
+                        break
+                    param_00, kind, source_a, source_b, percentile, gate, param_08 = struct.unpack(
+                        '<BBHHbBH', raw)
+                    self.calculations.append(dict(
+                        param_00=param_00, type=kind, source_a=source_a, source_b=source_b,
+                        name_a=names.name(source_a) if names and source_a != 0x7FFF else None,
+                        name_b=names.name(source_b) if names and source_b != 0x7FFF else None,
+                        percentile=percentile, gate=gate, param_08=param_08))
+
         print(f"[+] globals[{gidx}]: {self.name} ({self.count} fields)")
+
+    @staticmethod
+    def calculation_text(rec):
+        parts = [f"calc_type={rec['type']}"]
+        for suffix in ('a', 'b'):
+            vid, name = rec['source_' + suffix], rec['name_' + suffix]
+            source = '--' if vid == 0x7FFF else f"0x{vid:04X}" + (f":{name}" if name else '')
+            parts.append(f"source_{suffix}={source}")
+        if rec['type'] == 2:
+            gate_name = {1: 'ZTE', 2: 'ZLE'}.get(rec['gate'])
+            gate = str(rec['gate']) + (f":{gate_name}" if gate_name else '')
+            parts.extend((f"percentile={rec['percentile']}", f"gate={gate}"))
+        else:
+            parts.append(f"param_06=0x{rec['percentile'] & 0xFF:02X} gate={rec['gate']}")
+        parts.extend((f"param_00=0x{rec['param_00']:02X}", f"param_08=0x{rec['param_08']:04X}"))
+        return '  '.join(parts)
 
     def dump(self, db=None):
         lines = [f"  {self.name} ({self.count} fields) @ 0x{self.addr:08X}:"]
@@ -1596,10 +1630,12 @@ class SignalChannel:
             spr = ""
             if i < len(self.samples_per_rec):
                 n = self.samples_per_rec[i]
-                # Assume 60s record duration for rate calculation
-                rate = n / 60.0 if n > 1 else 0
+                # Periodic EDF channels use 60-second records; STR does not.
+                rate = n / 60.0 if self.gidx == 11 and n > 1 else 0
                 spr = f"  [{n} samp" + (f", {rate:.1f} Hz" if rate > 0 else "") + "]"
             lines.append(f"    0x{vid:04X}{u}{fn}{spr}{_signal_value_info(db, vid)}")
+            if i < len(self.calculations):
+                lines.append(f"      {self.calculation_text(self.calculations[i])}")
         return "\n".join(lines)
 
 
@@ -1607,17 +1643,17 @@ class SignalGroup:
     """Parse NPD, NPA, or ALA signal groups from globals[14] or globals[15].
 
     NPD (globals[14], 28 bytes):
-      +0x00: u16 flags, u16 id
+      +0x00: u16 retained_days, u16 extra_block_headers
       +0x04: u32 param
-      +0x08: u32 threshold
-      +0x0C: u32 session_config
+      +0x08: u32 sample_interval_ms
+      +0x0C: u32 sizing_duration_ms
       +0x10: u8  signal_count, char[3] group_name
       +0x14: u32 reserved
       +0x18: u32 var_id_array_ptr
 
     NPA/ALA (globals[15], 24 bytes):
-      +0x00: u16 flags, u16 id
-      +0x04: u16 sample_rate?, u16 param
+      +0x00: u16 retained_days, u16 extra_block_headers
+      +0x04: u16 event_limit, u16 param
       +0x08: u8  signal_count, char[3] group_name
       +0x0C: u32 reserved
       +0x10: u32 var_id_array_ptr
@@ -1635,6 +1671,11 @@ class SignalGroup:
         self.name = "?"
         self.linked_vid = None
         self.linked_uart = None
+        self.retained_days = None
+        self.extra_block_headers = None
+        self.sample_interval_ms = None
+        self.sizing_duration_ms = None
+        self.event_limit = None
 
         # Try NPD format first (name at +0x10)
         count_10 = flash.u8(addr + 0x10)
@@ -1649,23 +1690,32 @@ class SignalGroup:
             self.name = name_10.decode('ascii')
             count = count_10
             arr_ptr = flash.u32(addr + 0x18)
+            self.sample_interval_ms = flash.u32(addr + 0x08)
+            self.sizing_duration_ms = flash.u32(addr + 0x0C)
         elif name_08 and all(0x41 <= b <= 0x5A for b in name_08):
             # NPA format
             self.name = name_08.decode('ascii')
             count = count_08
             arr_ptr = flash.u32(addr + 0x10)
+            self.event_limit = flash.u16(addr + 0x04)
             self.linked_vid = flash.u16(addr + 0x14)
             if self.linked_vid is not None and names:
                 self.linked_uart = names.name(self.linked_vid)
         else:
             return
 
+        self.retained_days = flash.u16(addr)
+        self.extra_block_headers = flash.u16(addr + 2)
         if arr_ptr and flash.is_flash_ptr(arr_ptr):
             for i in range(count):
                 vid = flash.u16(arr_ptr + i * 2)
                 if vid is not None:
                     uart = names.name(vid) if names else None
                     self.signals.append((vid, uart))
+
+    @property
+    def file_slots(self):
+        return self.retained_days + 1 if self.retained_days is not None else None
 
     def dump(self):
         linked_name = f":{self.linked_uart}" if self.linked_uart else ""
@@ -1674,6 +1724,13 @@ class SignalGroup:
         purpose = self.PURPOSES.get(self.name)
         label = f"{self.name} {purpose}" if purpose else self.name
         lines = [f"  {label} ({len(self.signals)} signals{linked}):"]
+        lines.append(f"    retained_days={self.retained_days}  file_slots={self.file_slots}"
+                     f"  extra_block_headers={self.extra_block_headers}")
+        if self.sample_interval_ms is not None:
+            lines.append(f"    sample_interval_ms={self.sample_interval_ms}"
+                         f"  sizing_duration_ms={self.sizing_duration_ms}")
+        if self.event_limit is not None:
+            lines.append(f"    event_limit={self.event_limit}")
         for vid, uart in self.signals:
             n = f":{uart}" if uart else ""
             lines.append(f"    0x{vid:04X}{n}")
@@ -1788,22 +1845,21 @@ class PDLTable:
       +0x00: char[4]  name ("PDL\\0")
       +0x04: u32      var_id_array_ptr (-> array of u16 var_ids)
       +0x08: u32      var_id_count
-      +0x0C: rule entries (also referenced by g[21])
 
     Each rule entry (16 bytes):
       +0x00: u16      var_id_a
       +0x02: u16      var_id_b
-      +0x04: u32      flags (0x00000000..0x00030000)
+      +0x04: u32      flags (type in bits 8..15)
       +0x08: u32      param_a (0xFFFFFFFF = unused)
       +0x0C: u32      param_b (0xFFFFFFFF = unused)
 
-    globals[21] is a {u32 count, u32 ptr} that points into g[20]+0x0C,
-    providing a separate access path to the same rule entries.
+    globals[21] is a {u32 count, u32 ptr} describing the rule array.
     """
     def __init__(self, flash, addr, rules_ref=None, names=None):
         self.addr = addr
         self.var_ids = []      # list of (var_id, uart_name)
         self.rules = []        # list of dicts
+        self.rules_addr = None
         self.name = "?"
 
         # Header
@@ -1821,25 +1877,19 @@ class PDLTable:
                     uart = names.name(vid) if names else None
                     self.var_ids.append((vid, uart))
 
-        rule_base = addr + 0x0C
-        rule_count = None
+        rule_count = 0
         if rules_ref and flash.is_flash_ptr(rules_ref):
             count_from_g21 = flash.u32(rules_ref)
             ptr_from_g21 = flash.u32(rules_ref + 4)
-            if count_from_g21 is not None and count_from_g21 < 200:
+            if (count_from_g21 is not None and count_from_g21 < 200
+                    and ptr_from_g21 and flash.is_flash_ptr(ptr_from_g21)):
                 rule_count = count_from_g21
-            if ptr_from_g21 and flash.is_flash_ptr(ptr_from_g21):
-                rule_base = ptr_from_g21
-        if rule_count is None:
-            rule_count = 0
-            while rule_count < 64:
-                ea = rule_base + rule_count * 16
-                if flash.u16(ea) is None:
-                    break
-                rule_count += 1
+                self.rules_addr = ptr_from_g21
 
         for i in range(rule_count):
-            ea = rule_base + i * 16
+            ea = self.rules_addr + i * 16
+            if flash.blob(ea, 16) is None:
+                break
             vid_a = flash.u16(ea + 0x00)
             vid_b = flash.u16(ea + 0x02)
             flags = flash.u32(ea + 0x04)
@@ -1851,7 +1901,7 @@ class PDLTable:
             ub = names.name(vid_b) if names else None
             self.rules.append(dict(
                 idx=i, vid_a=vid_a, vid_b=vid_b, name_a=ua, name_b=ub,
-                flags=flags, param_a=param_a, param_b=param_b))
+                flags=flags, type=(flags >> 8) & 0xFF, param_a=param_a, param_b=param_b))
 
     def dump(self):
         lines = [f"  {self.name} ({len(self.var_ids)} vars, {len(self.rules)} rules)"]
@@ -1863,7 +1913,7 @@ class PDLTable:
         for r in self.rules:
             na = f":{r['name_a']}" if r['name_a'] else ""
             nb = f":{r['name_b']}" if r['name_b'] else ""
-            fg = (r['flags'] >> 8) & 0xFF
+            fg = r['type']
             pa = f"0x{r['param_a']:08X}" if r['param_a'] != 0xFFFFFFFF else "--"
             pb = f"0x{r['param_b']:08X}" if r['param_b'] != 0xFFFFFFFF else "--"
             lines.append(f"    [{r['idx']:2d}] a=0x{r['vid_a']:04X}{na}  b=0x{r['vid_b']:04X}{nb}  "
@@ -1872,11 +1922,12 @@ class PDLTable:
 
     def dump_rules(self):
         """Dump only the rule entries (for g21 command)."""
-        lines = [f"  {len(self.rules)} rule entries (stride 16, from {self.name}+0x0C):"]
+        location = f" @ 0x{self.rules_addr:08X}" if self.rules_addr is not None else ""
+        lines = [f"  {len(self.rules)} rule entries (stride 16){location}:"]
         for r in self.rules:
             na = f":{r['name_a']}" if r['name_a'] else ""
             nb = f":{r['name_b']}" if r['name_b'] else ""
-            fg = (r['flags'] >> 8) & 0xFF
+            fg = r['type']
             pa = f"0x{r['param_a']:08X}" if r['param_a'] != 0xFFFFFFFF else "--"
             pb = f"0x{r['param_b']:08X}" if r['param_b'] != 0xFFFFFFFF else "--"
             lines.append(f"    [{r['idx']:2d}] a=0x{r['vid_a']:04X}{na}  b=0x{r['vid_b']:04X}{nb}  "
@@ -3436,7 +3487,7 @@ def dump_tsv(db, tables_to_dump, outfile=None):
             pb = f"0x{r['param_b']:08X}" if r['param_b'] != 0xFFFFFFFF else ""
             out.write(f"{r['idx']}\t0x{r['vid_a']:04X}\t{r['name_a'] or ''}\t"
                       f"0x{r['vid_b']:04X}\t{r['name_b'] or ''}\t"
-                      f"{(r['flags'] >> 16) & 0xFF}\t{pa}\t{pb}\n")
+                      f"{r['type']}\t{pa}\t{pb}\n")
         out.write("\n")
 
     if db.modes and db.modes.entries:
@@ -3453,6 +3504,20 @@ def dump_tsv(db, tables_to_dump, outfile=None):
         out.write("name\tvar_id\n")
         for name in sorted(db.names.by_name):
             out.write(f"{name}\t0x{db.names.by_name[name]:04X}\n")
+        out.write("\n")
+
+    groups = ([db.npd] if db.npd and db.npd.signals else [])
+    if db.g15_groups:
+        groups.extend(db.g15_groups.groups)
+    if groups:
+        out.write("# globals[14/15] -- night-profile storage parameters\n")
+        out.write("group\tretained_days\tfile_slots\textra_block_headers\t"
+                  "sample_interval_ms\tsizing_duration_ms\tevent_limit\n")
+        for group in groups:
+            values = (group.name, group.retained_days, group.file_slots,
+                      group.extra_block_headers, group.sample_interval_ms,
+                      group.sizing_duration_ms, group.event_limit)
+            out.write('\t'.join('' if v is None else str(v) for v in values) + '\n')
         out.write("\n")
 
     if db.npd and db.npd.signals:
@@ -3481,6 +3546,25 @@ def dump_tsv(db, tables_to_dump, outfile=None):
                 spr = ch.samples_per_rec[i] if i < len(ch.samples_per_rec) else ''
                 out.write(f"{ch_name}\t{i}\t0x{vid:04X}\t{uart or ''}\t{fn}\t{spr}\n")
         out.write("\n")
+
+        for ch in db.channels.values():
+            if not ch.calculations:
+                continue
+            out.write(f"# globals[13] -- {ch.name} calculations\n")
+            out.write("field_idx\tvar_id\tuart_name\ttype\tsource_a\tname_a\tsource_b\tname_b\t"
+                      "percentile\tgate\tparam_00\tparam_06\tparam_08\n")
+            for i, (rec, (vid, uart)) in enumerate(zip(ch.calculations, ch.var_ids)):
+                sources = []
+                for suffix in ('a', 'b'):
+                    source = rec['source_' + suffix]
+                    sources.extend(('' if source == 0x7FFF else f"0x{source:04X}",
+                                    rec['name_' + suffix] or ''))
+                percentile = str(rec['percentile']) if rec['type'] == 2 else ''
+                values = (str(i), f"0x{vid:04X}", uart or '', str(rec['type']), *sources,
+                          percentile, str(rec['gate']), f"0x{rec['param_00']:02X}",
+                          f"0x{rec['percentile'] & 0xFF:02X}", f"0x{rec['param_08']:04X}")
+                out.write('\t'.join(values) + '\n')
+            out.write("\n")
 
     if outfile:
         out.close()
