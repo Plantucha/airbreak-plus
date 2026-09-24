@@ -552,9 +552,8 @@ EVE: field_count=4  fields=ETI,DUR,AET,DCR
 
 ## g[13] -- STR channel descriptor
 
-The primary header is 36 bytes. Its payload is stored after the g[12] headers
-and consists of 10-byte field records, a var-ID array, a samples-per-record
-array, and a field-name pointer array. Each payload array is aligned separately.
+The primary header is 36 bytes. It points to 10-byte field records, a var-ID
+array, a samples-per-record array, and a field-name pointer array.
 
 | Offset | Size | Field |
 |--------|------|-------|
@@ -586,14 +585,21 @@ signals recorded in the night profile.
 
 | Offset | Size | Field |
 |--------|------|-------|
-| +0x00 | 4 | flags/id |
+| +0x00 | 2 | retained-day count; number of file slots is this value plus one |
+| +0x02 | 2 | additional block headers reserved in the file-size budget |
 | +0x04 | 4 | param |
-| +0x08 | 4 | threshold |
-| +0x0C | 4 | session config |
+| +0x08 | 4 | sample interval in milliseconds |
+| +0x0C | 4 | recording duration used to calculate the file-size limit, in milliseconds |
 | +0x10 | 1 | signal_count |
 | +0x11 | 3 | "NPD" |
 | +0x14 | 4 | reserved |
 | +0x18 | 4 | var_id array pointer |
+
+Stock SX567 uses a retained-day count of `7` (eight file slots); SX584-0204
+uses `3` (four slots). Both use a 60,000 ms sample interval and a 36,000,000 ms
+duration for sizing, giving a budget of 600 samples. The file-size budget
+includes six bytes per block header, with 30 additional headers reserved for
+partially filled blocks.
 
 Example (SX567 0402):
 
@@ -613,8 +619,10 @@ and linked notification variable.
 
 | Offset | Size | Field |
 |--------|------|-------|
-| +0x00 | 4 | flags/id |
-| +0x04 | 4 | channel parameters |
+| +0x00 | 2 | retained-day count; number of file slots is this value plus one |
+| +0x02 | 2 | additional block headers reserved in the file-size budget |
+| +0x04 | 2 | event count used to calculate the file-size limit |
+| +0x06 | 2 | param |
 | +0x08 | 1 | signal count |
 | +0x09 | 3 | group name |
 | +0x0C | 4 | reserved |
