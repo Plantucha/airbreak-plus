@@ -1,745 +1,805 @@
-var_id	uart	edf_signal	resmed_name	notes
-0x0000	BID		BOOTLOADR_ID	Bootloader ID
-0x0001	FGT		FG_TYPE	FG Type
-0x0002	PCB		PCB_ID	PCB ID
-0x0003	PCD		PRODUCT_CODE	Product Code
-0x0004	PNA		PRODUCT_NAME	Product Name
-0x0005	SID		SOFTWARE_ID	Software ID
-0x0006	SRN		SERIAL_NUM	Serial Number
-0x0007	CID		CONFIG_SOFTWARE_ID	Config Software ID
-0x0008	QTI		MODULE_INT_TYPE	Module Type
-0x0009	QVI		MODULE_INT_SW_VERSION	Module SW Version
-0x000A	QSI		MODULE_INT_SERIAL_NUM	Module Serial Number
-0x000B	QCO		MODULE_INT_OPERATOR	Module Operator
-0x000C	QCV		MODULE_INT_SERVICE	Module Service
-0x000D	LCT		LCD_TEXT	LCD Text
-0x000E	AVR			
-0x000F	FSN			CAL 0002: 64-bit flow-sensor serial number formatted as 16 uppercase hex characters
-0x0010	HID			Humidifier-controller STM8 firmware identifier, 12-character string
-0x0011	MDB			EEPROM diagnostic buffer: 128 hex characters representing the 64-byte block selected by MDA
-0x0012	RSS			CAL 000C raw framed request/reply buffer, maximum 10 bytes including 7E delimiters; Calibration Serial Request/Reply
-0x0013	DRX			CAL 0012 accumulated raw serial RX bytes encoded as uppercase hex; Calibration Serial RX
-0x0014	DTX			CAL 000D/0012 raw serial TX bytes supplied as hex pairs; Calibration Serial TX
-0x0015	EXW			
-0x0016	EXR			
-0x0017	CRX			Internal command response text; receives the parser response when CMS=0, up to 511 characters
-0x0018	ZRD			UART command line staged by the SD Settings.ecp and routed-UART command service
-0x0019	ZRG			
-0x001A	ZXT			Service command text, up to 80 characters; supports harness overrides and staged RTC date/time updates; changes notify ZXX
-0x001B	ZMT			
-0x001C	ZME			
-0x001D	ZPM			
-0x001E	MID		METADATA_ID	Metadata ID
-0x001F	VID		VARIANT_ID	Variant ID
-0x0020	RID		REGION_ID	Region ID
-0x0021	ATO		ACTIV_TIMOUT	Activity Timeout
-0x0022	BLE		BOOT_LOADER_ERR	Bootloader Error
-0x0023	DCR	Crc16	RECORD_CRC	Record CRC
-0x0024	IPC	S.C.Press	CPAP	CPAP Set Pressure
-0x0025	MPA	S.AS.MaxPress	MAX_PRESSURE	AutoSet Max Pressure
-0x0026	IPP	S.BL.IPAP	IPAP	IPAP [cmH2O] (4.0 .. 25.0 step 0.2); Bilevel IPAP
-0x0027	BRR		BACKUP_RESP_RATE	Backup Resp Rate
-0x0028	MCP		MAX_CS_PRESSURE	
-0x0029	MTT		MEAN_TAR_MINVENT	Mean Target Minute Vent [L/min]
-0x002A	TGT		TARGET_VENTILATION	TgMV [L/min] (0.0 .. 30.0 step 0.1); Target Ventilation [L/min]
-0x002B	VA9	TgtVent.95	TAR_MIN_VENT_95	Target Vent P95 [L/min]
-0x002C	VAA	TgtVent.Max	TAR_MIN_VENT_MAX	Target Vent Max [L/min]
-0x002D	VAM	TgtVent.50	TAR_MIN_VENT_MED	Target Vent Median [L/min]
-0x002E	IVP		MAX_IVAPS_PRESSURE	
-0x002F	PHT		IVAPS_HEIGHT	Height [cm] (110 .. 250 step 5); Height
-0x0030	PHI		IVAPS_HEIGHT_INCHES	Height [inches] (44 .. 100 step 2); Height
-0x0031	ADR		ALARM_DUR	
-0x0032	LMA		LOW_MIN_VENT_ALM_THRESHOLD	Low MV [L/min] (0 .. 10 step 1); Low MV Alarm
-0x0033	APX		APNEA_ALM_THRESHOLD	Apnea Alarm [s] (9 .. 60 step 1); Apnea Alarm
-0x0034	SPX		SPO2_ALM_THRESHOLD	Low SpO2 [%] (69 .. 95 step 1); Low SpO2 Alarm
-0x0035	HDR		HOSE_DROP	Hose Drop
-0x0036	MAP		AVG_MASK_PRESS	Avg Mask Pressure
-0x0037	MKF		FILT_MASK_PRESS	Filtered Mask Pressure
-0x0038	MKP		MASK_PRESS	Mask Pressure
-0x0039	MSP	MaskPress.50	MEDP_SESSION	Median Pressure
-0x003A	PM9	MaskPress.95	P95_SESSION	Pressure P95
-0x003B	PMA	MaskPress.Max	MAXP_SESSION	Pressure Max
-0x003C	SPP		SET_PRESSURE	Set Pressure [cmH2O] (0.0 .. 30.0 step 0.2); Set Pressure (runtime)
-0x003D	TEP		TGT_EXP_PRES	Pressure [cmH2O] (2.0 .. 30.0 step 0.2); Target EPAP
-0x003E	TIP		TGT_INSP_PRES	Pressure [cmH2O] (4.0 .. 30.0 step 0.2); Target IPAP
-0x003F	BP9	BlowPress.95	BLOWER_PRESS_95TH	Blower Pressure P95
-0x0040	BP5	BlowPress.5	BLOWER_PRESS_5TH	Blower Pressure P5
-0x0041	ATP		AUTO_PRESS	AutoSet Pressure
-0x0042	MKE		EPR_PRESSURE	EPR Pressure
-0x0043	MKI		BI_THERAPY_PRESSURE	Bilevel Mask Pressure
-0x0044	AEP		AVG_EPR_PRESS	Avg EPR Pressure
-0x0045	AIP		AVG_BI_THERAPY_PRESS	Avg Bilevel Pressure
-0x0046	PI9	TgtIPAP.95	I_95_SESSION	IPAP P95
-0x0047	PIA	TgtIPAP.Max	I_MAX_SESSION	IPAP Max
-0x0048	PIM	TgtIPAP.50	I_MED_SESSION	IPAP Median
-0x0049	PE9	TgtEPAP.95	E_95_SESSION	EPAP P95
-0x004A	PEA	TgtEPAP.Max	E_MAX_SESSION	EPAP Max
-0x004B	PEM	TgtEPAP.50	E_MED_SESSION	EPAP Median
-0x004C	AHI	AHI	AHI_SESSION	
-0x004D	AIS	AI	AI_SESSION	
-0x004E	DUR		APNEA_DUR	Apnea Duration
-0x004F	HIS	HI	HI_SESSION	Hypopnea Index
-0x0050	RIN	RIN	RIN_SESSION	RERA Index
-0x0051	MAV		MEAN_ACHV_ALV_MIN_VENT	
-0x0052	AVM		ALV_MIN_VENT_MED	
-0x0053	AV9		ALV_MIN_VENT_95	
-0x0054	AVA		ALV_MIN_VENT_MAX	
-0x0055	AAV		ACHV_ALV_MIN_VENT	Va [L/min] (0.0 .. 30.0 step 0.1)
-0x0056	CLI	OAI	CAI_SESSION	Obstructive apnea index; derived from CAC
-0x0057	OPI	CAI	OAI_SESSION	Central apnea index; derived from OAC
-0x0058	UAI	UAI	UAI_SESSION	Unknown AI
-0x0059	HMS	S.HumLevel	HUMIDITY_SET	Humidity Level
-0x005A	HTS	S.Temp	HEAT_TB_SET	Tube Temp
-0x005B	HTF		HEAT_TB_SET_F	Tube Temp. [°F] (60 .. 86 step 1); Tube Temp
-0x005C	AFL		AVG_BLOWER_FLOW	Avg Blower Flow
-0x005D	BFM	BlowFlow.50	AVG_BLOWER_FLOW_MED	Avg Blower Flow Median
-0x005E	ABH		ABSOLUTE_AMBIENT_HUMIDITY	Ambient Humidity
-0x005F	ABM	AmbHumidity.50	AMB_HUMIDITY_MED	Ambient Humidity Median
-0x0060	PPA		PLATE_POWER_APPLIED	Plate Power Applied
-0x0061	TPA		TUBE_POWER_APPLIED	Tube Power Applied
-0x0062	HBP		HEATED_TUBE_PWM	Heated Tube PWM
-0x0063	TPM	HTubePow.50	HEATED_TUBE_PWM_MED	Heated Tube PWM Median
-0x0064	HPT		HUMIDIFIER_HOTPLATE_TEMPERATURE	Humidifier Plate Temp
-0x0065	HHM	HumTemp.50	HUM_PLATE_TEMP_MED	Humidifier Plate Temp Median
-0x0066	HTT		HEATED_TUBE_TEMPERATURE	Heated Tube Temp
-0x0067	HTM	HTubeTemp.50	HEATED_TUBE_TEMP_MED	Heated Tube Temp Median
-0x0068	HUP		HUMIDIFIER_PWM	Humidifier PWM
-0x0069	HPM	HumPow.50	HUMIDIFIER_PWM_MED	Humidifier PWM Median
-0x006A	QCD		MODULE_CELL_SIGNAL_DB	Signal [dBm] (-120 .. 0 step 1); Cell Signal
-0x006B	RFL		RESP_FLOW	Resp Flow
-0x006C	BFF		BLOWER_FLOW_FILTERED	Blower Flow Filtered
-0x006D	DFL		DIFF_FLOW	Differential Flow
-0x006E	RF9	Flow.95	RESP_FLOW_95TH	Resp Flow P95
-0x006F	RF5	Flow.5	RESP_FLOW_5TH	Resp Flow P5
-0x0070	EPR	S.EPR.Level	EXP_PRES_REL	EPR Level
-0x0071	FFL		FUZZY_FLOW_LIM	Fuzzy Flow Limit
-0x0072	HRR		HEART_RATE_RAW	Pulse [bpm] (0 .. 500 step 1); Heart Rate Raw
-0x0073	HRS		HEART_RATE_STATUS	Heart Rate Status
-0x0074	HRT		HEART_RATE	Pulse [bpm] (18 .. 300 step 1); Heart Rate
-0x0075	NVS		NONIN_SOFTWARE_VERSION	Oximeter SW Version
-0x0076	OXS		OXIMETRY_SEQUENCE	Oximetry Sequence
-0x0077	SAO		SAO2	SpO2 [%] (0 .. 100 step 1); SpO2
-0x0078	SOM	SpO2.50	SPO2_MED	SpO2 Median
-0x0079	SO9	SpO2.95	SPO2_95	SpO2 P95
-0x007A	SOX	SpO2.Max	SPO2_MAX	SpO2 Max
-0x007B	SAR		SAO2_RAW	SpO2 [%] (0 .. 127 step 1); SpO2 Raw
-0x007C	SAS		SAO_STATUS	SpO2 Status
-0x007D	SAU	SpO2Thresh	SPO2_MINUTES_UNDER_THRESHOLD	SpO2 Minutes Under Threshold
-0x007E	SAV		AVG_SPO2	SpO2 [%] (0 .. 100 step 1); Avg SpO2
-0x007F	IE9	IERatio.95	I_TO_E_95TH	I:E Ratio P95 [%]
-0x0080	IEA	IERatio.Max	I_TO_E_MAX	I:E Ratio Max [%]
-0x0081	IEM	IERatio.50	I_TO_E_MEDIAN	I:E Ratio Median [%]
-0x0082	IER		I_E_RATIO	I:E [%] (0 .. 200 step 1); I:E Ratio [%]
-0x0083	AIE		AVG_I_E_RATIO	Avg I:E Ratio [%]
-0x0084	IN5		B5_INSP_TIME	Ti [s] (0.0 .. 10.0 step 0.2); Inspiration Time 5-Breath [s]
-0x0085	EX5		B5_EXP_TIME	Expiration Time 5-Breath [s]
-0x0086	INT		INSPIRATION_TIME	Inspiration Time [s]
-0x0087	EXT		EXPIRATION_TIME	Expiration Time [s]
-0x0088	ISM	Ti.50	INSP_TIME_MED	Insp Time Median [s]
-0x0089	IS9	Ti.95	INSP_TIME_95	Insp Time P95 [s]
-0x008A	ISA	Ti.Max	INSP_TIME_MAX	Insp Time Max [s]
-0x008B	MIS		MEAN_INSP_TIME	Mean Insp Time [s]
-0x008C	LK9	Leak.95	LEAK_95TH	Leak P95
-0x008D	LKF		FILT_MASK_LEAK	Leak [L/s] (0.00 .. 2.00 step 0.02); Filtered Mask Leak
-0x008E	LKM	Leak.50	LEAK_MED	Leak Median
-0x008F	LKP		HI_RES_LEAK	Leak (Hi-Res)
-0x0090	LMX	Leak.Max	LEAK_MAX	Leak Max
-0x0091	LYK		MASK_LEAK	Leak [L/s] (0.00 .. 2.00 step 0.02); Mask Leak
-0x0092	LK7	Leak.70	LEAK_70TH	Leak P70
-0x0093	MV5		BREATHS5_MV	MV [L/min] (0.0 .. 30.0 step 0.1); Minute Vent 5-Breath
-0x0094	MVT		MEAN_MINVENT	Mean Minute Vent
-0x0095	VT9	MinVent.95	MIN_VENT_95	Minute Vent P95
-0x0096	VTA	MinVent.Max	MIN_VENT_MAX	Minute Vent Max
-0x0097	VTM	MinVent.50	MIN_VENT_MED	Minute Vent Median
-0x0098	RCF		RECUR_PERIOD_FILTER	Reminder recurrence period: Filter (1 .. 24 months)
-0x0099	RCM		RECUR_PERIOD_MASK	Reminder recurrence period: Mask (1 .. 24 months)
-0x009A	RCH		RECUR_PERIOD_TUBE	Reminder recurrence period: Tube (1 .. 24 months)
-0x009B	RCW		RECUR_PERIOD_WATERTUB	Reminder recurrence period: Water Tub (1 .. 24 months)
-0x009C	RR1		ONBOARD_RR	RR [bpm] (0.0 .. 50.0 step 1.0); Resp Rate (realtime)
-0x009D	RR9	RespRate.95	RESPRATE95TH	Resp Rate P95
-0x009E	RRA	RespRate.Max	RESPRATE_MAX	Resp Rate Max
-0x009F	RRM	RespRate.50	RESPRATE_MED	Resp Rate Median
-0x00A0	RRR		HI_RES_RR	RR [bpm] (0 .. 50 step 1); Resp Rate (Hi-Res)
-0x00A1	SNI		SNORE_IDX	Snore Index
-0x00A2	ATI		AVG_TIDAL	Vt [L] (0.00 .. 4.00 step 0.02); Avg Tidal Volume
-0x00A3	TDD		TIDAL_VOL_5B	Vt [L] (0.00 .. 4.00 step 0.02); Tidal Volume 5-Breath
-0x00A4	TID		TIDAL_VOLUME	Vt [L] (0.00 .. 4.00 step 0.02); Tidal Volume
-0x00A5	TV9	TidVol.95	VP5_TIDAL_95TH	Tidal Volume P95
-0x00A6	TVA	TidVol.Max	VP5_TIDAL_MAX	Tidal Volume Max
-0x00A7	TVM	TidVol.50	VP5_TIDAL_MED	Tidal Volume Median
-0x00A8	VCR	SpontCyc%	SPT_CL_RATIO	Spont Cyc [%] (0.0 .. 100.0 step 1.0); Spont Cycle Ratio [%]
-0x00A9	VSR		SPT_TR_RATIO	Spont Trig [%] (0.0 .. 100.0 step 1.0); Spont Trigger Ratio
-0x00AA	CSD	CSR	REPORTED_CSR_DURATION_PER_SESSION	CSR Duration
-0x00AB	CSZ		CSR_ZERO_DUR	CSR Zero Duration
-0x00AC	CET		CSR_EVENT_TIME	CSR Event Time
-0x00AD	NOC		NUM_OCCURENCES	Occurrence Count
-0x00AE	ZSE		SAVED_SYSTEM_ERROR	Saved System Error
-0x00AF	ZEW			ZRL saved-system-error stream backend state/cursor
-0x00B0	ZRE			
-0x00B1	LRP		AVG_LOW_RES_THERAPY_PRESSURE	Avg Low-Res Therapy Pressure
-0x00B2	LRE		AVG_LOW_RES_EPR_PRESSURE	Avg Low-Res EPR Pressure
-0x00B3	ETI		EVENT_TIME	Event Time
-0x00B4	MSE	MaskEvents	NO_MSK_EVTS	Mask Events Count
-0x00B5	OFT	MaskOff	MASKOFF_TIME	Mask Off Time
-0x00B6	OND	Duration	MASKON_DUR	Mask On Duration
-0x00B7	THD	OnDuration	THERAPY_DURATION	Therapy Duration
-0x00B8	ONT	MaskOn	MASKON_TIME	Mask On Time
-0x00B9	CED		COMPLIANCE_ERASE_DATE	Date (0 .. 24836 step 1); Compliance Erase Date
-0x00BA	LSD	Date	CURRENT_SESSION_DATE	Current Session Date
-0x00BB	DSD			
-0x00BC	ZEN			Date (0 .. 2147483647 step 1)
-0x00BD	PHM	PatientHours	PATIENT_HRS_LOW_RES	Patient Hours
-0x00BE	FBD		FIRST_BREATH_DAY	First Breath Day
-0x00BF	FTD		FIRST_THERAPY_DAY	First Therapy Day
-0x00C0	BFL			Blower flow runtime value; /500 L/s
-0x00C1	FID			CAL 0002 32-bit flow-sensor product identifier; set to 0 when the sensor ID read reports an error
-0x00C2	FLG			Flow Gain
-0x00C3	FLW			Uncalibrated flow-channel value; calibrated counterpart is ZFL
-0x00C4	FLZ		FLOW_ZERO	Flow Zero
-0x00C5	BPR			Blower pressure runtime value; /50 cmH2O
-0x00C6	CPR		CAL_PRESSURE	Calibration Pressure Setpoint
-0x00C7	PRS			Raw pressure sensor value
-0x00C8	PSH		HI_PRS_SCALE	Pressure Gain
-0x00C9	PZH		HI_PRSS_ZERO	Pressure Zero
-0x00CA	NOS			Filtered analog snore-path signal before SNZ zero and SNB background correction; sourced from ADC1_IN14 on PC4
-0x00CB	NSE			Background-corrected and normalized snore-path signal; raw / 100 feeds the snore-index calculation
-0x00CC	SNB			Snore-path background calibration in BGL; raw / 44 scales the nominal background, default 44
-0x00CD	SNZ			Snore-path zero offset in BGL; subtracted before background correction, default 0
-0x00CE	PVD			Communication metadata version; initialized from g[0]+0x00 and reported as CID field 4
-0x00CF	PVR			Communication metadata revision component; initialized from g[0]+0x10 and reported as CID field 7
-0x00D0	RIR			Communication metadata revision component; initialized from g[0]+0x18 and reported as CID field 6
-0x00D1	VIR			Communication metadata revision component; initialized from g[0]+0x14 and reported as CID field 5
-0x00D2	CCP			Persistent 8-bit BGL field (0..255)
-0x00D3	CCS			Persistent 8-bit BGL field (0..255)
-0x00D4	MDA			EEPROM diagnostic block index 0..7; selects a 64-byte block within reserved logical sector 502 on SX567-0402
-0x00D5	CUR			
-0x00D6	FAT			Abort-error value recorded by the ABR EEPROM stream
-0x00D7	FPW			
-0x00D8	KPD			CAL 0006 latched front-panel button event bitmap; 0002=Home, 0004=Start/Stop, 0008=dial press, 0010/0020=additional profile-1 inputs; reset when the service stops
-0x00D9	KPT			CAL 0006 current front-panel button state bitmap; 0001=Start/Stop, 0004=Home, 0008=dial press, 0010/0020=additional profile-1 inputs
-0x00DA	LEF			Registered by CAL 0008; the selected service has no enter, update, or stop behavior
-0x00DB	MHR		MOTOR_HOUR	Run Hrs [hrs] (0 .. 596523 step 1)
-0x00DC	MHS		MOTOR_HR_SRV	
-0x00DD	MHU		TOTAL_HOURS	Run Hrs (0 .. 596523 step 1)
-0x00DE	SPD		MOTOR_SPEED	
-0x00DF	TEM			
-0x00E0	TEZ			
-0x00E1	UTT			
-0x00E2	VLT			CAL 000D/0012 RTC backup-battery voltage sample; raw 12-bit PA0/ADC1_IN0 count from a switched divider; 0012 stops sampling after TX enables receive, while 000D continues between transmissions
-0x00E3	SDU			
-0x00E4	CAF			DATALOG EDF capture-date filter (year << 16 | month << 8 | day); file creation proceeds only when it matches the current date
-0x00E5	UQD			Usage [hrs] (0.0 .. 1048575.0 step 0.1)
-0x00E6	URD			
-0x00E7	VRD			Days 4hrs+ (0 .. 65535 step 1)
-0x00E8	WRD			Avg. Usage [hrs] (0.0 .. 1048575.0 step 0.1)
-0x00E9	XRD			Used Hrs [hrs] (0.0 .. 1048575.0 step 0.1)
-0x00EA	DRD			Days Used (0 .. 65535 step 1)
-0x00EB	ZAI			Pressure [cmH2O] (0.0 .. 30.0 step 0.1)
-0x00EC	ZAE			Exp. Pressure [cmH2O] (0.0 .. 20.0 step 0.1)
-0x00ED	LRS			
-0x00EE	ZAT			Vt [L] (0.00 .. 4.00 step 0.02)
-0x00EF	ZA1			I:E [%] (0 .. 200 step 1)
-0x00F0	ZAM			MV [L/min] (0.0 .. 30.0 step 0.1)
-0x00F1	ZAR			RR [bpm] (0 .. 50 step 1)
-0x00F2	ZAZ			Ti [s] (0.1 .. 4.0 step 0.1)
-0x00F3	ZA2			TgMV [L/min] (0.0 .. 30.0 step 0.1)
-0x00F4	ZA3			Va [L/min] (0.0 .. 30.0 step 0.1)
-0x00F5	ZAY			Spont Cyc [%] (0.0 .. 100.0 step 1.0)
-0x00F6	ZAS			Spont Trig [%] (0.0 .. 100.0 step 1.0)
-0x00F7	AQD			AHI (0.0 .. 240.0 step 0.1)
-0x00F8	ARD			AHI (0.0 .. 240.0 step 0.1)
-0x00F9	TRD			Total AI (0.0 .. 240.0 step 0.1)
-0x00FA	CRD			Central AI (0.0 .. 240.0 step 0.1)
-0x00FB	ASR			Raw ambient-light sensor reading (0 .. 4095)
-0x00FC	ASF			Filtered ambient-light sensor reading (0 .. 4095)
-0x00FD	ATH			Ambient-light threshold (0 .. 4095); stored in NGL
-0x00FE	LBL			Button backlight low level (0 .. 100)
-0x00FF	LLL			LCD backlight low level (0 .. 100)
-0x0100	LBH			Button backlight high level (0 .. 100)
-0x0101	LLH			LCD backlight high level (0 .. 100)
-0x0102	CSG			Latest CSR start/end event timestamp in 10 ms STK units
-0x0103	CSC			Accumulated duration of completed CSR segments in minutes; CSD adds the current active segment
-0x0104	CSE			Latest CSR segment end timestamp in 10 ms STK units
-0x0105	CST			Latest completed CSR segment duration in 10 ms units; CSE minus CSS
-0x0106	CSS			Latest CSR segment start timestamp in 10 ms STK units; default -1
-0x0107	HAH			Ambient relative humidity from STM8 sensor, used by the humidifier model; raw / 1000 = RH fraction (raw / 10 = percent RH)
-0x0108	HAT			Ambient temperature from STM8 sensor, used by the humidifier model; raw / 10 = deg C
-0x0109	HMP			Available climate-heater power budget; raw / 25 gives the combined humidifier and heated-tube duty budget in percent
-0x010A	HSC			
-0x010B	HTR			Heated-tube status bits from STM8 command 07/00; monitored for peripheral fault conditions
-0x010C	HUR			Humidifier status bits from STM8 command 06/00; monitored for peripheral fault conditions; bit 7 updates HUC
-0x010D	ZEC			TXC climate-control error stream backend state/cursor
-0x010E	HET			TXH heated-tube error stream backend state/cursor
-0x010F	HFL			Calibrated flow from a separate internal flow channel; raw / 500 = L/s
-0x0110	ZFL			Calibrated flow from the source exposed as FLW; raw / 500 = L/s
-0x0111	RFA			
-0x0112	AGT			AGL AutoSet settings EEPROM group change tracker
-0x0113	XMP			
-0x0114	AHC			Combined apnea and hypopnea count; incremented for AET=1..4
-0x0115	AIC			Total apnea count; incremented for AET=2..4
-0x0116	APT			Apnea-event change trigger; updates ANV from current time, DUR, and AET
-0x0117	HYC			Hypopnea count; incremented for AET=1
-0x0118	UAC			Unclassified apnea count; incremented for AET=4
-0x0119	BSP		PRESS_SUPP	
-0x011A	HPR			Calibrated pressure from a separate internal pressure channel; raw / 50 = cmH2O
-0x011B	LPR			
-0x011C	PSP		PRES_SUPP	PS [cmH2O] (0.0 .. 25.0 step 0.2)
-0x011D	BPF			
-0x011E	LPF			
-0x011F	ZMP			Calibrated pressure from the source exposed as PRS; raw / 50 = cmH2O
-0x0120	BPA			
-0x0121	CAC			Obstructive apnea count; incremented for AET=3; source for CLI
-0x0122	OAC			Central apnea count; incremented for AET=2; source for OPI
-0x0123	SDT			CAL 000A SD status bitmask: 0001=card present, 0002=write-protected
-0x0124	NBF			
-0x0125	CGT			CGL CPAP settings EEPROM group change tracker
-0x0126	RGT			RGL reminder persistence-group tracker
-0x0127	TEE		TE_ERROR_COUNT	TRR transient-error stream backend state/cursor
-0x0128	AMT			
-0x0129	ZEH			TXW transducer-error stream backend state/cursor
-0x012A	ZET			TXE transducer-error stream backend state/cursor
-0x012B	RCR		REC_SPT_CL_RATIO	Spont Cyc [%] (0 .. 100 step 1)
-0x012C	RTR		REC_SPT_TR_RATIO	Spont Trig [%] (0 .. 100 step 1)
-0x012D	SBC			Spontaneous trigger count; incremented for TCV=1
-0x012E	SBD			Non-spontaneous trigger count; incremented for TCV=2..4
-0x012F	TBB			Spontaneous cycle count; incremented for TCV=5; numerator of VCR
-0x0130	TBC			Non-spontaneous cycle count; incremented for TCV=6..8; VCR=100*TBB/(TBB+TBC)
-0x0131	TCT			System-tick timestamp of the latest trigger/cycle event; changes trigger TCV-based counter updates
-0x0132	DGT			DGL breath timing and trigger/cycle settings EEPROM group change tracker
-0x0133	IGT			IGL bilevel pressure and rise settings EEPROM group change tracker
-0x0134	ZVT			DLL stream backend state/cursor for DLA records
-0x0135	SSD			Date (0 .. 24836 step 1)
-0x0136	DTT			
-0x0137	DUF			Days 4hrs+ (0 .. 2048 step 1)
-0x0138	ZD2			Last therapy day credited to DUF; updated when OND reaches 240 minutes
-0x0139	DUS		DAYS_USED	Days Used (0 .. 2048 step 1)
-0x013A	ZD1			Last therapy day credited to DUS; updated when OND becomes greater than zero
-0x013B	HOU		PATIENT_HRS	Used Hrs [hrs] (0 .. 65534 step 1)
-0x013C	EGT			EGL EPR settings EEPROM group change tracker
-0x013D	APP		APNEA_PRESS	
-0x013E	FLP		FLATT_PRESS	
-0x013F	SRP		SNORE_PRESS	
-0x0140	LRD			Leak [L/min] (0 .. 120 step 0)
-0x0141	SFK			
-0x0142	ZLF			Leak [L/min] (0 .. 120 step 0)
-0x0143	MFP			
-0x0144	OXT			
-0x0145	QXI			QXH settings EEPROM group change tracker
-0x0146	QXK			QXJ iVAPS settings EEPROM group change tracker
-0x0147	ZDS			
-0x0148	ZLR			Target Pt Rate [bpm] (8.0 .. 30.0 step 1.0)
-0x0149	ZLV			Target Va [L/min] (1.0 .. 30.0 step 0.1)
-0x014A	ZTT			
-0x014B	ZMA			TgVa [L/min] (1.0 .. 30.0 step 0.1)
-0x014C	ZMV			MV [L/min] (1.0 .. 40.0 step 0.1)
-0x014D	ZTV			Vt [ml] (0 .. 4500 step 1)
-0x014E	ZVK			Vt/kg [ml/kg IBW] (0.0 .. 500.0 step 0.1)
-0x014F	ZTA			Target Va [L/min] (1.0 .. 30.0 step 0.1)
-0x0150	ZLN			
-0x0151	ZSU			
-0x0152	RDC			Arousal event count; incremented for AET=5
-0x0153	VGT			VGL VAuto settings EEPROM group change tracker
-0x0154	XGT			XGL ASV settings EEPROM group change tracker
-0x0155	ZRC			
-0x0156	ZAV			Vt [ml] (0 .. 4000 step 1)
-0x0157	ZTD			Vt (0 .. 4000 step 1)
-0x0158	APF			
-0x0159	APR			
-0x015A	AST			
-0x015B	AVT			
-0x015C	ARS			
-0x015D	ZFP			
-0x015E	TIT			
-0x015F	ANT			Change notification for ANV apnea-event records; linked by the NPA signal group
-0x0160	DDC			
-0x0161	D00		DEBUG_VALUE_SLOT_00	
-0x0162	D01		DEBUG_VALUE_SLOT_01	
-0x0163	D02		DEBUG_VALUE_02	
-0x0164	D03			
-0x0165	D04			
-0x0166	D05			
-0x0167	D06			
-0x0168	D07			
-0x0169	D08			
-0x016A	D09			
-0x016B	ALL			Overall CPU usage from the RTOS idle-time statistics; raw / 10 = %
-0x016C	BGT			BGL board/identity/calibration persistence-group tracker
-0x016D	NGT			NGL backlight persistence-group tracker
-0x016E	UGT			UGL EEPROM group change tracker; receives TUD updates
-0x016F	BTM		BREATH_TIME	
-0x0170	CBP			
-0x0171	GIT			
-0x0172	L01			CPU idle-time share; raw / 1000 = %
-0x0173	L02			Combined CPU load of polled and other tasks, L11..L15; raw / 1000 = %
-0x0174	L03			Combined CPU load L04..L10 plus L16..L20; raw / 1000 = %
-0x0175	L04			CPU load of Task10Ms; raw / 1000 = %
-0x0176	L05			CPU load of Task20Ms; raw / 1000 = %
-0x0177	L06			CPU load of Task40Ms; raw / 1000 = %
-0x0178	L07			CPU load of Task100Ms; raw / 1000 = %
-0x0179	L08			CPU load of Task200Ms; raw / 1000 = %
-0x017A	L09			CPU load of Task1sec; raw / 1000 = %
-0x017B	L10			CPU load of Task1min; raw / 1000 = %
-0x017C	L11			CPU load of TskPolledM; raw / 1000 = %
-0x017D	L12			CPU load of TskPolledE; raw / 1000 = %
-0x017E	L13			CPU load of TskPolledL; raw / 1000 = %
-0x017F	L14			CPU load of TskPolled; raw / 1000 = %
-0x0180	L15			CPU load of other RTOS task IDs; raw / 1000 = %
-0x0181	L16			
-0x0182	L17			CPU load of the TIM6/DAC periodic-worker interrupt; raw / 1000 = %
-0x0183	L18			Combined CPU load of I2C1 event and error interrupts; raw / 1000 = %
-0x0184	L19			Combined CPU load of UART transmit-DMA interrupts; raw / 1000 = %
-0x0185	L20			Combined CPU load of SPI3 receive/transmit-DMA interrupts; raw / 1000 = %
-0x0186	MGT			MGL EEPROM group change tracker
-0x0187	PDS			
-0x0188	PDT			
-0x0189	PDD			
-0x018A	PGT			PGL mask, tube and humidification settings EEPROM group change tracker
-0x018B	HBT			
-0x018C	PRP			
-0x018D	RDT		REMIND_DATES	Current date used by the reminder scheduler
-0x018E	RFR			
-0x018F	SCT			
-0x0190	SET		SETTLNG_TIME	
-0x0191	SGT			SGL mode, language and units settings EEPROM group change tracker
-0x0192	SQT			
-0x0193	SRT			
-0x0194	STK			Application runtime tick counter; incremented once per 10 ms update and used as the event timestamp timebase
-0x0195	STW			
-0x0196	TET			
-0x0197	ZDT			
-0x0198	ZEU			ERR application-error stream backend state/cursor
-0x0199	ZTU			ELI stream backend state/cursor for ELV records
-0x019A	ZEV			ABR abort-error stream backend state/cursor
-0x019B	ZJA			
-0x019C	ZLT			
-0x019D	ZMN			1-minute task heartbeat; incremented once per application update
-0x019E	ZNT			STK timestamp recorded when the session summary detects a new therapy day; boundary for CSR duration accounting
-0x019F	ZPR			CPU profiling update interval in ms, checked by Task40Ms; default 1000 ms
-0x01A0	ZPT			
-0x01A1	ZCT			
-0x01A2	ZT1			
-0x01A3	ZT2			10 ms task heartbeat; incremented once per application update
-0x01A4	ZT3			20 ms task heartbeat; incremented once per application update
-0x01A5	ZT4			40 ms task heartbeat; incremented once per application update
-0x01A6	ZT5			100 ms task heartbeat; incremented once per application update
-0x01A7	ZT6			200 ms task heartbeat; incremented once per application update
-0x01A8	ZT7			1-second task heartbeat; incremented once per application update
-0x01A9	ZTM			
-0x01AA	ZTS			
-0x01AB	RDP			
-0x01AC	ZXX			Service-text change token; updated with system tick when ZXT is committed and watched by the command dispatcher
-0x01AD	ZUT			
-0x01AE	ZUD			
-0x01AF	ZUR			
-0x01B0	ZUC			
-0x01B1	ZUS			
-0x01B2	ZUF			
-0x01B3	ZTI			
-0x01B4	ZIS			
-0x01B5	ZSS			
-0x01B6	ZS1			
-0x01B7	ZS2			
-0x01B8	ZS3			
-0x01B9	ZS4			
-0x01BA	ZKM			
-0x01BB	TMD			
-0x01BC	ZML			
-0x01BD	ZVI			
-0x01BE	ZMD			
-0x01BF	ZOV			
-0x01C0	ZMU			
-0x01C1	MPB			Blower power reserve in mW; subtracted from the supply budget before allocating humidifier power; default 30000 in AirSense and 35000 in AirCurve
-0x01C2	ZFE			
-0x01C3	S10			Task10Ms stack high-water usage; raw / 10 = % of allocated stack
-0x01C4	S20			Task20Ms stack high-water usage; raw / 10 = % of allocated stack
-0x01C5	S40			Task40Ms stack high-water usage; raw / 10 = % of allocated stack
-0x01C6	S11			Task100Ms stack high-water usage; raw / 10 = % of allocated stack
-0x01C7	S22			Task200Ms stack high-water usage; raw / 10 = % of allocated stack
-0x01C8	S44			
-0x01C9	S1S			Task1sec stack high-water usage; raw / 10 = % of allocated stack
-0x01CA	S1M			Task1min stack high-water usage; raw / 10 = % of allocated stack
-0x01CB	SEE			TskPolledE stack high-water usage; raw / 10 = % of allocated stack
-0x01CC	SMM			TskPolledM stack high-water usage; raw / 10 = % of allocated stack
-0x01CD	SLD			TskPolledL stack high-water usage; raw / 10 = % of allocated stack
-0x01CE	SPL			TskPolled stack high-water usage; raw / 10 = % of allocated stack
-0x01CF	ZPP			Set Pressure [cmH2O] (0.0 .. 30.0 step 0.2)
-0x01D0	ZPU			Peak L03 CPU load; raw / 1000 = %
-0x01D1	ZS5			
-0x01D2	STP	S.C.StartPress	START_PRESSR	CPAP Start Pressure
-0x01D3	MPI	S.AS.MinPress	MIN_PRESSURE	AutoSet Min Pressure
-0x01D4	STU	S.AS.StartPress	START_A_PRES	AutoSet Start Pressure
-0x01D5	MNE	S.VA.MinEPAP	MIN_EPAP	Min EPAP [cmH2O] (4.0 .. 25.0 step 0.2); VAuto Min EPAP
-0x01D6	MXI	S.VA.MaxIPAP	MAX_IPAP_PRS	Max IPAP [cmH2O] (4.0 .. 25.0 step 0.2); VAuto Max IPAP
-0x01D7	SPT	S.VA.PS	PRS_SUPPORT	PS [cmH2O] (0.0 .. 10.0 step 0.2); VAuto PS
-0x01D8	STV	S.VA.StartPress	START_VAUTO_PRES	Start EPAP [cmH2O] (4.0 .. 25.0 step 0.2); VAuto Start EPAP
-0x01D9	EPP	S.BL.EPAP	EPAP	EPAP [cmH2O] (3.0 .. 25.0 step 0.2); Bilevel EPAP
-0x01DA	EPS	S.BL.StartPress	START_EPAP	Start EPAP [cmH2O] (3.0 .. 25.0 step 0.2); Bilevel Start EPAP
-0x01DB	RST	S.RiseTime	RISE_TIME	Rise Time [ms] (150 .. 900 step 50); Rise Time
-0x01DC	ITN	S.TiMin	TI_MIN	Ti Min [s] (0.1 .. 4.0 step 0.1); Ti Min
-0x01DD	ITX	S.TiMax	TI_MAX	Ti Max [s] (0.3 .. 4.0 step 0.1); Ti Max
-0x01DE	RRT		RESP_RATE_SETTING	Resp. Rate [bpm] (5.0 .. 50.0 step 1.0); Resp. Rate
-0x01DF	ITT		TI_TOTAL_TIME	Ti [s] (0.3 .. 4.0 step 0.1); Ti
-0x01E0	EEP	S.AV.EPAP	SET_EEP	EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASV EPAP
-0x01E1	MNS	S.AV.MinPS	MIN_SWING	Min PS [cmH2O] (0.0 .. 6.0 step 0.2); ASV Min PS
-0x01E2	MXS	S.AV.MaxPS	MAX_SWING	Max PS [cmH2O] (5.0 .. 20.0 step 0.2); ASV Max PS
-0x01E3	STE	S.AV.StartPress	START_EEP	Start EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASV Start EPAP
-0x01E4	EAX	S.AA.MaxEPAP	ASV_AUTO_MAX_EPAP	Max EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASVAuto Max EPAP
-0x01E5	EAI	S.AA.MinEPAP	ASV_AUTO_MIN_EPAP	Min EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASVAuto Min EPAP
-0x01E6	ANS	S.AA.MinPS	ASV_AUTO_MIN_SWING	Min PS [cmH2O] (0.0 .. 6.0 step 0.2); ASVAuto Min PS
-0x01E7	AXS	S.AA.MaxPS	ASV_AUTO_MAX_SWING	Max PS [cmH2O] (5.0 .. 20.0 step 0.2); ASVAuto Max PS
-0x01E8	EAS	S.AA.StartPress	ASV_AUTO_START_EPAP	Start EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASVAuto Start EPAP
-0x01E9	EPI		IVAPS_EPAP	EPAP [cmH2O] (2.0 .. 25.0 step 0.2); iVAPS EPAP
-0x01EA	WPM		IVAPS_MIN_SWING	Min PS [cmH2O] (0.0 .. 20.0 step 0.2); iVAPS Min PS
-0x01EB	WPA		IVAPS_MAX_SWING	Max PS [cmH2O] (0.0 .. 28.0 step 0.2); iVAPS Max PS
-0x01EC	IBR		IVAPS_TGT_PT_RATE	Target Pt Rate [bpm] (8.0 .. 30.0 step 1.0); iVAPS Target Rate
-0x01ED	WMV		IVAPS_TGT_VA	Target Va [L/min] (1.0 .. 30.0 step 0.1); iVAPS Target Va
-0x01EE	IVS		IVAPS_START_EPAP	Start EPAP [cmH2O] (2.0 .. 25.0 step 0.2); iVAPS Start EPAP
-0x01EF	RMT	S.RampTime	RAMP_TIME	Ramp Time
-0x01F0	ZLP			PS [cmH2O] (0.0 .. 28.0 step 0.2)
-0x01F1	ZDE			Min [cmH2O] (0.0 .. 28.0 step 0.2)
-0x01F2	RDF		REM_DATE_FILTER	Reminder due date: Filter (0 .. 24836 step 7)
-0x01F3	RDM		REM_DATE_MASK	Reminder due date: Mask (0 .. 24836 step 7)
-0x01F4	RDH		REM_DATE_TUBE	Reminder due date: Tube (0 .. 24836 step 7)
-0x01F5	RDW		REM_DATE_WATERTUB	Reminder due date: Water Tub (0 .. 24836 step 7)
-0x01F6	UDT			Date (0 .. 24836 step 1)
-0x01F7	ZIC			Calculating… (0 .. 5120 step 1)
-0x01F8	ZIT			Learning… (0 .. 5120 step 1)
-0x01F9	RTI			Time (0 .. 1522491 step 1)
-0x01FA	UTI			Time (0 .. 1522491 step 1)
-0x01FB	AER		APP_ERR_ORI	App Error Origin
-0x01FC	ELV			
-0x01FD	ALB		ACTIVE_ALARM	
-0x01FE	SED			
-0x01FF	SYC	Fault.Humidifier	CLIMATE_CONTROL_ERROR	Climate Control Error
-0x0200	SYH	Fault.HeatedTube	HEATED_TUBE_ERROR	Heated Tube Error
-0x0201	SYS	Fault.Device	SYSTEM_ERROR	System Error
-0x0202	SYT	Fault.Alarm	SYSTEM_ERROR_TWO	System Error Two
-0x0203	TYS		TRANSIENT_SYSTEM_ERROR	Transient System Error
-0x0204	LNC		LANGUAGE_CONFIG	Language Config Bitmask
-0x0205	SDS			
-0x0206	ZRS			
-0x0207	RYS			
-0x0208	EMS			
-0x0209	TSS			Therapy-screen page mask: bit 0=round pressure display, bit 1=pressure bar, bit 2=ventilation metrics, bit 3=timing and spontaneous-cycle metrics
-0x020A	ZPC			
-0x020B	ZOX			
-0x020C	ZPK			SPM message-condition bitfield on SX567: b0=no SD card at startup, b1=calculating targets, b2=90W supply required, b3=motor life exceeded, b4=humidifier warming, b5=humidifier ready, b6=humidifier cooling; set bits select SPM values 1..7
-0x020D	MOP	Mode	OPERATING_MODE	Therapy Mode
-0x020E	ROP		RUNNING_MODE	Modes: 0000=Standby, 0001=Normal, 0002=Power Recovery, 0003=Power Save, 0004=Calibration, 0005=Upgrade; ROP=0004 requests calibration mode; Run Mode Request
-0x020F	ZRM		PROD_RUN_MODE	Modes: 0000=Reset, 0001=Standby, 0002=Backup, 0003=Reset Compliance, 0004=Therapy, 0005=Mask Fit, 0006=Calibration, 0007=System Error, 0008=Power Save, 0009=Learn Target, 000A=Upgrade, 000B=Upgrade Prep; ZRM=0006 indicates calibration mode; Run Mode
-0x0210	BLL		JUMP_TO_PROGRAM	Jump to Bootloader
-0x0211	BLS		BOOTLOADER_STATUS	Bootloader Status
-0x0212	LAN		LANGUAGE	Language
-0x0213	MSK	S.Mask	MASK_TYPE	Mask Type
-0x0214	TBT	S.Tube	HOSE_LENGTH	Tube Type
-0x0215	REM		MANUF_RESET	Erase Data (0=Clinical 1=Compliance 2=ErrorLog 3=All)
-0x0216	ACC	S.PtAccess	PATIENT_ACCESS_TYPE	Patient Access
-0x0217	EBE	S.EasyBreathe	EASYBREATHE_ENABLE	Easy-Breathe
-0x0218	RSC	S.RiseEnable	RISE_TIME_CONTROL	Rise Time; Rise Time Select
-0x0219	IHU		IVAPS_HEIGHT_UNIT	Height Units
-0x021A	ILE		LEARN_MODE	iVAPS LT
-0x021B	BRE		BACKUP_RATE_ENABLE	Backup Rate
-0x021C	ABF	S.ABFilter	AB_FILTER	AB Filter
-0x021D	ALV		ALARM_VOLUME	Alarm Vol/Test
-0x021E	NMF		NV_MASK_ALM_EN	Non-Vent Mask
-0x021F	HLE		HI_LEAK_ALM_EN	High Leak; High Leak Alarm
-0x0220	AET		APN_EV_TYPE	Apnea Event Type
-0x0221	AFC	S.AS.Comfort	AUTOSET_COMFORT	AutoSet Comfort/Response
-0x0222	ALR	S.LeakAlert	AUDIO_ALARM	Leak Alert
-0x0223	CCO	S.ClimateControl	CLIMATE_CTL_OFFON	Climate Control
-0x0224	HMX	S.HumEnable	HUMIDIFIER_SETTING_ENABLE	Humidity Enable
-0x0225	HTB	HeatedTube	HEATED_TUBE	Heated Tube Detected
-0x0226	HTX	S.TempEnable	HEATED_TUBE_SETTING_ENABLE	Tube Temp Enable
-0x0227	HUM	Humidifier	HUMIDIFIER	Humidifier Detected
-0x0228	HOS		HUM_OP_STATE	Humidifier Operating State
-0x0229	HCM		HUM_OP_MODE	Humidifier Operating Mode
-0x022A	TMU		TEMP_UNIT	Temp. Units
-0x022B	HME	S.ExternalHum	HUMID_EXTERNAL	Ext. Humidifier
-0x022C	ZFC			
-0x022D	QGI		MODULE_INT_GROUP	Module Group
-0x022E	QCS		MODULE_CELL_SIGNAL_STRENGTH	Cell Signal Strength
-0x022F	QFC		MODULE_FLIGHT_MODE_CONTROL	Airplane Mode
-0x0230	QNC		MODULE_NETWORK_CONNECTION	Network Connection
-0x0231	LCA		LCD_TXT_ACT	LCD Text Active
-0x0232	EPA	S.EPR.ClinEnable	EPR_ACCESS	EPR patient access: 0000=clinical menu only, 0001=patient menu as Pressure Relief
-0x0233	EPX	S.EPR.EPREnable	EPR_PATIENT	EPR Patient Enable
-0x0234	EPT	S.EPR.EPRType	EPR_TYPE	EPR Type
-0x0235	TLF		THERAPY_LED_ENABLE	Therapy LED
-0x0236	MFT		MASKFITTING	Mask Fitting Mode
-0x0237	RSA			Reminder acknowledgement request; 0001 acknowledges and reschedules the currently due reminder
-0x0238	RPF		RECUR_PERIOD_ENABLE_FILTER	Reminder recurrence enable: Filter (0000=Off, 0001=On)
-0x0239	RPO		RECUR_PERIOD_ENABLE_MASK	Reminder recurrence enable: Mask (0000=Off, 0001=On)
-0x023A	RPH		RECUR_PERIOD_ENABLE_TUBE	Reminder recurrence enable: Tube (0000=Off, 0001=On)
-0x023B	RPW		RECUR_PERIOD_ENABLE_WATERTUB	Reminder recurrence enable: Water Tub (0000=Off, 0001=On)
-0x023C	RXF		REM_DATE_ENABLE_FILTER	Reminder date enable: Filter (0000=Off, 0001=On)
-0x023D	RXM		REM_DATE_ENABLE_MASK	Reminder date enable: Mask (0000=Off, 0001=On)
-0x023E	RXH		REM_DATE_ENABLE_TUBE	Reminder date enable: Tube (0000=Off, 0001=On)
-0x023F	RXW		REM_DATE_ENABLE_WATERTUB	Reminder date enable: Water Tub (0000=Off, 0001=On)
-0x0240	RMA	S.RampEnable	RAMP_CONTROL	Ramp Enable
-0x0241	ZRP		IS_RAMPING	Is Ramping
-0x0242	SCF		CONFIRM_STOP	Confirm Stop
-0x0243	SST	S.SmartStart	SMART_START	SmartStart
-0x0244	TCV		TRIGGER_CYCLE_EVENT	Trigger/Cycle Event
-0x0245	VCS	S.Cycle	CYCL_SNSTVTY	Cycle; Cycle Sensitivity
-0x0246	VTS	S.Trigger	TRIG_SNSTVTY	Trigger; Trigger Sensitivity
-0x0247	CSR		CSR_EVENT_TYPE	CSR Event Type
-0x0248	MST		MASK_STATUS	Mask Status
-0x0249	HTC			
-0x024A	IMF			Cellular-module capability: 0=absent, 1=present; controls cellular settings/status visibility and reserves 3500 mW from the supply budget
-0x024B	BOL			
-0x024C	CAL		CALIBRATION	Calibration service selector; values: 0000=idle, 0001=pressure controller, 0002=flow-sensor identity via FID/FSN, 0005=LCD test, 0006=pressure and front-panel test, 0007=pressure and rotary test, 0008=no-op placeholder, 000A=SD status via SDT, 000B=EEPROM/SD maintenance via ETR, 000C=short raw USART2 request/reply via RSS, 000D=raw USART2 TX and RTC backup-battery test, 0010=SD read/write test via CDS, 0012=raw USART2 TX/RX and RTC backup-battery test; active when ZRM=0006; Calibration Service Select
-0x024D	MDC			EEPROM diagnostic command: 0=idle, 1=read selected MDA block into MDB, 2=write MDB to selected block; clears after processing
-0x024E	LCD			CAL 0005 display pattern: 0000/0004=black, 0001=blue, 0002=green, 0003=red, 0005=white, 0006=5-pixel grid
-0x024F	LET			Registered by CAL 0008; the selected service has no enter, update, or stop behavior
-0x0250	RES			System reset request: 0000=no reset request; 0001=orderly task shutdown then watchdog reset; 0002=request task stop without waiting, then watchdog reset; 0003=orderly task shutdown then immediate SYSRESETREQ. All reset paths re-enter BLX; with valid CCX/CDX and clear boot state, BLX uses its BKP6R fast-boot reset to return to CDX
-0x0251	ROT			CAL 0007 rotary result: 0001=negative delta, 0002=positive delta, reset to 0000 when the service stops; Rotary Encoder Position
-0x0252	PBR			CAL 000D/0012 USART2 baud selector: 0000=9600, 0001=14400, 0002=19200, 0003=28800, 0004=38400, 0005=57600; Calibration Serial Baud Rate
-0x0253	CDS			CAL 0010 SD read/write test result: 0001=pass, 0002=failure or idle; test file is mmc:0:\TestReading.bin
-0x0254	SDC			
-0x0255	SCS			Startup missing-SD-card warning enable; value 1 allows the initial card check to set ZPK bit 0 and display SPM=1, No SD card detected, press OK to continue
-0x0256	TUD			Used-hours display toggle stored in UGL; callback 28 controls PHM and HOU visibility
-0x0257	MQD			Mask Fit
-0x0258	ZRH			Climate-control status derived from the newest SESSION/STR record; 1 when SYC is zero, otherwise 0
-0x0259	KEY			
-0x025A	UTY			
-0x025B	CTY			GUI color-palette index: 0=standard, 1=For Her; sampled during GUI initialization
-0x025C	ZBO			
-0x025D	HUC			
-0x025E	HUS			
-0x025F	WUP			
-0x0260	HON			
-0x0261	CEN			Central-apnea/FOT classification enable; value 1 enables the corresponding therapy input
-0x0262	CDT			
-0x0263	ZCU			
-0x0264	ZMR			
-0x0265	ZCC			
-0x0266	ZCS			
-0x0267	ZSD			
-0x0268	CSM			
-0x0269	ZTG			
-0x026A	ZTF			
-0x026B	ZRJ			
-0x026C	ZBD			
-0x026D	ZBR			
-0x026E	RMM			
-0x026F	ZRA			
-0x0270	CYI			Runtime cycle-event indicator; values 2=Ti Min, 3=Ti Max, 4=Timed; produced from therapy feedback, separate from VCS sensitivity
-0x0271	TRI			Runtime trigger-event indicator; value 4=Timed; permitted values 0, 1, 4; produced from therapy feedback, separate from VTS sensitivity
-0x0272	UPM			
-0x0273	UPS			
-0x0274	UPK			
-0x0275	EBW			
-0x0276	ZHT			
-0x0277	MFM			
-0x0278	MFA			
-0x0279	ZFM			
-0x027A	OXC			
-0x027B	ZLS			
-0x027C	ZLC			
-0x027D	AOA			
-0x027E	AAA			
-0x027F	CRC			
-0x0280	ZCR			
-0x0281	CYM			
-0x0282	ERC			
-0x0283	ERE			eep:0 formatting status/control variable
-0x0284	ETR			CAL=000B EEPROM/SD command; values: 0000=idle/reset, 0001=zero raw pages 0..501, 0002=format/reinitialize eep:0 FAT, 0003=512-page raw backup to SD EEPROM.dat, 0004=restore complete 512-byte pages from EEPROM.dat, 0005=export eep:0 root and one directory level, 0006=import root/DATALOG/ERRORLOG/SETTINGS from SD; 0001 and 0003..0006 clear even when helper errors are not propagated; EEPROM Transfer Request
-0x0285	FON			
-0x0286	KPM			
-0x0287	CMS			Command response destination: 0=CRX, 1=USART1, 2=USART3
-0x0288	CNM			
-0x0289	CMT			
-0x028A	ZPV			
-0x028B	PMS			
-0x028C	PRD		PRESSURE_U	Press. Units; Pressure Units
-0x028D	PSM			
-0x028E	PSU			
-0x028F	AKM			
-0x0290	ASM			
-0x0291	SEP			Period
-0x0292	SRC			
-0x0293	TMM			
-0x0294	BVP			On-therapy GUI presentation: 0=Sleep Report, 1=Monitoring; selects the page title and corresponding home-menu label/icon, both opening the same therapy view
-0x0295	ZLB			Checked by the immediate O frame; when nonzero, ZRO is set to 1 before the UART parser is reset
-0x0296	ZLE			
-0x0297	ZTE			
-0x0298	ZEL			
-0x0299	ZPD			STK near-overflow flag; set to 1 when STK reaches 0x7FFFFD78 on SX567-0402
-0x029A	ZRF			Command mailbox state: 0=request pending, 1=receiver publishing request, 2=ready for a new request
-0x029B	ZRO			Set to 1 by the immediate O frame when ZLB is nonzero
-0x029C	ZRT			Received UART frame type stored with ZRD; internal type 7 selects Q command execution
-0x029D	ECK			
-0x029E	ZWR			
-0x029F	ZWT			
-0x02A0	ZWD			
-0x02A1	ZUI			
-0x02A2	ZPA			
-0x02A3	RPM			
-0x02A4	ZHA			
-0x02A5	RUM			
-0x02A6	ZOA			
-0x02A7	ZKA			SPM message acknowledgement; value 1 suppresses the current ZPK condition until that condition clears
-0x02A8	SPM			Current informational GUI message on SX567: 0=none, 1=no SD card, 2=calculating targets, 3=connect a 90W supply, 4=motor life exceeded, 5=humidifier warming, 6=humidifier ready, 7=humidifier cooling; selected from ZPK and acknowledged through ZKA
-0x02A9	ZSA			
-0x02AA	ZEA			
-0x02AB	ZUM			
-0x02AC	ZMS			
-0x02AD	ZLM			Blocked-tube condition latch; set on activation and cleared on reset; ACT enables the one-shot DLA marker and therapy-day guard in the recoverable-error path
-0x02AE	AIR			myAir
-0x02AF	MAM			
-0x02B0	DLA			
-0x02B1	ZYS			
-0x02B2	ANV			NPA apnea-event record: seconds of day (u32), duration in deciseconds (u16), event type (u16)
-0x02B3	PCC			Five u16 climate-control parameters received through the humidifier interface; setup consumes elements 0, 1, 3, and 4
-0x02B4	HPI			Three-element binary parameter block received through the heated-tube interface
-0x02B5	HUI			Three-element binary parameter block received through the humidifier interface and consumed by climate control
-0x02B6	DAC		DATE_DEC	Date
-0x02B7	TIC		TIME_DEC	Time
-0x02B8	OXH			Oximetry summary/header
-0x02B9	TCE		TRIG_CYC	Live stream: trigger/cycle and therapy-control samples
-0x02BA	PBT		PERIODIC_BREATH_TXLINK	Live stream: periodic breath TxLink summary
-0x02BB	PMD		MASK_DATA	Live stream: mask pressure, respiratory flow, and leak samples
-0x02BC	FTX			Live stream: flow/pressure sensor diagnostics
-0x02BD	RAW			Live stream: raw pressure, flow, and temperature samples
-0x02BE	DRT			Live stream: internal diagnostic values
-0x02BF	CPU			Live stream: CPU load counters
-0x02C0	SSK			Live stream: internal status values
-0x02C1	APN		APNEA	Live stream: apnea event type and duration
-0x02C2	CSN		CSR_EVENT_RT	Live stream: CSR event state and timing
-0x02C3	BRH		BREATH_TXLINK	Live stream: per-breath TxLink summary
-0x02C4	BRP			EDF periodic signal channel: breath waveform
-0x02C5	PLD			EDF periodic signal channel: 2-second and per-breath statistics
-0x02C6	SAD			EDF periodic signal channel: SpO2 and pulse
-0x02C7	CSL			EDF event channel
-0x02C8	AEV			EDF event channel
-0x02C9	EVE			EDF event channel
-0x02CA	STR			EDF session statistics channel
-0x02CB	ABR		ABORT_ERR	EEPROM stream: abort errors (FAT)
-0x02CC	TXC		CLIMATE_CONTROL_ERR_LOG	EEPROM stream: climate-control errors (SYC)
-0x02CD	TXH		HEATED_TUBE_ERROR_LOG	EEPROM stream: heated-tube errors (SYH)
-0x02CE	TXE		TRANSDR_ERR	EEPROM stream: transducer errors (SYS)
-0x02CF	TXW		TRANSDR_ERR_TWO	EEPROM stream: transducer errors 2 (SYT)
-0x02D0	TRR		TRANSIENT_ERR_LOG	EEPROM stream: transient system errors (TYS)
-0x02D1	DLL			EEPROM stream: DLA records
-0x02D2	ERR			EEPROM stream: application-error origin records (AER)
-0x02D3	ELI			EEPROM stream: ELV records
-0x02D4	ZRL			EEPROM stream: saved system errors (ZSE)
-0x02D5	NPD		NIGHT_PROFILE_PERIODIC	Night profile periodic signal group
-0x02D6	NPA		NIGHT_PROFILE_APNEA	Night profile apnea signal group
-0x02D7	AGL			AutoSet settings storage group
-0x02D8	CGL			CPAP settings storage group
-0x02D9	RGL			Reminder settings storage group
-0x02DA	DGL			Bilevel timing settings storage group
-0x02DB	IGL			Bilevel pressure settings storage group
-0x02DC	EGL			EPR settings storage group
-0x02DD	QXH			ASVAuto settings storage group
-0x02DE	QXJ			iVAPS settings storage group
-0x02DF	VGL			VAuto settings storage group
-0x02E0	XGL			ASV fixed-pressure settings storage group
-0x02E1	BGL			Board identity and calibration storage group
-0x02E2	NGL			Backlight settings storage group
-0x02E3	UGL			Usage data storage group
-0x02E4	MGL			Machine settings storage group
-0x02E5	PGL			Peripheral and accessory settings storage group
-0x02E6	SGL			System settings storage group
-0x02E7	PDL			Persistent device-state variable list
+short_name	edf_signal	resmed_name	var_id_SX567_0302_0305	var_id_SX567_0306_0401_0402	var_id_SX584_0204	notes
+AAA			0x027D	0x027E	0x02B0	
+AAV	AlvMinVent.2s	ACHV_ALV_MIN_VENT	0x0055	0x0055	0x005A	Va [L/min] (0.0 .. 30.0 step 0.1)
+ABF	S.ABFilter	AB_FILTER	0x021C	0x021C	0x023C	AB Filter
+ABH		ABSOLUTE_AMBIENT_HUMIDITY	0x005E	0x005E	0x0063	Ambient Humidity
+ABM	AmbHumidity.50	AMB_HUMIDITY_MED	0x005F	0x005F	0x0064	Ambient Humidity Median
+ABR		ABORT_ERR	0x02CA	0x02CB	0x0302	EEPROM stream: abort errors (FAT)
+ACC	S.PtAccess	PATIENT_ACCESS_TYPE	0x0216	0x0216	0x0234	Patient Access
+ADR		ALARM_DUR	0x0031	0x0031	0x0036	
+AEM					0x0173	Lumis SX584-020x exclusive
+AEP		AVG_EPR_PRESS	0x0044	0x0044	0x0049	Avg EPR Pressure
+AER		APP_ERR_ORI	0x01FB	0x01FB	0x0219	App Error Origin
+AES		ALARM_EVENT_TYPE			0x02E5	Lumis SX584-020x exclusive; Alarm event type; AEV signal
+AET		APN_EV_TYPE	0x0220	0x0220	0x0244	Apnea Event Type
+AEV			0x02C7	0x02C8	0x02FF	EDF event channel
+AFC	S.AS.Comfort	AUTOSET_COMFORT	0x0221	0x0221	0x0245	AutoSet Comfort/Response
+AFL		AVG_BLOWER_FLOW	0x005C	0x005C	0x0061	Avg Blower Flow
+AGL			0x02D6	0x02D7	0x030F	AutoSet settings storage group
+AGT			0x0112	0x0112	0x0123	AGL AutoSet settings EEPROM group change tracker
+AHC			0x0114	0x0114	0x0125	Combined apnea and hypopnea count; incremented for AET=1..4
+AHI	AHI	AHI_SESSION	0x004C	0x004C	0x0051	
+AIC			0x0115	0x0115	0x0126	Total apnea count; incremented for AET=2..4
+AIE		AVG_I_E_RATIO	0x0083	0x0083	0x008F	Avg I:E Ratio [%]
+AIP		AVG_BI_THERAPY_PRESS	0x0045	0x0045	0x004A	Avg Bilevel Pressure
+AIR			0x02AD	0x02AE	0x02E3	myAir
+AIS	AI	AI_SESSION	0x004D	0x004D	0x0052	
+AKM			0x028E	0x028F	0x02C2	
+AL2					0x0174	Lumis SX584-020x exclusive
+ALA		ALARM_LOG_APERIODIC			0x030E	Lumis SX584-020x exclusive; Aperiodic alarm log: ANE events, linked to ALT
+ALB		ACTIVE_ALARM	0x01FD	0x01FD	0x021B	
+ALL			0x016B	0x016B	0x0180	Overall CPU usage from the RTOS idle-time statistics; raw / 10 = %
+ALM					0x02C3	Lumis SX584-020x exclusive
+ALR	S.LeakAlert	AUDIO_ALARM	0x0222	0x0222	0x0246	Leak Alert
+ALT					0x0172	Lumis SX584-020x exclusive; Notification variable linked to the ALA alarm log
+ALV	Alm.Vol	ALARM_VOLUME	0x021D	0x021D	0x023D	Alarm Vol/Test
+AMR					0x0034	Lumis SX584-020x exclusive
+AMT			0x0128	0x0128	0x0139	
+ANE		ALARM_EVENT_TYPE_TEMP			0x02E6	Lumis SX584-020x exclusive; Alarm event type recorded in ALA
+ANS	S.AA.MinPS	ASV_AUTO_MIN_SWING	0x01E6	0x01E6	0x0200	Min PS [cmH2O] (0.0 .. 6.0 step 0.2); ASVAuto Min PS
+ANT			0x015F	0x015F	0x0171	Change notification for ANV apnea-event records; linked by the NPA signal group
+ANV			0x02B1	0x02B2	0x02E8	NPA apnea-event record: seconds of day (u32), duration in deciseconds (u16), event type (u16)
+AOA			0x027C	0x027D	0x02A6	
+APF			0x0158	0x0158	0x0168	
+APN		APNEA	0x02C0	0x02C1	0x02F8	Live stream: apnea event type and duration
+APO	Apnea.Alm.En	APNEA_ALM_ENABLE			0x0241	Lumis SX584-020x exclusive; Apnea Alarm: Off, On
+APP		APNEA_PRESS	0x013D	0x013D	0x014E	
+APR			0x0159	0x0159	0x0169	
+APT			0x0116	0x0116	0x0127	Apnea-event change trigger; updates ANV from current time, DUR, and AET
+APX	Apnea.Alm.Thres	APNEA_ALM_THRESHOLD	0x0033	0x0033	0x0038	Apnea Alarm [s] (9 .. 60 step 1); Apnea Alarm
+AQD			0x00F7	0x00F7	0x0108	AHI (0.0 .. 240.0 step 0.1)
+ARD			0x00F8	0x00F8	0x0109	AHI (0.0 .. 240.0 step 0.1)
+ARS			0x015C	0x015C	0x016C	
+ASA					0x02C5	Lumis SX584-020x exclusive
+ASF			0x00FC	0x00FC	0x010D	Filtered ambient-light sensor reading (0 .. 4095)
+ASM			0x028F	0x0290	0x02C4	
+ASR			0x00FB	0x00FB	0x010C	Raw ambient-light sensor reading (0 .. 4095)
+AST			0x015A	0x015A	0x016A	
+ATH			0x00FD	0x00FD	0x010E	Ambient-light threshold (0 .. 4095); stored in NGL
+ATI		AVG_TIDAL	0x00A2	0x00A2	0x00B0	Vt [L] (0.00 .. 4.00 step 0.02); Avg Tidal Volume
+ATO		ACTIV_TIMOUT	0x0021	0x0021	0x0022	Activity Timeout
+ATP		AUTO_PRESS	0x0041	0x0041	0x0046	AutoSet Pressure
+AUR					0x0035	Lumis SX584-020x exclusive
+AV9	AlvMinVent.95	ALV_MIN_VENT_95	0x0053	0x0053	0x0058	Alveolar Ventilation P95 [L/min]
+AVA	AlvMinVent.Max	ALV_MIN_VENT_MAX	0x0054	0x0054	0x0059	Alveolar Ventilation Max [L/min]
+AVM	AlvMinVent.50	ALV_MIN_VENT_MED	0x0052	0x0052	0x0057	Alveolar Ventilation Median [L/min]
+AVR			0x000E	0x000E	0x000F	
+AVT			0x015B	0x015B	0x016B	
+AXS	S.AA.MaxPS	ASV_AUTO_MAX_SWING	0x01E7	0x01E7	0x0201	Max PS [cmH2O] (5.0 .. 20.0 step 0.2); ASVAuto Max PS
+BFF		BLOWER_FLOW_FILTERED	0x006C	0x006C	0x0071	Blower Flow Filtered
+BFL			0x00C0	0x00C0	0x00D1	Blower flow runtime value; /500 L/s
+BFM	BlowFlow.50	AVG_BLOWER_FLOW_MED	0x005D	0x005D	0x0062	Avg Blower Flow Median
+BGL			0x02E0	0x02E1	0x0319	Board identity and calibration storage group
+BGT			0x016C	0x016C	0x0181	BGL board/identity/calibration persistence-group tracker
+BID		BOOTLOADR_ID	0x0000	0x0000	0x0000	Bootloader ID
+BLE		BOOT_LOADER_ERR	0x0022	0x0022	0x0023	Bootloader Error
+BLL		JUMP_TO_PROGRAM	0x0210	0x0210	0x022E	Jump to Bootloader
+BLS		BOOTLOADER_STATUS	0x0211	0x0211	0x022F	Bootloader Status
+BOL			0x024B	0x024B	0x0275	
+BP5	BlowPress.5	BLOWER_PRESS_5TH	0x0040	0x0040	0x0045	Blower Pressure P5
+BP9	BlowPress.95	BLOWER_PRESS_95TH	0x003F	0x003F	0x0044	Blower Pressure P95
+BPA			0x0120	0x0120	0x0131	
+BPF			0x011D	0x011D	0x012E	
+BPR			0x00C5	0x00C5	0x00D6	Blower pressure runtime value; /50 cmH2O
+BRE		BACKUP_RATE_ENABLE	0x021B	0x021B	0x023B	Backup Rate
+BRH		BREATH_TXLINK	0x02C2	0x02C3	0x02FA	Live stream: per-breath TxLink summary
+BRP			0x02C3	0x02C4	0x02FB	EDF periodic signal channel: breath waveform
+BRR	S.BL.BackupRate	BACKUP_RESP_RATE	0x0027	0x0027	0x0028	Backup Resp Rate
+BSP		PRESS_SUPP	0x0119	0x0119	0x012A	
+BTM		BREATH_TIME	0x016F	0x016F	0x0184	
+BVP			0x0293	0x0294	0x02C9	On-therapy GUI presentation: 0=Sleep Report, 1=Monitoring; selects the page title and corresponding home-menu label/icon, both opening the same therapy view
+BVR					0x000E	Lumis SX584-020x exclusive
+CAC			0x0121	0x0121	0x0132	Obstructive apnea count; incremented for AET=3; source for CLI
+CAF			0x00E4	0x00E4	0x00F5	DATALOG EDF capture-date filter (year << 16 | month << 8 | day); file creation proceeds only when it matches the current date
+CAL		CALIBRATION	0x024C	0x024C	0x0276	Calibration service selector; values: 0000=idle, 0001=pressure controller, 0002=flow-sensor identity via FID/FSN, 0005=LCD test, 0006=pressure and front-panel test, 0007=pressure and rotary test, 0008=no-op placeholder, 000A=SD status via SDT, 000B=EEPROM/SD maintenance via ETR, 000C=short raw USART2 request/reply via RSS, 000D=raw USART2 TX and RTC backup-battery test, 0010=SD read/write test via CDS, 0012=raw USART2 TX/RX and RTC backup-battery test; active when ZRM=0006; Calibration Service Select
+CAM					0x02B4	Lumis SX584-020x exclusive
+CBP			0x0170	0x0170	0x0185	
+CCO	S.ClimateControl	CLIMATE_CTL_OFFON	0x0223	0x0223	0x0247	Climate Control
+CCP			0x00D2	0x00D2	0x00E3	Persistent 8-bit BGL field (0..255)
+CCS			0x00D3	0x00D3	0x00E4	Persistent 8-bit BGL field (0..255)
+CDS			0x0253	0x0253	0x027D	CAL 0010 SD read/write test result: 0001=pass, 0002=failure or idle; test file is mmc:0:\TestReading.bin
+CDT			0x0261	0x0262	0x028B	
+CED		COMPLIANCE_ERASE_DATE	0x00B9	0x00B9	0x00CA	Date (0 .. 24836 step 1); Compliance Erase Date
+CEN			0x0260	0x0261	0x028A	Central-apnea/FOT classification enable; value 1 enables the corresponding therapy input
+CET		CSR_EVENT_TIME	0x00AC	0x00AC	0x00BA	CSR Event Time
+CGL			0x02D7	0x02D8	0x0310	CPAP settings storage group
+CGT			0x0125	0x0125	0x0136	CGL CPAP settings EEPROM group change tracker
+CID		CONFIG_SOFTWARE_ID	0x0007	0x0007	0x0007	Config Software ID
+CLI	OAI	CAI_SESSION	0x0056	0x0056	0x005B	Obstructive apnea index; derived from CAC
+CMS			0x0286	0x0287	0x02BA	Command response destination: 0=CRX, 1=USART1, 2=USART3
+CMT			0x0288	0x0289	0x02BC	
+CNM			0x0287	0x0288	0x02BB	
+CPR		CAL_PRESSURE	0x00C6	0x00C6	0x00D7	Calibration Pressure Setpoint
+CPU			0x02BE	0x02BF	0x02F6	Live stream: CPU load counters
+CRC			0x027E	0x027F	0x02B1	
+CRD			0x00FA	0x00FA	0x010B	Central AI (0.0 .. 240.0 step 0.1)
+CRX			0x0017	0x0017	0x0018	Internal command response text; receives the parser response when CMS=0, up to 511 characters
+CSC			0x0103	0x0103	0x0114	Accumulated duration of completed CSR segments in minutes; CSD adds the current active segment
+CSD	CSR	REPORTED_CSR_DURATION_PER_SESSION	0x00AA	0x00AA	0x00B8	CSR Duration
+CSE			0x0104	0x0104	0x0115	Latest CSR segment end timestamp in 10 ms STK units
+CSG			0x0102	0x0102	0x0113	Latest CSR start/end event timestamp in 10 ms STK units
+CSL			0x02C6	0x02C7	0x02FE	EDF event channel
+CSM			0x0267	0x0268	0x0291	
+CSN		CSR_EVENT_RT	0x02C1	0x02C2	0x02F9	Live stream: CSR event state and timing
+CSR		CSR_EVENT_TYPE	0x0247	0x0247	0x0271	CSR Event Type
+CSS			0x0106	0x0106	0x0117	Latest CSR segment start timestamp in 10 ms STK units; default -1
+CST			0x0105	0x0105	0x0116	Latest completed CSR segment duration in 10 ms units; CSE minus CSS
+CSZ		CSR_ZERO_DUR	0x00AB	0x00AB	0x00B9	CSR Zero Duration
+CTY			0x025A	0x025B	0x0284	GUI color-palette index: 0=standard, 1=For Her; sampled during GUI initialization
+CUR			0x00D5	0x00D5	0x00E6	
+CYI			0x026F	0x0270	0x0299	Runtime cycle-event indicator; values 2=Ti Min, 3=Ti Max, 4=Timed; produced from therapy feedback, separate from VCS sensitivity
+CYM			0x0280	0x0281	0x02B3	
+D00		DEBUG_VALUE_SLOT_00	0x0161	0x0161	0x0176	
+D01		DEBUG_VALUE_SLOT_01	0x0162	0x0162	0x0177	
+D02		DEBUG_VALUE_02	0x0163	0x0163	0x0178	
+D03			0x0164	0x0164	0x0179	
+D04			0x0165	0x0165	0x017A	
+D05			0x0166	0x0166	0x017B	
+D06			0x0167	0x0167	0x017C	
+D07			0x0168	0x0168	0x017D	
+D08			0x0169	0x0169	0x017E	
+D09			0x016A	0x016A	0x017F	
+DAC		DATE_DEC	0x02B5	0x02B6	0x02EC	Date
+DCR	Crc16	RECORD_CRC	0x0023	0x0023	0x0024	Record CRC
+DDC			0x0160	0x0160	0x0175	
+DFL		DIFF_FLOW	0x006D	0x006D	0x0072	Differential Flow
+DGL			0x02D9	0x02DA	0x0312	Bilevel timing settings storage group
+DGT			0x0132	0x0132	0x0143	DGL breath timing and trigger/cycle settings EEPROM group change tracker
+DLA			0x02AF	0x02B0	0x02E7	
+DLL			0x02D0	0x02D1	0x0308	EEPROM stream: DLA records
+DRD			0x00EA	0x00EA	0x00FB	Days Used (0 .. 65535 step 1)
+DRT			0x02BD	0x02BE	0x02F5	Live stream: internal diagnostic values
+DRX			0x0013	0x0013	0x0014	CAL 0012 accumulated raw serial RX bytes encoded as uppercase hex; Calibration Serial RX
+DSD			0x00BB	0x00BB	0x00CC	
+DTT			0x0136	0x0136	0x0147	
+DTX			0x0014	0x0014	0x0015	CAL 000D/0012 raw serial TX bytes supplied as hex pairs; Calibration Serial TX
+DUF			0x0137	0x0137	0x0148	Days 4hrs+ (0 .. 2048 step 1)
+DUR		APNEA_DUR	0x004E	0x004E	0x0053	Apnea Duration
+DUS		DAYS_USED	0x0139	0x0139	0x014A	Days Used (0 .. 2048 step 1)
+EAI	S.AA.MinEPAP	ASV_AUTO_MIN_EPAP	0x01E5	0x01E5	0x01FF	Min EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASVAuto Min EPAP
+EAS	S.AA.StartPress	ASV_AUTO_START_EPAP	0x01E8	0x01E8	0x0202	Start EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASVAuto Start EPAP
+EAX	S.AA.MaxEPAP	ASV_AUTO_MAX_EPAP	0x01E4	0x01E4	0x01FE	Max EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASVAuto Max EPAP
+EBE	S.EasyBreathe	EASYBREATHE_ENABLE	0x0217	0x0217	0x0235	Easy-Breathe
+EBW			0x0274	0x0275	0x029E	
+ECK			0x029C	0x029D	0x02D2	
+EEP	S.AV.EPAP	SET_EEP	0x01E0	0x01E0	0x01FA	EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASV EPAP
+EGL			0x02DB	0x02DC	0x0314	EPR settings storage group
+EGT			0x013C	0x013C	0x014D	EGL EPR settings EEPROM group change tracker
+ELI			0x02D2	0x02D3	0x030A	EEPROM stream: ELV records
+ELV			0x01FC	0x01FC	0x021A	
+EMS			0x0208	0x0208	0x0226	
+EPA	S.EPR.ClinEnable	EPR_ACCESS	0x0232	0x0232	0x0256	EPR patient access: 0000=clinical menu only, 0001=patient menu as Pressure Relief
+EPI	S.i.EPAP	IVAPS_EPAP	0x01E9	0x01E9	0x0203	EPAP [cmH2O] (2.0 .. 25.0 step 0.2); iVAPS EPAP
+EPP	S.BL.EPAP	EPAP	0x01D9	0x01D9	0x01F1	EPAP [cmH2O] (3.0 .. 25.0 step 0.2); Bilevel EPAP
+EPR	S.EPR.Level	EXP_PRES_REL	0x0070	0x0070	0x0075	EPR Level
+EPS	S.BL.StartPress	START_EPAP	0x01DA	0x01DA	0x01F2	Start EPAP [cmH2O] (3.0 .. 25.0 step 0.2); Bilevel Start EPAP
+EPT	S.EPR.EPRType	EPR_TYPE	0x0234	0x0234	0x0258	EPR Type
+EPX	S.EPR.EPREnable	EPR_PATIENT	0x0233	0x0233	0x0257	EPR Patient Enable
+ERC			0x0281	0x0282	0x02B5	
+ERE			0x0282	0x0283	0x02B6	eep:0 formatting status/control variable
+ERR			0x02D1	0x02D2	0x0309	EEPROM stream: application-error origin records (AER)
+ETI		EVENT_TIME	0x00B3	0x00B3	0x00C4	Event Time
+ETR			0x0283	0x0284	0x02B7	CAL=000B EEPROM/SD command; values: 0000=idle/reset, 0001=zero raw pages 0..501, 0002=format/reinitialize eep:0 FAT, 0003=512-page raw backup to SD EEPROM.dat, 0004=restore complete 512-byte pages from EEPROM.dat, 0005=export eep:0 root and one directory level, 0006=import root/DATALOG/ERRORLOG/SETTINGS from SD; 0001 and 0003..0006 clear even when helper errors are not propagated; EEPROM Transfer Request
+EVE			0x02C8	0x02C9	0x0300	EDF event channel
+EX5	B5ETime.2s	B5_EXP_TIME	0x0085	0x0085	0x0091	Expiration Time 5-Breath [s]
+EXR			0x0016	0x0016	0x0017	
+EXT		EXPIRATION_TIME	0x0087	0x0087	0x0093	Expiration Time [s]
+EXW			0x0015	0x0015	0x0016	
+FAT			0x00D6	0x00D6	0x00E7	Abort-error value recorded by the ABR EEPROM stream
+FBD		FIRST_BREATH_DAY	0x00BE	0x00BE	0x00CF	First Breath Day
+FFL	FlowLim.2s	FUZZY_FLOW_LIM	0x0071	0x0071	0x0076	Fuzzy Flow Limit
+FGT		FG_TYPE	0x0001	0x0001	0x0001	FG Type
+FID			0x00C1	0x00C1	0x00D2	CAL 0002 32-bit flow-sensor product identifier; set to 0 when the sensor ID read reports an error
+FLG			0x00C2	0x00C2	0x00D3	Flow Gain
+FLP		FLATT_PRESS	0x013E	0x013E	0x014F	
+FLW			0x00C3	0x00C3	0x00D4	Uncalibrated flow-channel value; calibrated counterpart is ZFL
+FLZ		FLOW_ZERO	0x00C4	0x00C4	0x00D5	Flow Zero
+FON			0x0284	0x0285	0x02B8	
+FPW			0x00D7	0x00D7	0x00E8	
+FSN			0x000F	0x000F	0x0010	CAL 0002: 64-bit flow-sensor serial number formatted as 16 uppercase hex characters
+FTD		FIRST_THERAPY_DAY	0x00BF	0x00BF	0x00D0	First Therapy Day
+FTX			0x02BB	0x02BC	0x02F3	Live stream: flow/pressure sensor diagnostics
+GIT			0x0171	0x0171	0x0186	
+HAH			0x0107	0x0107	0x0118	Ambient relative humidity from STM8 sensor, used by the humidifier model; raw / 1000 = RH fraction (raw / 10 = percent RH)
+HAT			0x0108	0x0108	0x0119	Ambient temperature from STM8 sensor, used by the humidifier model; raw / 10 = deg C
+HAV		AVG_HEART_RATE			0x00C1	Lumis SX584-020x exclusive; Average Heart Rate [bpm]; NPD signal and source for STR heart-rate percentiles
+HBP		HEATED_TUBE_PWM	0x0062	0x0062	0x0067	Heated Tube PWM
+HBT			0x018B	0x018B	0x01A0	
+HCM		HUM_OP_MODE	0x0229	0x0229	0x024D	Humidifier Operating Mode
+HDR		HOSE_DROP	0x0035	0x0035	0x003A	Hose Drop
+HET			0x010E	0x010E	0x011F	TXH heated-tube error stream backend state/cursor
+HFL			0x010F	0x010F	0x0120	Calibrated flow from a separate internal flow channel; raw / 500 = L/s
+HHM	HumTemp.50	HUM_PLATE_TEMP_MED	0x0065	0x0065	0x006A	Humidifier Plate Temp Median
+HID			0x0010	0x0010	0x0011	Humidifier-controller STM8 firmware identifier, 12-character string
+HIS	HI	HI_SESSION	0x004F	0x004F	0x0054	Hypopnea Index
+HLE	HiLeak.Alm.En	HI_LEAK_ALM_EN	0x021F	0x021F	0x023F	High Leak; High Leak Alarm
+HMA		MAX_HEART_RATE			0x00C3	Lumis SX584-020x exclusive; Maximum Heart Rate [bpm]; NPD signal
+HME	S.ExternalHum	HUMID_EXTERNAL	0x022B	0x022B	0x024F	Ext. Humidifier
+HMI		MIN_HEART_RATE			0x00C2	Lumis SX584-020x exclusive; Minimum Heart Rate [bpm]; NPD signal
+HMP			0x0109	0x0109	0x011A	Available climate-heater power budget; raw / 25 gives the combined humidifier and heated-tube duty budget in percent
+HMS	S.HumLevel	HUMIDITY_SET	0x0059	0x0059	0x005E	Humidity Level
+HMX	S.HumEnable	HUMIDIFIER_SETTING_ENABLE	0x0224	0x0224	0x0248	Humidity Enable
+HON			0x025F	0x0260	0x0289	
+HOS		HUM_OP_STATE	0x0228	0x0228	0x024C	Humidifier Operating State
+HOU		PATIENT_HRS	0x013B	0x013B	0x014C	Used Hrs [hrs] (0 .. 65534 step 1)
+HPI			0x02B3	0x02B4	0x02EA	Three-element binary parameter block received through the heated-tube interface
+HPM	HumPow.50	HUMIDIFIER_PWM_MED	0x0069	0x0069	0x006E	Humidifier PWM Median
+HPR			0x011A	0x011A	0x012B	Calibrated pressure from a separate internal pressure channel; raw / 50 = cmH2O
+HPT		HUMIDIFIER_HOTPLATE_TEMPERATURE	0x0064	0x0064	0x0069	Humidifier Plate Temp
+HR5	HeartRate.50	HEART_RATE_MED			0x007A	Lumis SX584-020x exclusive; Heart Rate Median [bpm]
+HRM	HeartRate.95	HEART_RATE_95			0x007C	Lumis SX584-020x exclusive; Heart Rate P95 [bpm]
+HRR		HEART_RATE_RAW	0x0072	0x0072	0x0077	Pulse [bpm] (0 .. 500 step 1); Heart Rate Raw
+HRS		HEART_RATE_STATUS	0x0073	0x0073	0x0078	Heart Rate Status
+HRT	Pulse.1s	HEART_RATE	0x0074	0x0074	0x0079	Pulse [bpm] (18 .. 300 step 1); Heart Rate
+HRX	HeartRate.Max	HEART_RATE_MAX			0x007B	Lumis SX584-020x exclusive; Heart Rate Max [bpm]
+HSC			0x010A	0x010A	0x011B	
+HTB	HeatedTube	HEATED_TUBE	0x0225	0x0225	0x0249	Heated Tube Detected
+HTC			0x0249	0x0249	0x0273	
+HTF		HEAT_TB_SET_F	0x005B	0x005B	0x0060	Tube Temp. [°F] (60 .. 86 step 1); Tube Temp
+HTM	HTubeTemp.50	HEATED_TUBE_TEMP_MED	0x0067	0x0067	0x006C	Heated Tube Temp Median
+HTR			0x010B	0x010B	0x011C	Heated-tube status bits from STM8 command 07/00; monitored for peripheral fault conditions
+HTS	S.Temp	HEAT_TB_SET	0x005A	0x005A	0x005F	Tube Temp
+HTT		HEATED_TUBE_TEMPERATURE	0x0066	0x0066	0x006B	Heated Tube Temp
+HTX	S.TempEnable	HEATED_TUBE_SETTING_ENABLE	0x0226	0x0226	0x024A	Tube Temp Enable
+HUC			0x025C	0x025D	0x0286	
+HUI			0x02B4	0x02B5	0x02EB	Three-element binary parameter block received through the humidifier interface and consumed by climate control
+HUM	Humidifier	HUMIDIFIER	0x0227	0x0227	0x024B	Humidifier Detected
+HUP		HUMIDIFIER_PWM	0x0068	0x0068	0x006D	Humidifier PWM
+HUR			0x010C	0x010C	0x011D	Humidifier status bits from STM8 command 06/00; monitored for peripheral fault conditions; bit 7 updates HUC
+HUS			0x025D	0x025E	0x0287	
+HYC			0x0117	0x0117	0x0128	Hypopnea count; incremented for AET=1
+IBR	S.i.RespRate	IVAPS_TGT_PT_RATE	0x01EC	0x01EC	0x0208	Target Pt Rate [bpm] (8.0 .. 30.0 step 1.0); iVAPS Target Rate
+IE9	IERatio.95	I_TO_E_95TH	0x007F	0x007F	0x008B	I:E Ratio P95 [%]
+IEA	IERatio.Max	I_TO_E_MAX	0x0080	0x0080	0x008C	I:E Ratio Max [%]
+IEM	IERatio.50	I_TO_E_MEDIAN	0x0081	0x0081	0x008D	I:E Ratio Median [%]
+IER	IERatio.2s	I_E_RATIO	0x0082	0x0082	0x008E	I:E [%] (0 .. 200 step 1); I:E Ratio [%]
+IEU	S.i.EPAPAuto	IVAPS_EPAP_AUTO			0x023A	Lumis SX584-020x exclusive; iVAPS AutoEPAP: Off, On
+IGL			0x02DA	0x02DB	0x0313	Bilevel pressure settings storage group
+IGT			0x0133	0x0133	0x0144	IGL bilevel pressure and rise settings EEPROM group change tracker
+IHU		IVAPS_HEIGHT_UNIT	0x0219	0x0219	0x0238	Height Units
+ILE		LEARN_MODE	0x021A	0x021A	0x0239	iVAPS LT
+IMF			0x024A	0x024A	0x0274	Cellular-module capability: 0=absent, 1=present; controls cellular settings/status visibility and reserves 3500 mW from the supply budget
+IMN	S.i.MinEPAP	IVAPS_MIN_EPAP			0x0204	Lumis SX584-020x exclusive; iVAPS Min EPAP [cmH2O] (2.0 .. 25.0 step 0.2)
+IMX	S.i.MaxEPAP	IVAPS_MAX_EPAP			0x0205	Lumis SX584-020x exclusive; iVAPS Max EPAP [cmH2O] (2.0 .. 25.0 step 0.2)
+IN5	B5ITime.2s	B5_INSP_TIME	0x0084	0x0084	0x0090	Ti [s] (0.0 .. 10.0 step 0.2); Inspiration Time 5-Breath [s]
+INT	Ti.2s	INSPIRATION_TIME	0x0086	0x0086	0x0092	Inspiration Time [s]
+IPC	S.C.Press	CPAP	0x0024	0x0024	0x0025	CPAP Set Pressure
+IPP	S.BL.IPAP	IPAP	0x0026	0x0026	0x0027	IPAP [cmH2O] (4.0 .. 25.0 step 0.2); Bilevel IPAP
+IS9	Ti.95	INSP_TIME_95	0x0089	0x0089	0x0095	Insp Time P95 [s]
+ISA	Ti.Max	INSP_TIME_MAX	0x008A	0x008A	0x0096	Insp Time Max [s]
+ISM	Ti.50	INSP_TIME_MED	0x0088	0x0088	0x0094	Insp Time Median [s]
+ITN	S.TiMin	TI_MIN	0x01DC	0x01DC	0x01F4	Ti Min [s] (0.1 .. 4.0 step 0.1); Ti Min
+ITT	S.Ti	TI_TOTAL_TIME	0x01DF	0x01DF	0x01F8	Ti [s] (0.3 .. 4.0 step 0.1); Ti
+ITX	S.TiMax	TI_MAX	0x01DD	0x01DD	0x01F5	Ti Max [s] (0.3 .. 4.0 step 0.1); Ti Max
+IVP		MAX_IVAPS_PRESSURE	0x002E	0x002E	0x0031	
+IVS	S.i.StartPress	IVAPS_START_EPAP	0x01EE	0x01EE	0x020A	Start EPAP [cmH2O] (2.0 .. 25.0 step 0.2); iVAPS Start EPAP
+KEY			0x0258	0x0259	0x0282	
+KPD			0x00D8	0x00D8	0x00E9	CAL 0006 latched front-panel button event bitmap; 0002=Home, 0004=Start/Stop, 0008=dial press, 0010/0020=additional profile-1 inputs; reset when the service stops
+KPM			0x0285	0x0286	0x02B9	
+KPT			0x00D9	0x00D9	0x00EA	CAL 0006 current front-panel button state bitmap; 0001=Start/Stop, 0004=Home, 0008=dial press, 0010/0020=additional profile-1 inputs
+L01			0x0172	0x0172	0x0187	CPU idle-time share; raw / 1000 = %
+L02			0x0173	0x0173	0x0188	Combined CPU load of polled and other tasks, L11..L15; raw / 1000 = %
+L03			0x0174	0x0174	0x0189	Combined CPU load L04..L10 plus L16..L20; raw / 1000 = %
+L04			0x0175	0x0175	0x018A	CPU load of Task10Ms; raw / 1000 = %
+L05			0x0176	0x0176	0x018B	CPU load of Task20Ms; raw / 1000 = %
+L06			0x0177	0x0177	0x018C	CPU load of Task40Ms; raw / 1000 = %
+L07			0x0178	0x0178	0x018D	CPU load of Task100Ms; raw / 1000 = %
+L08			0x0179	0x0179	0x018E	CPU load of Task200Ms; raw / 1000 = %
+L09			0x017A	0x017A	0x018F	CPU load of Task1sec; raw / 1000 = %
+L10			0x017B	0x017B	0x0190	CPU load of Task1min; raw / 1000 = %
+L11			0x017C	0x017C	0x0191	CPU load of TskPolledM; raw / 1000 = %
+L12			0x017D	0x017D	0x0192	CPU load of TskPolledE; raw / 1000 = %
+L13			0x017E	0x017E	0x0193	CPU load of TskPolledL; raw / 1000 = %
+L14			0x017F	0x017F	0x0194	CPU load of TskPolled; raw / 1000 = %
+L15			0x0180	0x0180	0x0195	CPU load of other RTOS task IDs; raw / 1000 = %
+L16			0x0181	0x0181	0x0196	
+L17			0x0182	0x0182	0x0197	CPU load of the TIM6/DAC periodic-worker interrupt; raw / 1000 = %
+L18			0x0183	0x0183	0x0198	Combined CPU load of I2C1 event and error interrupts; raw / 1000 = %
+L19			0x0184	0x0184	0x0199	Combined CPU load of UART transmit-DMA interrupts; raw / 1000 = %
+L20			0x0185	0x0185	0x019A	Combined CPU load of SPI3 receive/transmit-DMA interrupts; raw / 1000 = %
+LAN		LANGUAGE	0x0212	0x0212	0x0230	Language
+LBH			0x0100	0x0100	0x0111	Button backlight high level (0 .. 100)
+LBL			0x00FE	0x00FE	0x010F	Button backlight low level (0 .. 100)
+LCA		LCD_TXT_ACT	0x0231	0x0231	0x0255	LCD Text Active
+LCD			0x024E	0x024E	0x0278	CAL 0005 display pattern: 0000/0004=black, 0001=blue, 0002=green, 0003=red, 0005=white, 0006=5-pixel grid
+LCT		LCD_TEXT	0x000D	0x000D	0x000D	LCD Text
+LEF			0x00DA	0x00DA	0x00EB	Registered by CAL 0008; the selected service has no enter, update, or stop behavior
+LET			0x024F	0x024F	0x0279	Registered by CAL 0008; the selected service has no enter, update, or stop behavior
+LK7	Leak.70	LEAK_70TH	0x0092	0x0092	0x009E	Leak P70
+LK9	Leak.95	LEAK_95TH	0x008C	0x008C	0x0098	Leak P95
+LKF	Leak.2s	FILT_MASK_LEAK	0x008D	0x008D	0x0099	Leak [L/s] (0.00 .. 2.00 step 0.02); Filtered Mask Leak
+LKM	Leak.50	LEAK_MED	0x008E	0x008E	0x009A	Leak Median
+LKP		HI_RES_LEAK	0x008F	0x008F	0x009B	Leak (Hi-Res)
+LLH			0x0101	0x0101	0x0112	LCD backlight high level (0 .. 100)
+LLL			0x00FF	0x00FF	0x0110	LCD backlight low level (0 .. 100)
+LMA	LowMV.Alm.Thres	LOW_MIN_VENT_ALM_THRESHOLD	0x0032	0x0032	0x0037	Low MV [L/min] (0 .. 10 step 1); Low MV Alarm
+LMO	LowMV.Alm.En	LOW_MIN_VENT_ALM_ENABLE			0x0240	Lumis SX584-020x exclusive; Low Minute Ventilation Alarm: Off, On
+LMX	Leak.Max	LEAK_MAX	0x0090	0x0090	0x009C	Leak Max
+LNC		LANGUAGE_CONFIG	0x0204	0x0204	0x0222	Language Config Bitmask
+LPF			0x011E	0x011E	0x012F	
+LPR			0x011B	0x011B	0x012C	
+LRD			0x0140	0x0140	0x0151	Leak [L/min] (0 .. 120 step 0)
+LRE		AVG_LOW_RES_EPR_PRESSURE	0x00B2	0x00B2	0x00C0	Avg Low-Res EPR Pressure
+LRP		AVG_LOW_RES_THERAPY_PRESSURE	0x00B1	0x00B1	0x00BF	Avg Low-Res Therapy Pressure
+LRS			0x00ED	0x00ED	0x00FE	
+LSD	Date	CURRENT_SESSION_DATE	0x00BA	0x00BA	0x00CB	Current Session Date
+LYK		MASK_LEAK	0x0091	0x0091	0x009D	Leak [L/s] (0.00 .. 2.00 step 0.02); Mask Leak
+MAM			0x02AE	0x02AF	0x02E4	
+MAP		AVG_MASK_PRESS	0x0036	0x0036	0x003B	Avg Mask Pressure
+MAV		MEAN_ACHV_ALV_MIN_VENT	0x0051	0x0051	0x0056	Mean Achieved Alveolar Ventilation [L/min]; source for STR alveolar-ventilation percentiles
+MCP		MAX_CS_PRESSURE	0x0028	0x0028	0x0029	
+MDA			0x00D4	0x00D4	0x00E5	EEPROM diagnostic block index 0..7; selects a 64-byte block within reserved logical sector 502 on SX567-0402
+MDB			0x0011	0x0011	0x0012	EEPROM diagnostic buffer: 128 hex characters representing the 64-byte block selected by MDA
+MDC			0x024D	0x024D	0x0277	EEPROM diagnostic command: 0=idle, 1=read selected MDA block into MDB, 2=write MDB to selected block; clears after processing
+MFA			0x0277	0x0278	0x02A1	
+MFM			0x0276	0x0277	0x02A0	
+MFP			0x0143	0x0143	0x0154	
+MFT		MASKFITTING	0x0236	0x0236	0x025B	Mask Fitting Mode
+MGL			0x02E3	0x02E4	0x031C	Machine settings storage group
+MGT			0x0186	0x0186	0x019B	MGL EEPROM group change tracker
+MHR		MOTOR_HOUR	0x00DB	0x00DB	0x00EC	Run Hrs [hrs] (0 .. 596523 step 1)
+MHS		MOTOR_HR_SRV	0x00DC	0x00DC	0x00ED	
+MHU		TOTAL_HOURS	0x00DD	0x00DD	0x00EE	Run Hrs (0 .. 596523 step 1)
+MID		METADATA_ID	0x001E	0x001E	0x001F	Metadata ID
+MIS		MEAN_INSP_TIME	0x008B	0x008B	0x0097	Mean Insp Time [s]
+MKD					0x0243	Lumis SX584-020x exclusive
+MKE	EprPress.2s	EPR_PRESSURE	0x0042	0x0042	0x0047	EPR Pressure
+MKF	MaskPress.2s	FILT_MASK_PRESS	0x0037	0x0037	0x003C	Filtered Mask Pressure
+MKI	Press.2s	BI_THERAPY_PRESSURE	0x0043	0x0043	0x0048	Bilevel Mask Pressure
+MKP	Press.40ms	MASK_PRESS	0x0038	0x0038	0x003D	Mask Pressure
+MMD					0x002A	Lumis SX584-020x exclusive; ASV minimum separation between Max PS and Min PS [cmH2O], default 5.0
+MNE	S.VA.MinEPAP	MIN_EPAP	0x01D5	0x01D5	0x01ED	Min EPAP [cmH2O] (4.0 .. 25.0 step 0.2); VAuto Min EPAP
+MNS	S.AV.MinPS	MIN_SWING	0x01E1	0x01E1	0x01FB	Min PS [cmH2O] (0.0 .. 6.0 step 0.2); ASV Min PS
+MOP	Mode	OPERATING_MODE	0x020D	0x020D	0x022B	Therapy Mode
+MPA	S.AS.MaxPress	MAX_PRESSURE	0x0025	0x0025	0x0026	AutoSet Max Pressure
+MPB			0x01C1	0x01C1	0x01D9	Blower power reserve in mW; subtracted from the supply budget before allocating humidifier power; default 30000 in AirSense and 35000 in AirCurve
+MPI	S.AS.MinPress	MIN_PRESSURE	0x01D3	0x01D3	0x01EB	AutoSet Min Pressure
+MQD			0x0256	0x0257	0x0280	Mask Fit
+MSD					0x02F2	Lumis SX584-020x exclusive; Live stream in g[26]
+MSE	MaskEvents	NO_MSK_EVTS	0x00B4	0x00B4	0x00C5	Mask Events Count
+MSK	S.Mask	MASK_TYPE	0x0213	0x0213	0x0231	Mask Type
+MSP	MaskPress.50	MEDP_SESSION	0x0039	0x0039	0x003E	Median Pressure
+MST		MASK_STATUS	0x0248	0x0248	0x0272	Mask Status
+MTT		MEAN_TAR_MINVENT	0x0029	0x0029	0x002B	Mean Target Minute Vent [L/min]
+MV5	MinVent.2s	BREATHS5_MV	0x0093	0x0093	0x009F	MV [L/min] (0.0 .. 30.0 step 0.1); Minute Vent 5-Breath
+MVT		MEAN_MINVENT	0x0094	0x0094	0x00A0	Mean Minute Vent
+MXI	S.VA.MaxIPAP	MAX_IPAP_PRS	0x01D6	0x01D6	0x01EE	Max IPAP [cmH2O] (4.0 .. 25.0 step 0.2); VAuto Max IPAP
+MXS	S.AV.MaxPS	MAX_SWING	0x01E2	0x01E2	0x01FC	Max PS [cmH2O] (5.0 .. 20.0 step 0.2); ASV Max PS
+NBF			0x0124	0x0124	0x0135	
+NGL			0x02E1	0x02E2	0x031A	Backlight settings storage group
+NGT			0x016D	0x016D	0x0182	NGL backlight persistence-group tracker
+NMF	NVMask.Alm.En	NV_MASK_ALM_EN	0x021E	0x021E	0x023E	Non-Vent Mask
+NOC		NUM_OCCURENCES	0x00AD	0x00AD	0x00BB	Occurrence Count
+NOS			0x00CA	0x00CA	0x00DB	Filtered analog snore-path signal before SNZ zero and SNB background correction; sourced from ADC1_IN14 on PC4
+NPA		NIGHT_PROFILE_APNEA	0x02D5	0x02D6	0x030D	Night profile apnea signal group
+NPD		NIGHT_PROFILE_PERIODIC	0x02D4	0x02D5	0x030C	Night profile periodic signal group
+NSE			0x00CB	0x00CB	0x00DC	Background-corrected and normalized snore-path signal; raw / 100 feeds the snore-index calculation
+NVS		NONIN_SOFTWARE_VERSION	0x0075	0x0075	0x007D	Oximeter SW Version
+OAC			0x0122	0x0122	0x0133	Central apnea count; incremented for AET=2; source for OPI
+ODC					0x0156	Lumis SX584-020x exclusive; Event counter used to calculate ODI
+ODD	Oxy.Dur	OXY_DESATURATION_DURATION			0x0089	Lumis SX584-020x exclusive; Oxygen Desaturation Duration
+ODI	ODI	ODI_SESSION			0x008A	Lumis SX584-020x exclusive; Oxygen Desaturation Index
+ODT	ODIThreshold	ODI_THRESHOLD			0x0259	Lumis SX584-020x exclusive; ODI desaturation threshold: 3%, 4%
+OFT	MaskOff	MASKOFF_TIME	0x00B5	0x00B5	0x00C6	Mask Off Time
+OND	Duration	MASKON_DUR	0x00B6	0x00B6	0x00C7	Mask On Duration
+ONT	MaskOn	MASKON_TIME	0x00B8	0x00B8	0x00C9	Mask On Time
+OPI	CAI	OAI_SESSION	0x0057	0x0057	0x005C	Central apnea index; derived from OAC
+OVD					0x0157	Lumis SX584-020x exclusive; Duration used to normalize the ODI event count [min.]
+OXC			0x0279	0x027A	0x02A3	
+OXH			0x02B7	0x02B8	0x02EE	Oximetry summary/header
+OXS		OXIMETRY_SEQUENCE	0x0076	0x0076	0x007E	Oximetry Sequence
+OXT			0x0144	0x0144	0x0155	
+PBR			0x0252	0x0252	0x027C	CAL 000D/0012 USART2 baud selector: 0000=9600, 0001=14400, 0002=19200, 0003=28800, 0004=38400, 0005=57600; Calibration Serial Baud Rate
+PBT		PERIODIC_BREATH_TXLINK	0x02B9	0x02BA	0x02F0	Live stream: periodic breath TxLink summary
+PCB		PCB_ID	0x0002	0x0002	0x0002	PCB ID
+PCC			0x02B2	0x02B3	0x02E9	Five u16 climate-control parameters received through the humidifier interface; setup consumes elements 0, 1, 3, and 4
+PCD		PRODUCT_CODE	0x0003	0x0003	0x0003	Product Code
+PDD			0x0189	0x0189	0x019E	
+PDL			0x02E6	0x02E7	0x031F	Persistent device-state variable list
+PDS			0x0187	0x0187	0x019C	
+PDT			0x0188	0x0188	0x019D	
+PE9	TgtEPAP.95	E_95_SESSION	0x0049	0x0049	0x004E	EPAP P95
+PEA	TgtEPAP.Max	E_MAX_SESSION	0x004A	0x004A	0x004F	EPAP Max
+PEM	TgtEPAP.50	E_MED_SESSION	0x004B	0x004B	0x0050	EPAP Median
+PGL			0x02E4	0x02E5	0x031D	Peripheral and accessory settings storage group
+PGT			0x018A	0x018A	0x019F	PGL mask, tube and humidification settings EEPROM group change tracker
+PHI		IVAPS_HEIGHT_INCHES	0x0030	0x0030	0x0033	Height [inches] (44 .. 100 step 2); Height
+PHM	PatientHours	PATIENT_HRS_LOW_RES	0x00BD	0x00BD	0x00CE	Patient Hours
+PHT	S.i.Height	IVAPS_HEIGHT	0x002F	0x002F	0x0032	Height [cm] (110 .. 250 step 5); Height
+PI9	TgtIPAP.95	I_95_SESSION	0x0046	0x0046	0x004B	IPAP P95
+PIA	TgtIPAP.Max	I_MAX_SESSION	0x0047	0x0047	0x004C	IPAP Max
+PIM	TgtIPAP.50	I_MED_SESSION	0x0048	0x0048	0x004D	IPAP Median
+PLD			0x02C4	0x02C5	0x02FC	EDF periodic signal channel: 2-second and per-breath statistics
+PM9	MaskPress.95	P95_SESSION	0x003A	0x003A	0x003F	Pressure P95
+PMA	MaskPress.Max	MAXP_SESSION	0x003B	0x003B	0x0040	Pressure Max
+PMD		MASK_DATA	0x02BA	0x02BB	0x02F1	Live stream: mask pressure, respiratory flow, and leak samples
+PMS			0x028A	0x028B	0x02BE	
+PNA		PRODUCT_NAME	0x0004	0x0004	0x0004	Product Name
+PPA		PLATE_POWER_APPLIED	0x0060	0x0060	0x0065	Plate Power Applied
+PRD		PRESSURE_U	0x028B	0x028C	0x02BF	Press. Units; Pressure Units
+PRP			0x018C	0x018C	0x01A1	
+PRS			0x00C7	0x00C7	0x00D8	Raw pressure sensor value
+PSH		HI_PRS_SCALE	0x00C8	0x00C8	0x00D9	Pressure Gain
+PSM			0x028C	0x028D	0x02C0	
+PSP		PRES_SUPP	0x011C	0x011C	0x012D	PS [cmH2O] (0.0 .. 25.0 step 0.2)
+PSU			0x028D	0x028E	0x02C1	
+PVD			0x00CE	0x00CE	0x00DF	Communication metadata version; initialized from g[0]+0x00 and reported as CID field 4
+PVR			0x00CF	0x00CF	0x00E0	Communication metadata revision component; initialized from g[0]+0x10 and reported as CID field 7
+PZH		HI_PRSS_ZERO	0x00C9	0x00C9	0x00DA	Pressure Zero
+QCD		MODULE_CELL_SIGNAL_DB	0x006A	0x006A	0x006F	Signal [dBm] (-120 .. 0 step 1); Cell Signal
+QCO		MODULE_INT_OPERATOR	0x000B	0x000B	0x000B	Module Operator
+QCS		MODULE_CELL_SIGNAL_STRENGTH	0x022E	0x022E	0x0252	Cell Signal Strength
+QCV		MODULE_INT_SERVICE	0x000C	0x000C	0x000C	Module Service
+QFC		MODULE_FLIGHT_MODE_CONTROL	0x022F	0x022F	0x0253	Airplane Mode
+QGI		MODULE_INT_GROUP	0x022D	0x022D	0x0251	Module Group
+QNC		MODULE_NETWORK_CONNECTION	0x0230	0x0230	0x0254	Network Connection
+QSI		MODULE_INT_SERIAL_NUM	0x000A	0x000A	0x000A	Module Serial Number
+QTI		MODULE_INT_TYPE	0x0008	0x0008	0x0008	Module Type
+QVI		MODULE_INT_SW_VERSION	0x0009	0x0009	0x0009	Module SW Version
+QXH			0x02DC	0x02DD	0x0315	ASVAuto settings storage group
+QXI			0x0145	0x0145	0x0158	QXH settings EEPROM group change tracker
+QXJ			0x02DD	0x02DE	0x0316	iVAPS settings storage group
+QXK			0x0146	0x0146	0x0159	QXJ iVAPS settings EEPROM group change tracker
+RAW			0x02BC	0x02BD	0x02F4	Live stream: raw pressure, flow, and temperature samples
+RCF		RECUR_PERIOD_FILTER	0x0098	0x0098	0x00A4	Reminder recurrence period: Filter (1 .. 24 months)
+RCH		RECUR_PERIOD_TUBE	0x009A	0x009A	0x00A6	Reminder recurrence period: Tube (1 .. 24 months)
+RCM		RECUR_PERIOD_MASK	0x0099	0x0099	0x00A5	Reminder recurrence period: Mask (1 .. 24 months)
+RCR	CLRatio.2s	REC_SPT_CL_RATIO	0x012B	0x012B	0x013C	Spont Cyc [%] (0 .. 100 step 1)
+RCW		RECUR_PERIOD_WATERTUB	0x009B	0x009B	0x00A7	Reminder recurrence period: Water Tub (1 .. 24 months)
+RDA	S.RampDownEnable	RAMP_DOWN_CONTROL			0x0269	Lumis SX584-020x exclusive; Ramp Down: Off, On
+RDC			0x0152	0x0152	0x0163	Arousal event count; incremented for AET=5
+RDF		REM_DATE_FILTER	0x01F2	0x01F2	0x0210	Reminder due date: Filter (0 .. 24836 step 7)
+RDH		REM_DATE_TUBE	0x01F4	0x01F4	0x0212	Reminder due date: Tube (0 .. 24836 step 7)
+RDM		REM_DATE_MASK	0x01F3	0x01F3	0x0211	Reminder due date: Mask (0 .. 24836 step 7)
+RDP			0x01AB	0x01AB	0x01C0	
+RDT		REMIND_DATES	0x018D	0x018D	0x01A2	Current date used by the reminder scheduler
+RDW		REM_DATE_WATERTUB	0x01F5	0x01F5	0x0213	Reminder due date: Water Tub (0 .. 24836 step 7)
+REM		MANUF_RESET	0x0215	0x0215	0x0233	Erase Data (0=Clinical 1=Compliance 2=ErrorLog 3=All)
+RES			0x0250	0x0250	0x027A	System reset request: 0000=no reset request; 0001=orderly task shutdown then watchdog reset; 0002=request task stop without waiting, then watchdog reset; 0003=orderly task shutdown then immediate SYSRESETREQ. All reset paths re-enter BLX; with valid CCX/CDX and clear boot state, BLX uses its BKP6R fast-boot reset to return to CDX
+RF5	Flow.5	RESP_FLOW_5TH	0x006F	0x006F	0x0074	Resp Flow P5
+RF9	Flow.95	RESP_FLOW_95TH	0x006E	0x006E	0x0073	Resp Flow P95
+RFA			0x0111	0x0111	0x0122	
+RFL	Flow.40ms	RESP_FLOW	0x006B	0x006B	0x0070	Resp Flow
+RFR			0x018E	0x018E	0x01A3	
+RGL			0x02D8	0x02D9	0x0311	Reminder settings storage group
+RGT			0x0126	0x0126	0x0137	RGL reminder persistence-group tracker
+RID		REGION_ID	0x0020	0x0020	0x0021	Region ID
+RIN	RIN	RIN_SESSION	0x0050	0x0050	0x0055	RERA Index
+RIR			0x00D0	0x00D0	0x00E1	Communication metadata revision component; initialized from g[0]+0x18 and reported as CID field 6
+RMA	S.RampEnable	RAMP_CONTROL	0x0240	0x0240	0x0265	Ramp Enable
+RMM			0x026D	0x026E	0x0297	
+RMT	S.RampTime	RAMP_TIME	0x01EF	0x01EF	0x020B	Ramp Time
+RNM					0x0266	Lumis SX584-020x exclusive
+ROP		RUNNING_MODE	0x020E	0x020E	0x022C	Modes: 0000=Standby, 0001=Normal, 0002=Power Recovery, 0003=Power Save, 0004=Calibration, 0005=Upgrade; ROP=0004 requests calibration mode; Run Mode Request
+ROT			0x0251	0x0251	0x027B	CAL 0007 rotary result: 0001=negative delta, 0002=positive delta, reset to 0000 when the service stops; Rotary Encoder Position
+RPF		RECUR_PERIOD_ENABLE_FILTER	0x0238	0x0238	0x025D	Reminder recurrence enable: Filter (0000=Off, 0001=On)
+RPH		RECUR_PERIOD_ENABLE_TUBE	0x023A	0x023A	0x025F	Reminder recurrence enable: Tube (0000=Off, 0001=On)
+RPM			0x02A2	0x02A3	0x02D8	
+RPO		RECUR_PERIOD_ENABLE_MASK	0x0239	0x0239	0x025E	Reminder recurrence enable: Mask (0000=Off, 0001=On)
+RPW		RECUR_PERIOD_ENABLE_WATERTUB	0x023B	0x023B	0x0260	Reminder recurrence enable: Water Tub (0000=Off, 0001=On)
+RR1		ONBOARD_RR	0x009C	0x009C	0x00AA	RR [bpm] (0.0 .. 50.0 step 1.0); Resp Rate (realtime)
+RR9	RespRate.95	RESPRATE95TH	0x009D	0x009D	0x00AB	Resp Rate P95
+RRA	RespRate.Max	RESPRATE_MAX	0x009E	0x009E	0x00AC	Resp Rate Max
+RRC					0x01F7	Lumis SX584-020x exclusive; Respiratory rate [bpm] (5 .. 50 step 1)
+RRM	RespRate.50	RESPRATE_MED	0x009F	0x009F	0x00AD	Resp Rate Median
+RRR	RespRate.2s	HI_RES_RR	0x00A0	0x00A0	0x00AE	RR [bpm] (0 .. 50 step 1); Resp Rate (Hi-Res)
+RRT	S.BL.RespRate	RESP_RATE_SETTING	0x01DE	0x01DE	0x01F6	Resp. Rate [bpm] (5.0 .. 50.0 step 1.0); Resp. Rate
+RSA			0x0237	0x0237	0x025C	Reminder acknowledgement request; 0001 acknowledges and reschedules the currently due reminder
+RSC	S.RiseEnable	RISE_TIME_CONTROL	0x0218	0x0218	0x0236	Rise Time; Rise Time Select
+RSS			0x0012	0x0012	0x0013	CAL 000C raw framed request/reply buffer, maximum 10 bytes including 7E delimiters; Calibration Serial Request/Reply
+RST	S.RiseTime	RISE_TIME	0x01DB	0x01DB	0x01F3	Rise Time [ms] (150 .. 900 step 50); Rise Time
+RTD					0x020D	Lumis SX584-020x exclusive
+RTI			0x01F9	0x01F9	0x0217	Time (0 .. 1522491 step 1)
+RTM					0x020C	Lumis SX584-020x exclusive; Ramp Time [min.] (5 .. 45 step 5)
+RTR	TRRatio.2s	REC_SPT_TR_RATIO	0x012C	0x012C	0x013D	Spont Trig [%] (0 .. 100 step 1)
+RTS					0x0268	Lumis SX584-020x exclusive
+RUM			0x02A4	0x02A5	0x02DA	
+RXF		REM_DATE_ENABLE_FILTER	0x023C	0x023C	0x0261	Reminder date enable: Filter (0000=Off, 0001=On)
+RXH		REM_DATE_ENABLE_TUBE	0x023E	0x023E	0x0263	Reminder date enable: Tube (0000=Off, 0001=On)
+RXM		REM_DATE_ENABLE_MASK	0x023D	0x023D	0x0262	Reminder date enable: Mask (0000=Off, 0001=On)
+RXW		REM_DATE_ENABLE_WATERTUB	0x023F	0x023F	0x0264	Reminder date enable: Water Tub (0000=Off, 0001=On)
+RYS			0x0207	0x0207	0x0225	
+S10			0x01C3	0x01C3	0x01DB	Task10Ms stack high-water usage; raw / 10 = % of allocated stack
+S11			0x01C6	0x01C6	0x01DE	Task100Ms stack high-water usage; raw / 10 = % of allocated stack
+S1M			0x01CA	0x01CA	0x01E2	Task1min stack high-water usage; raw / 10 = % of allocated stack
+S1S			0x01C9	0x01C9	0x01E1	Task1sec stack high-water usage; raw / 10 = % of allocated stack
+S20			0x01C4	0x01C4	0x01DC	Task20Ms stack high-water usage; raw / 10 = % of allocated stack
+S22			0x01C7	0x01C7	0x01DF	Task200Ms stack high-water usage; raw / 10 = % of allocated stack
+S40			0x01C5	0x01C5	0x01DD	Task40Ms stack high-water usage; raw / 10 = % of allocated stack
+S44			0x01C8	0x01C8	0x01E0	
+SAD			0x02C5	0x02C6	0x02FD	EDF periodic signal channel: SpO2 and pulse
+SAO	SpO2.1s	SAO2	0x0077	0x0077	0x007F	SpO2 [%] (0 .. 100 step 1); SpO2
+SAR		SAO2_RAW	0x007B	0x007B	0x0084	SpO2 [%] (0 .. 127 step 1); SpO2 Raw
+SAS		SAO_STATUS	0x007C	0x007C	0x0085	SpO2 Status
+SAU	SpO2Thresh	SPO2_MINUTES_UNDER_THRESHOLD	0x007D	0x007D	0x0086	SpO2 Minutes Under Threshold
+SAV		AVG_SPO2	0x007E	0x007E	0x0087	SpO2 [%] (0 .. 100 step 1); Avg SpO2
+SBC			0x012D	0x012D	0x013E	Spontaneous trigger count; incremented for TCV=1
+SBD			0x012E	0x012E	0x013F	Non-spontaneous trigger count; incremented for TCV=2..4
+SCF		CONFIRM_STOP	0x0242	0x0242	0x026C	Confirm Stop
+SCS				0x0255		Startup missing-SD-card warning enable; value 1 allows the initial card check to set ZPK bit 0 and display SPM=1, No SD card detected, press OK to continue
+SCT			0x018F	0x018F	0x01A4	
+SDC			0x0254	0x0254	0x027E	
+SDS			0x0205	0x0205	0x0223	
+SDT			0x0123	0x0123	0x0134	CAL 000A SD status bitmask: 0001=card present, 0002=write-protected
+SDU			0x00E3	0x00E3	0x00F4	
+SED			0x01FE	0x01FE	0x021C	
+SEE			0x01CB	0x01CB	0x01E3	TskPolledE stack high-water usage; raw / 10 = % of allocated stack
+SEP			0x0290	0x0291	0x02C6	Period
+SET		SETTLNG_TIME	0x0190	0x0190	0x01A5	
+SFK			0x0141	0x0141	0x0152	
+SGL			0x02E5	0x02E6	0x031E	System settings storage group
+SGT			0x0191	0x0191	0x01A6	SGL mode, language and units settings EEPROM group change tracker
+SID		SOFTWARE_ID	0x0005	0x0005	0x0005	Software ID
+SLD			0x01CD	0x01CD	0x01E5	TskPolledL stack high-water usage; raw / 10 = % of allocated stack
+SMM			0x01CC	0x01CC	0x01E4	TskPolledM stack high-water usage; raw / 10 = % of allocated stack
+SMO		MIN_SPO2			0x0088	Lumis SX584-020x exclusive; Minimum SpO2 [%]; NPD signal
+SNB			0x00CC	0x00CC	0x00DD	Snore-path background calibration in BGL; raw / 44 scales the nominal background, default 44
+SNI	Snore.2s	SNORE_IDX	0x00A1	0x00A1	0x00AF	Snore Index
+SNZ			0x00CD	0x00CD	0x00DE	Snore-path zero offset in BGL; subtracted before background correction, default 0
+SO9	SpO2.95	SPO2_95	0x0079	0x0079	0x0081	SpO2 P95
+SOM	SpO2.50	SPO2_MED	0x0078	0x0078	0x0080	SpO2 Median
+SOX	SpO2.Max	SPO2_MAX	0x007A	0x007A	0x0082	SpO2 Max
+SOZ	SpO2.Min	SPO2_MIN			0x0083	Lumis SX584-020x exclusive; SpO2 Minimum [%]
+SPD		MOTOR_SPEED	0x00DE	0x00DE	0x00EF	
+SPL			0x01CE	0x01CE	0x01E6	TskPolled stack high-water usage; raw / 10 = % of allocated stack
+SPM			0x02A7	0x02A8	0x02DD	Current informational GUI message on SX567: 0=none, 1=no SD card, 2=calculating targets, 3=connect a 90W supply, 4=motor life exceeded, 5=humidifier warming, 6=humidifier ready, 7=humidifier cooling; selected from ZPK and acknowledged through ZKA
+SPO	Spo2.Alm.En	SPO2_ALM_ENABLE			0x0242	Lumis SX584-020x exclusive; Low SpO2 Alarm: Off, On
+SPP		SET_PRESSURE	0x003C	0x003C	0x0041	Set Pressure [cmH2O] (0.0 .. 30.0 step 0.2); Set Pressure (runtime)
+SPT	S.VA.PS	PRS_SUPPORT	0x01D7	0x01D7	0x01EF	PS [cmH2O] (0.0 .. 10.0 step 0.2); VAuto PS
+SPX	Spo2.Alm.Thres	SPO2_ALM_THRESHOLD	0x0034	0x0034	0x0039	Low SpO2 [%] (69 .. 95 step 1); Low SpO2 Alarm
+SQT			0x0192	0x0192	0x01A7	
+SRC			0x0291	0x0292	0x02C7	
+SRN		SERIAL_NUM	0x0006	0x0006	0x0006	Serial Number
+SRP		SNORE_PRESS	0x013F	0x013F	0x0150	
+SRT			0x0193	0x0193	0x01A8	
+SSD			0x0135	0x0135	0x0146	Date (0 .. 24836 step 1)
+SSK			0x02BF	0x02C0	0x02F7	Live stream: internal status values
+SST	S.SmartStart	SMART_START	0x0243	0x0243	0x026D	SmartStart
+STE	S.AV.StartPress	START_EEP	0x01E3	0x01E3	0x01FD	Start EPAP [cmH2O] (4.0 .. 15.0 step 0.2); ASV Start EPAP
+STK			0x0194	0x0194	0x01A9	Application runtime tick counter; incremented once per 10 ms update and used as the event timestamp timebase
+STP	S.C.StartPress	START_PRESSR	0x01D2	0x01D2	0x01EA	CPAP Start Pressure
+STR			0x02C9	0x02CA	0x0301	EDF session statistics channel
+STU	S.AS.StartPress	START_A_PRES	0x01D4	0x01D4	0x01EC	AutoSet Start Pressure
+STV	S.VA.StartPress	START_VAUTO_PRES	0x01D8	0x01D8	0x01F0	Start EPAP [cmH2O] (4.0 .. 25.0 step 0.2); VAuto Start EPAP
+STW			0x0195	0x0195	0x01AA	
+SYC	Fault.Humidifier	CLIMATE_CONTROL_ERROR	0x01FF	0x01FF	0x021D	Climate Control Error
+SYH	Fault.HeatedTube	HEATED_TUBE_ERROR	0x0200	0x0200	0x021E	Heated Tube Error
+SYS	Fault.Device	SYSTEM_ERROR	0x0201	0x0201	0x021F	System Error
+SYT	Fault.Alarm	SYSTEM_ERROR_TWO	0x0202	0x0202	0x0220	System Error Two
+TBB			0x012F	0x012F	0x0140	Spontaneous cycle count; incremented for TCV=5; numerator of VCR
+TBC			0x0130	0x0130	0x0141	Non-spontaneous cycle count; incremented for TCV=6..8; VCR=100*TBB/(TBB+TBC)
+TBR	S.BL.TgtRR	TARGET_RESP_RATE			0x01F9	Lumis SX584-020x exclusive; Target Patient Rate [bpm] (8 .. 50 step 1)
+TBT	S.Tube	HOSE_LENGTH	0x0214	0x0214	0x0232	Tube Type
+TCE		TRIG_CYC	0x02B8	0x02B9	0x02EF	Live stream: trigger/cycle and therapy-control samples
+TCT			0x0131	0x0131	0x0142	System-tick timestamp of the latest trigger/cycle event; changes trigger TCV-based counter updates
+TCV	TrigCycEvt.40ms	TRIGGER_CYCLE_EVENT	0x0244	0x0244	0x026E	Trigger/Cycle Event
+TDD	TidVol.2s	TIDAL_VOL_5B	0x00A3	0x00A3	0x00B1	Vt [L] (0.00 .. 4.00 step 0.02); Tidal Volume 5-Breath
+TEE		TE_ERROR_COUNT	0x0127	0x0127	0x0138	TRR transient-error stream backend state/cursor
+TEM			0x00DF	0x00DF	0x00F0	
+TEP		TGT_EXP_PRES	0x003D	0x003D	0x0042	Pressure [cmH2O] (2.0 .. 30.0 step 0.2); Target EPAP
+TET			0x0196	0x0196	0x01AB	
+TEZ			0x00E0	0x00E0	0x00F1	
+TGT	TgtVent.2s	TARGET_VENTILATION	0x002A	0x002A	0x002C	TgMV [L/min] (0.0 .. 30.0 step 0.1); Target Ventilation [L/min]
+THD	OnDuration	THERAPY_DURATION	0x00B7	0x00B7	0x00C8	Therapy Duration
+TIC		TIME_DEC	0x02B6	0x02B7	0x02ED	Time
+TID		TIDAL_VOLUME	0x00A4	0x00A4	0x00B2	Vt [L] (0.00 .. 4.00 step 0.02); Tidal Volume
+TIP		TGT_INSP_PRES	0x003E	0x003E	0x0043	Pressure [cmH2O] (4.0 .. 30.0 step 0.2); Target IPAP
+TIT			0x015E	0x015E	0x0170	
+TLF		THERAPY_LED_ENABLE	0x0235	0x0235	0x025A	Therapy LED
+TMD			0x01BB	0x01BB	0x01D3	
+TMM			0x0292	0x0293	0x02C8	
+TMU		TEMP_UNIT	0x022A	0x022A	0x024E	Temp. Units
+TPA		TUBE_POWER_APPLIED	0x0061	0x0061	0x0066	Tube Power Applied
+TPM	HTubePow.50	HEATED_TUBE_PWM_MED	0x0063	0x0063	0x0068	Heated Tube PWM Median
+TRD			0x00F9	0x00F9	0x010A	Total AI (0.0 .. 240.0 step 0.1)
+TRI			0x0270	0x0271	0x029A	Runtime trigger-event indicator; value 4=Timed; permitted values 0, 1, 4; produced from therapy feedback, separate from VTS sensitivity
+TRR		TRANSIENT_ERR_LOG	0x02CF	0x02D0	0x0307	EEPROM stream: transient system errors (TYS)
+TSS			0x0209	0x0209	0x0227	Therapy-screen page mask: bit 0=round pressure display, bit 1=pressure bar, bit 2=ventilation metrics, bit 3=timing and spontaneous-cycle metrics
+TUD			0x0255	0x0256	0x027F	Used-hours display toggle stored in UGL; callback 28 controls PHM and HOU visibility
+TV9	TidVol.95	VP5_TIDAL_95TH	0x00A5	0x00A5	0x00B3	Tidal Volume P95
+TVA	TidVol.Max	VP5_TIDAL_MAX	0x00A6	0x00A6	0x00B4	Tidal Volume Max
+TVM	TidVol.50	VP5_TIDAL_MED	0x00A7	0x00A7	0x00B5	Tidal Volume Median
+TXC		CLIMATE_CONTROL_ERR_LOG	0x02CB	0x02CC	0x0303	EEPROM stream: climate-control errors (SYC)
+TXE		TRANSDR_ERR	0x02CD	0x02CE	0x0305	EEPROM stream: transducer errors (SYS)
+TXH		HEATED_TUBE_ERROR_LOG	0x02CC	0x02CD	0x0304	EEPROM stream: heated-tube errors (SYH)
+TXW		TRANSDR_ERR_TWO	0x02CE	0x02CF	0x0306	EEPROM stream: transducer errors 2 (SYT)
+TYS		TRANSIENT_SYSTEM_ERROR	0x0203	0x0203	0x0221	Transient System Error
+UAC			0x0118	0x0118	0x0129	Unclassified apnea count; incremented for AET=4
+UAI	UAI	UAI_SESSION	0x0058	0x0058	0x005D	Unknown AI
+UDT			0x01F6	0x01F6	0x0214	Date (0 .. 24836 step 1)
+UGL			0x02E2	0x02E3	0x031B	Usage data storage group
+UGT			0x016E	0x016E	0x0183	UGL EEPROM group change tracker; receives TUD updates
+UPK			0x0273	0x0274	0x029D	
+UPM			0x0271	0x0272	0x029B	
+UPS			0x0272	0x0273	0x029C	
+UQD			0x00E5	0x00E5	0x00F6	Usage [hrs] (0.0 .. 1048575.0 step 0.1)
+URD			0x00E6	0x00E6	0x00F7	
+UTI			0x01FA	0x01FA	0x0218	Time (0 .. 1522491 step 1)
+UTT			0x00E1	0x00E1	0x00F2	
+UTY			0x0259	0x025A	0x0283	
+VA9	TgtVent.95	TAR_MIN_VENT_95	0x002B	0x002B	0x002D	Target Vent P95 [L/min]
+VAA	TgtVent.Max	TAR_MIN_VENT_MAX	0x002C	0x002C	0x002E	Target Vent Max [L/min]
+VAM	TgtVent.50	TAR_MIN_VENT_MED	0x002D	0x002D	0x002F	Target Vent Median [L/min]
+VBE	S.BL.IBR	I_BACKUP_RATE_ENABLE			0x0237	Lumis SX584-020x exclusive; Intelligent Backup Rate: Off, On
+VCR	SpontCyc%	SPT_CL_RATIO	0x00A8	0x00A8	0x00B6	Spont Cyc [%] (0.0 .. 100.0 step 1.0); Spont Cycle Ratio [%]
+VCS	S.Cycle	CYCL_SNSTVTY	0x0245	0x0245	0x026F	Cycle; Cycle Sensitivity
+VGL			0x02DE	0x02DF	0x0317	VAuto settings storage group
+VGT			0x0153	0x0153	0x0164	VGL VAuto settings EEPROM group change tracker
+VID		VARIANT_ID	0x001F	0x001F	0x0020	Variant ID
+VIR			0x00D1	0x00D1	0x00E2	Communication metadata revision component; initialized from g[0]+0x14 and reported as CID field 5
+VLT			0x00E2	0x00E2	0x00F3	CAL 000D/0012 RTC backup-battery voltage sample; raw 12-bit PA0/ADC1_IN0 count from a switched divider; 0012 stops sampling after TX enables receive, while 000D continues between transmissions
+VRD			0x00E7	0x00E7	0x00F8	Days 4hrs+ (0 .. 65535 step 1)
+VSR	SpontTrig%	SPT_TR_RATIO	0x00A9	0x00A9	0x00B7	Spont Trig [%] (0.0 .. 100.0 step 1.0); Spont Trigger Ratio
+VT9	MinVent.95	MIN_VENT_95	0x0095	0x0095	0x00A1	Minute Vent P95
+VTA	MinVent.Max	MIN_VENT_MAX	0x0096	0x0096	0x00A2	Minute Vent Max
+VTM	MinVent.50	MIN_VENT_MED	0x0097	0x0097	0x00A3	Minute Vent Median
+VTS	S.Trigger	TRIG_SNSTVTY	0x0246	0x0246	0x0270	Trigger; Trigger Sensitivity
+WMV	S.i.AlvMinVent	IVAPS_TGT_VA	0x01ED	0x01ED	0x0209	Target Va [L/min] (1.0 .. 30.0 step 0.1); iVAPS Target Va
+WPA	S.i.MaxPS	IVAPS_MAX_SWING	0x01EB	0x01EB	0x0207	Max PS [cmH2O] (0.0 .. 28.0 step 0.2); iVAPS Max PS
+WPM	S.i.MinPS	IVAPS_MIN_SWING	0x01EA	0x01EA	0x0206	Min PS [cmH2O] (0.0 .. 20.0 step 0.2); iVAPS Min PS
+WRD			0x00E8	0x00E8	0x00F9	Avg. Usage [hrs] (0.0 .. 1048575.0 step 0.1)
+WUP			0x025E	0x025F	0x0288	
+XGL			0x02DF	0x02E0	0x0318	ASV fixed-pressure settings storage group
+XGT			0x0154	0x0154	0x0165	XGL ASV settings EEPROM group change tracker
+XMP			0x0113	0x0113	0x0124	
+XRD			0x00E9	0x00E9	0x00FA	Used Hrs [hrs] (0.0 .. 1048575.0 step 0.1)
+ZA1			0x00EF	0x00EF	0x0100	I:E [%] (0 .. 200 step 1)
+ZA2			0x00F3	0x00F3	0x0104	TgMV [L/min] (0.0 .. 30.0 step 0.1)
+ZA3			0x00F4	0x00F4	0x0105	Va [L/min] (0.0 .. 30.0 step 0.1)
+ZAA					0x02A7	Lumis SX584-020x exclusive
+ZAE			0x00EC	0x00EC	0x00FD	Exp. Pressure [cmH2O] (0.0 .. 20.0 step 0.1)
+ZAF					0x016F	Lumis SX584-020x exclusive
+ZAG					0x02A9	Lumis SX584-020x exclusive
+ZAI			0x00EB	0x00EB	0x00FC	Pressure [cmH2O] (0.0 .. 30.0 step 0.1)
+ZAL					0x02A8	Lumis SX584-020x exclusive
+ZAM			0x00F0	0x00F0	0x0101	MV [L/min] (0.0 .. 30.0 step 0.1)
+ZAP					0x016E	Lumis SX584-020x exclusive
+ZAQ					0x02AA	Lumis SX584-020x exclusive
+ZAR			0x00F1	0x00F1	0x0102	RR [bpm] (0 .. 50 step 1)
+ZAS			0x00F6	0x00F6	0x0107	Spont Trig [%] (0.0 .. 100.0 step 1.0)
+ZAT			0x00EE	0x00EE	0x00FF	Vt [L] (0.00 .. 4.00 step 0.02)
+ZAV			0x0156	0x0156	0x0166	Vt [ml] (0 .. 4000 step 1)
+ZAY			0x00F5	0x00F5	0x0106	Spont Cyc [%] (0.0 .. 100.0 step 1.0)
+ZAZ			0x00F2	0x00F2	0x0103	Ti [s] (0.1 .. 4.0 step 0.1)
+ZBD			0x026B	0x026C	0x0295	
+ZBO			0x025B	0x025C	0x0285	
+ZBR			0x026C	0x026D	0x0296	
+ZCC			0x0264	0x0265	0x028E	
+ZCR			0x027F	0x0280	0x02B2	
+ZCS			0x0265	0x0266	0x028F	
+ZCT			0x01A1	0x01A1	0x01B6	
+ZCU			0x0262	0x0263	0x028C	
+ZD1			0x013A	0x013A	0x014B	Last therapy day credited to DUS; updated when OND becomes greater than zero
+ZD2			0x0138	0x0138	0x0149	Last therapy day credited to DUF; updated when OND reaches 240 minutes
+ZDE			0x01F1	0x01F1	0x020F	Min [cmH2O] (0.0 .. 28.0 step 0.2)
+ZDR		IS_RAMPING_DOWN			0x026A	Lumis SX584-020x exclusive; Ramp-down activity state
+ZDS			0x0147	0x0147	0x015A	
+ZDT			0x0197	0x0197	0x01AC	
+ZEA			0x02A9	0x02AA	0x02DF	
+ZEC			0x010D	0x010D	0x011E	TXC climate-control error stream backend state/cursor
+ZEH			0x0129	0x0129	0x013A	TXW transducer-error stream backend state/cursor
+ZEL			0x0297	0x0298	0x02CD	
+ZEN			0x00BC	0x00BC	0x00CD	Date (0 .. 2147483647 step 1)
+ZET			0x012A	0x012A	0x013B	TXE transducer-error stream backend state/cursor
+ZEU			0x0198	0x0198	0x01AD	ERR application-error stream backend state/cursor
+ZEV			0x019A	0x019A	0x01AF	ABR abort-error stream backend state/cursor
+ZEW			0x00AF	0x00AF	0x00BD	ZRL saved-system-error stream backend state/cursor
+ZFC			0x022C	0x022C	0x0250	
+ZFE			0x01C2	0x01C2	0x01DA	
+ZFL			0x0110	0x0110	0x0121	Calibrated flow from the source exposed as FLW; raw / 500 = L/s
+ZFM			0x0278	0x0279	0x02A2	
+ZFP			0x015D	0x015D	0x016D	
+ZHA			0x02A3	0x02A4	0x02D9	
+ZHT			0x0275	0x0276	0x029F	
+ZIC			0x01F7	0x01F7	0x0215	Calculating… (0 .. 5120 step 1)
+ZIS			0x01B4	0x01B4	0x01CB	
+ZIT			0x01F8	0x01F8	0x0216	Learning… (0 .. 5120 step 1)
+ZJA			0x019B	0x019B	0x01B0	
+ZKA			0x02A6	0x02A7	0x02DC	SPM message acknowledgement; value 1 suppresses the current ZPK condition until that condition clears
+ZKM			0x01BA	0x01BA	0x01D2	
+ZLB			0x0294	0x0295	0x02CA	Checked by the immediate O frame; when nonzero, ZRO is set to 1 before the UART parser is reset
+ZLC			0x027B	0x027C	0x02A5	
+ZLE			0x0295	0x0296	0x02CB	
+ZLF			0x0142	0x0142	0x0153	Leak [L/min] (0 .. 120 step 0)
+ZLL					0x0030	Lumis SX584-020x exclusive; Additional Max PS minimum with iVAPS AutoEPAP [cmH2O], default 8.0
+ZLM			0x02AC	0x02AD	0x02E2	Blocked-tube condition latch; set on activation and cleared on reset; ACT enables the one-shot DLA marker and therapy-day guard in the recoverable-error path
+ZLN			0x0150	0x0150		
+ZLP			0x01F0	0x01F0	0x020E	PS [cmH2O] (0.0 .. 28.0 step 0.2)
+ZLR			0x0148	0x0148	0x015B	Target Pt Rate [bpm] (8.0 .. 30.0 step 1.0)
+ZLS			0x027A	0x027B	0x02A4	
+ZLT			0x019C	0x019C	0x01B1	
+ZLV			0x0149	0x0149	0x015C	Target Va [L/min] (1.0 .. 30.0 step 0.1)
+ZMA			0x014B	0x014B	0x015E	TgVa [L/min] (1.0 .. 30.0 step 0.1)
+ZMD			0x01BE	0x01BE	0x01D6	
+ZME			0x001C	0x001C	0x001D	
+ZML			0x01BC	0x01BC	0x01D4	
+ZMN			0x019D	0x019D	0x01B2	1-minute task heartbeat; incremented once per application update
+ZMP			0x011F	0x011F	0x0130	Calibrated pressure from the source exposed as PRS; raw / 50 = cmH2O
+ZMR			0x0263	0x0264	0x028D	
+ZMS			0x02AB	0x02AC	0x02E1	
+ZMT			0x001B	0x001B	0x001C	
+ZMU			0x01C0	0x01C0	0x01D8	
+ZMV			0x014C	0x014C	0x015F	MV [L/min] (1.0 .. 40.0 step 0.1)
+ZMY					0x01E9	Lumis SX584-020x exclusive
+ZNT			0x019E	0x019E	0x01B3	STK timestamp recorded when the session summary detects a new therapy day; boundary for CSR duration accounting
+ZOA			0x02A5	0x02A6	0x02DB	
+ZOV			0x01BF	0x01BF	0x01D7	
+ZOX			0x020B	0x020B	0x0229	
+ZPA			0x02A1	0x02A2	0x02D7	
+ZPC			0x020A	0x020A	0x0228	
+ZPD			0x0298	0x0299	0x02CE	STK near-overflow flag; set to 1 when STK reaches 0x7FFFFD78 on SX567-0402
+ZPK			0x020C	0x020C	0x022A	SPM message-condition bitfield on SX567: b0=no SD card at startup, b1=calculating targets, b2=90W supply required, b3=motor life exceeded, b4=humidifier warming, b5=humidifier ready, b6=humidifier cooling; set bits select SPM values 1..7
+ZPM			0x001D	0x001D	0x001E	
+ZPP			0x01CF	0x01CF	0x01E7	Set Pressure [cmH2O] (0.0 .. 30.0 step 0.2)
+ZPR			0x019F	0x019F	0x01B4	CPU profiling update interval in ms, checked by Task40Ms; default 1000 ms
+ZPT			0x01A0	0x01A0	0x01B5	
+ZPU			0x01D0	0x01D0	0x01E8	Peak L03 CPU load; raw / 1000 = %
+ZPV			0x0289	0x028A	0x02BD	
+ZRA			0x026E	0x026F	0x0298	
+ZRC			0x0155	0x0155	0x00A8	
+ZRD			0x0018	0x0018	0x0019	UART command line staged by the SD Settings.ecp and routed-UART command service
+ZRE			0x00B0	0x00B0	0x00BE	
+ZRF			0x0299	0x029A	0x02CF	Command mailbox state: 0=request pending, 1=receiver publishing request, 2=ready for a new request
+ZRG			0x0019	0x0019	0x001A	
+ZRH			0x0257	0x0258	0x0281	Climate-control status derived from the newest SESSION/STR record; 1 when SYC is zero, otherwise 0
+ZRJ			0x026A	0x026B	0x0294	
+ZRL			0x02D3	0x02D4	0x030B	EEPROM stream: saved system errors (ZSE)
+ZRM		PROD_RUN_MODE	0x020F	0x020F	0x022D	Modes: 0000=Reset, 0001=Standby, 0002=Backup, 0003=Reset Compliance, 0004=Therapy, 0005=Mask Fit, 0006=Calibration, 0007=System Error, 0008=Power Save, 0009=Learn Target, 000A=Upgrade, 000B=Upgrade Prep; ZRM=0006 indicates calibration mode; Run Mode
+ZRN					0x02AC	Lumis SX584-020x exclusive
+ZRO			0x029A	0x029B	0x02D0	Set to 1 by the immediate O frame when ZLB is nonzero
+ZRP		IS_RAMPING	0x0241	0x0241	0x0267	Is Ramping
+ZRR					0x00A9	Lumis SX584-020x exclusive
+ZRS			0x0206	0x0206	0x0224	
+ZRT			0x029B	0x029C	0x02D1	Received UART frame type stored with ZRD; internal type 7 selects Q command execution
+ZRZ					0x02AB	Lumis SX584-020x exclusive
+ZS1			0x01B6	0x01B6	0x01CD	
+ZS2			0x01B7	0x01B7	0x01CE	
+ZS3			0x01B8	0x01B8	0x01CF	
+ZS4			0x01B9	0x01B9	0x01D0	
+ZS5			0x01D1	0x01D1	0x01D1	
+ZSA			0x02A8	0x02A9	0x02DE	
+ZSD			0x0266	0x0267	0x0290	
+ZSE		SAVED_SYSTEM_ERROR	0x00AE	0x00AE	0x00BC	Saved System Error
+ZSR					0x026B	Lumis SX584-020x exclusive
+ZSS			0x01B5	0x01B5	0x01CC	
+ZSU			0x0151	0x0151	0x0162	
+ZT1			0x01A2	0x01A2	0x01B7	
+ZT2			0x01A3	0x01A3	0x01B8	10 ms task heartbeat; incremented once per application update
+ZT3			0x01A4	0x01A4	0x01B9	20 ms task heartbeat; incremented once per application update
+ZT4			0x01A5	0x01A5	0x01BA	40 ms task heartbeat; incremented once per application update
+ZT5			0x01A6	0x01A6	0x01BB	100 ms task heartbeat; incremented once per application update
+ZT6			0x01A7	0x01A7	0x01BC	200 ms task heartbeat; incremented once per application update
+ZT7			0x01A8	0x01A8	0x01BD	1-second task heartbeat; incremented once per application update
+ZTA			0x014F	0x014F		Target Va [L/min] (1.0 .. 30.0 step 0.1)
+ZTD			0x0157	0x0157	0x0167	Vt (0 .. 4000 step 1)
+ZTE			0x0296	0x0297	0x02CC	
+ZTF			0x0269	0x026A	0x0293	
+ZTG			0x0268	0x0269	0x0292	
+ZTI			0x01B3	0x01B3	0x01CA	
+ZTM			0x01A9	0x01A9	0x01BE	
+ZTS			0x01AA	0x01AA	0x01BF	
+ZTT			0x014A	0x014A	0x015D	
+ZTU			0x0199	0x0199	0x01AE	ELI stream backend state/cursor for ELV records
+ZTV			0x014D	0x014D	0x0160	Vt [ml] (0 .. 4500 step 1)
+ZUC			0x01B0	0x01B0	0x01C5	
+ZUD			0x01AE	0x01AE	0x01C3	
+ZUF			0x01B2	0x01B2	0x01C9	
+ZUI			0x02A0	0x02A1	0x02D6	
+ZUM			0x02AA	0x02AB	0x02E0	
+ZUP					0x01C6	Lumis SX584-020x exclusive
+ZUR			0x01AF	0x01AF	0x01C4	
+ZUS			0x01B1	0x01B1	0x01C7	
+ZUT			0x01AD	0x01AD	0x01C2	
+ZUZ					0x01C8	Lumis SX584-020x exclusive
+ZVI			0x01BD	0x01BD	0x01D5	
+ZVK			0x014E	0x014E	0x0161	Vt/kg [ml/kg IBW] (0.0 .. 500.0 step 0.1)
+ZVT			0x0134	0x0134	0x0145	DLL stream backend state/cursor for DLA records
+ZWD			0x029F	0x02A0	0x02D5	
+ZWR			0x029D	0x029E	0x02D3	
+ZWT			0x029E	0x029F	0x02D4	
+ZXM					0x02AD	Lumis SX584-020x exclusive
+ZXN					0x02AE	Lumis SX584-020x exclusive
+ZXR					0x02AF	Lumis SX584-020x exclusive
+ZXT			0x001A	0x001A	0x001B	Service command text, up to 80 characters; supports harness overrides and staged RTC date/time updates; changes notify ZXX
+ZXX			0x01AC	0x01AC	0x01C1	Service-text change token; updated with system tick when ZXT is committed and watched by the command dispatcher
+ZYS			0x02B0	0x02B1		
